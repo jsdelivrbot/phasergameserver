@@ -1,0 +1,24 @@
+[
+	{
+		"name":"home",
+		"mainMap":0,
+		"maps":[
+			{
+				"name":"",
+				"url":"island_1/island_1.json"
+			},
+			{
+				"name":"",
+				"url":"island_1/room_1.json"
+			},
+			{
+				"name":"",
+				"url":"island_1/room_2.json"
+			},
+			{
+				"name":"",
+				"url":"island_1/room_3.json"
+			}
+		]
+	}
+]
