@@ -1,1 +1,30 @@
-[{"name":"joe","password":"test"},{"name":"joe","password":"test"},{"name":"joe","password":"test"}]
+[
+	{
+		"id": {
+			"id": 0,
+			"name": "scout32",
+			"email": "rdfriedl@gmail.com",
+			"password": "bio"
+		},
+		"position": {
+			"island": 0,
+			"map": 0,
+			"x": 0,
+			"y": 0
+		}
+	},
+	{
+		"id": {
+			"id": 1,
+			"name": "dude",
+			"email":"dude@dude.com",
+			"password": "dude"
+		},
+		"position": {
+			"island": 0,
+			"map": 0,
+			"x": 0,
+			"y": 0
+		}
+	}
+]

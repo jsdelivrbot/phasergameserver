@@ -1,7 +1,8 @@
-var fs = require('fs')
+data = require('./data.js')
+fs = require('fs')
 
-module.exports = function(data){
-	this.json = data.load('maps/maps.json').data
+module.exports = function(){
+	this.json = data.get('maps/maps.json').data
 	this.islands = json
 
 	for (var i = 0; i < this.islands.length; i++) {

@@ -1,19 +1,27 @@
+/*
+{
+	url: String,
+	data: JSON,
+	save: function
+}
+*/
+
 fs = require('fs')
 module.exports = function(url){
-	url = './data/'+url
+	this.relUrl = url
+	this.url = './data/'+url
 
-	this.url = url
-
-	if(fs.existsSync(url)){
-		this.data = fs.readFileSync(url,{encoding:'utf8'});
+	if(fs.existsSync(this.url)){
+		this.data = fs.readFileSync(this.url,{encoding:'utf8'});
 		this.data = JSON.parse(this.data);
 	}
 	else{
-		console.error(url+' is missing')
+		console.error(this.url+' is missing')
 		process.exit(1)
 	}
 
 	this.save = function(){
+		console.log('writing file: ' + this.relUrl)
 		fs.writeFileSync(this.url,JSON.stringify(this.data))
 	}
 
