@@ -17,16 +17,16 @@ module.exports = Class.$extend({
 			map: 0
 		},
 		sprite: {
-			image: '',
+			image: 'player/1',
 			animations: {
-				animation: '',
+				animation: 'down',
 				playing: false
 			}
 		}
 	},
 
 	__init__: function(_data){
-		this.data = {}
+		this.data = fn.combind({},this.data)
 		// put the data into this.data
 		fn.combind(this.data,_data)
 	},

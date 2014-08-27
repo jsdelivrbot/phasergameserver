@@ -6,7 +6,7 @@ PlayerData = require('./modules/playerData.js')
 Players = require('./modules/players.js')
 Player = require('./modules/player.js')
 
-io = require('socket.io')(25565);
+io = require('socket.io')(8181);
 dataFiles = require('./modules/dataFiles.js')
 dataFiles.load('users.json')
 dataFiles.load('maps/maps.json')
