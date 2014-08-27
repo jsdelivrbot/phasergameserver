@@ -1,12 +1,19 @@
-Io = require('socket.io')(25565);
-Data = require('./modules/data.js')
-Data.load('users.json')
-Data.load('maps/maps.json')
-Maps = require('./modules/maps.js')()
-Players = require('./modules/players.js')
+// server
+Class = require('classyjs')
+fn = require('./modules/functions.js')
 
-Io.on('connection', function (socket) {
+PlayerData = require('./modules/playerData.js')
+Players = require('./modules/players.js')
+Player = require('./modules/player.js')
+
+io = require('socket.io')(25565);
+dataFiles = require('./modules/dataFiles.js')
+dataFiles.load('users.json')
+dataFiles.load('maps/maps.json')
+players = new Players()
+
+io.on('connection', function (socket) {
 	socket.on('login', function (data,collback) {
-		collback(Players.login(data.email,data.password,socket))
+		collback(players.login(data.email,data.password,socket))
 	});
 });

@@ -1,19 +1,17 @@
-player = require('./player.js')
-data = require('./data.js')
-
-module.exports = {
+module.exports = Class.$extend({
 	players: [],
-	users: data.get('users.json').data,
+	users: [],
 	step: null,
 
 	__init__: function(){
+		this.users = dataFiles.get('users.json').data
 		this.step = setInterval(this.update,100,this)
 	},
 
 	login: function(email,password,socket){
 		for (var i = 0; i < this.users.length; i++) {
 			if(email === this.users[i].id.email && password === this.users[i].id.password){
-				_player = new player(this.users[i],socket)
+				_player = new Player(this.users[i],socket)
 				this.players.push(_player)
 				return true;
 			}
@@ -27,4 +25,4 @@ module.exports = {
 			_this.players[i].update()
 		};
 	}
-}
+})
