@@ -7,8 +7,12 @@ module.exports = Class.$extend({
 			passowrd: ''
 		},
 		position: {
-			x: 0,
-			y: 0,
+			body: {
+				x: 0,
+				y: 0,
+				vx: 0,
+				vy: 0
+			},
 			island: 0,
 			map: 0
 		},

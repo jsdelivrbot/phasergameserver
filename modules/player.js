@@ -59,7 +59,9 @@ module.exports = Class.$extend({
 		a = []
 		for (var i = 0; i < players.players.length; i++) {
 			if(players.players[i].data.data.id.id != this.data.data.id.id){
-				a.push(players.players[i].data.data)
+				if(players.players[i].data.data.position.island == this.data.data.position.island && players.players[i].data.data.position.map == this.data.data.position.map){
+					a.push(players.players[i].data.data)
+				}
 			}
 		};
 

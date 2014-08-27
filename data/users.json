@@ -2,29 +2,55 @@
 	{
 		"id": {
 			"id": 0,
-			"name": "scout32",
-			"email": "rdfriedl@gmail.com",
-			"password": "bio"
+			"name": "account1",
+			"email": "account1@gmail.com",
+			"password": "password"
 		},
 		"position": {
+			"body": {
+				"x": 0,
+				"y": 0,
+				"vx": 0,
+				"vy": 0
+			},
 			"island": 0,
-			"map": 0,
-			"x": 0,
-			"y": 0
+			"map": 0
 		}
 	},
 	{
 		"id": {
 			"id": 1,
-			"name": "dude",
-			"email":"dude@dude.com",
-			"password": "dude"
+			"name": "account2",
+			"email":"account2@gmail.com",
+			"password": "password"
 		},
 		"position": {
+			"body": {
+				"x": 0,
+				"y": 0,
+				"vx": 0,
+				"vy": 0
+			},
 			"island": 0,
-			"map": 0,
-			"x": 0,
-			"y": 0
+			"map": 0
+		}
+	},
+	{
+		"id": {
+			"id": 1,
+			"name": "account3",
+			"email":"account3@gmail.com",
+			"password": "password"
+		},
+		"position": {
+			"body": {
+				"x": 0,
+				"y": 0,
+				"vx": 0,
+				"vy": 0
+			},
+			"island": 0,
+			"map": 0
 		}
 	}
 ]

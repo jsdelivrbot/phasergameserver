@@ -11,6 +11,12 @@ module.exports = Class.$extend({
 	login: function(email,password,socket){
 		for (var i = 0; i < this.users.length; i++) {
 			if(email === this.users[i].id.email && password === this.users[i].id.password){
+				for (var j = 0; j < this.players.length; j++) {
+					if(this.users[i].id.id == this.players[j].data.data.id.id){
+						return false;
+					}
+				};
+
 				_player = new Player(this.users[i],socket)
 				this.players.push(_player)
 				return true;
