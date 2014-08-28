@@ -1,9 +1,9 @@
-module.exports = Class.$extend({
+module.exports = Klass({
 	players: [],
 	users: [],
 	step: null,
 
-	__init__: function(){
+	initialize: function(){
 		this.users = dataFiles.get('users.json').data
 		this.step = setInterval(this.update,100,this)
 	},
