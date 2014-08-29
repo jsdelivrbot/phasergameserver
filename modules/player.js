@@ -115,11 +115,33 @@ module.exports = Klass({
 
 		console.log('player: '+this.data.data.id.name+' loged on')
 
+		// tell the other players that he loged off
+		m = {
+			name: 'Server',
+			message: this.data.data.id.name + ' loged on'
+		}
+
+		for (var i = 0; i < players.players.length; i++) {
+			if(players.players[i].data.data.id.id != this.data.data.id.id){
+				players.players[i].out.chat.data(m)
+			}
+		};
+
 		this.in = {
 			update: new PlayerIn('update',function(data){
 				// remove the id part of the data
 				delete data.id
 				this.player.data.update(data)
+			}),
+			chat: new PlayerIn('chat',function(data){
+				m = {
+					name: this.player.data.data.id.name,
+					message: data
+				}
+
+				for (var i = 0; i < players.players.length; i++) {
+					players.players[i].out.chat.data(m)
+				};
 			}),
 			disconnect: new PlayerIn('disconnect',function(data){
 				console.log('player: '+this.player.data.data.id.name+' loged off')
@@ -131,10 +153,21 @@ module.exports = Klass({
 						break;
 					}
 				};
+
+				// tell the other players that he loged off
+				m = {
+					name: 'Server',
+					message: this.player.data.data.id.name + ' loged off'
+				}
+
+				for (var i = 0; i < players.players.length; i++) {
+					players.players[i].out.chat.data(m)
+				};
 			})
 		}
 		this.out = {
-			players: new PlayerOutCache('players',100)
+			players: new PlayerOutCache('players',100),
+			chat: new PlayerOut('chat')
 		}
 
 		// bind socket events
