@@ -115,18 +115,6 @@ module.exports = Klass({
 
 		console.log('player: '+this.data.data.id.name+' loged on')
 
-		// tell the other players that he loged off
-		m = {
-			name: 'Server',
-			message: this.data.data.id.name + ' loged on'
-		}
-
-		for (var i = 0; i < players.players.length; i++) {
-			if(players.players[i].data.data.id.id != this.data.data.id.id){
-				players.players[i].out.chat.data(m)
-			}
-		};
-
 		this.in = {
 			update: new PlayerIn('update',function(data){
 				// remove the id part of the data
@@ -134,14 +122,51 @@ module.exports = Klass({
 				this.player.data.update(data)
 			}),
 			chat: new PlayerIn('chat',function(data){
-				m = {
-					name: this.player.data.data.id.name,
-					message: data
-				}
+				// type
+				switch(data.type){
+					case 'message':
+						chat.message(data.chanel,data.message,this.player)
+						break;
+					case 'create':
+						// find the players
+						c = chat.createChanel({
+							title: data.title,
+							owner: this.player.data.data.id.id,
+						})
 
-				for (var i = 0; i < players.players.length; i++) {
-					players.players[i].out.chat.data(m)
-				};
+						chat.join(c,this.player)
+
+						for (var i = 0; i < data.players.length; i++) {
+							for (var j = 0; j < players.players.length; j++) {
+								if(players.players[j].data.data.id.id == data.players[i]){
+									chat.join(c,players.players[j])
+								}
+							};
+						};
+						break;
+					case 'invite':
+						for (var j = 0; j < players.players.length; j++) {
+							if(players.players[j].data.data.id.name == data.player){
+								// now see if the player is aleardy there
+								found = false
+								for (var i = 0; i < chat.chanels[data.chanel].players.length; i++) {
+									if(chat.chanels[data.chanel].players[i].data.data.id.name == data.player){
+										found = true;
+									}
+								};
+								if(!found){
+									chat.join(data.chanel,players.players[j])
+								}
+							}
+						};
+						break;
+					case 'leave':
+						chat.leave(data.chanel,this.player)
+						break;
+					case 'close':
+						chat.leave(data.chanel,this.player)
+						break;
+				}
 			}),
 			disconnect: new PlayerIn('disconnect',function(data){
 				console.log('player: '+this.player.data.data.id.name+' loged off')
@@ -154,15 +179,7 @@ module.exports = Klass({
 					}
 				};
 
-				// tell the other players that he loged off
-				m = {
-					name: 'Server',
-					message: this.player.data.data.id.name + ' loged off'
-				}
-
-				for (var i = 0; i < players.players.length; i++) {
-					players.players[i].out.chat.data(m)
-				};
+				chat.leaveAll(this.player)
 			})
 		}
 		this.out = {
@@ -177,6 +194,9 @@ module.exports = Klass({
 		for (var val in this.out) {
 			this.out[val].bind(this.socket)
 		};
+
+		// join the genral chanel
+		chat.join('0',this)
 	},
 
 	update: function(){

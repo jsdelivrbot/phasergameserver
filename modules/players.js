@@ -19,7 +19,9 @@ module.exports = Klass({
 
 				_player = new Player(this.users[i],socket)
 				this.players.push(_player)
-				return true;
+
+				// return the playerData object
+				return _player.data.data;
 			}
 		};
 		return false;
