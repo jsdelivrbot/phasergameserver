@@ -55,7 +55,7 @@ PlayerOutCache = PlayerOut.extend({
 	}
 })
 
-PlayerData = Klass({
+PlayerDataFull = Klass({
 	data: {
 		id: {
 			id: 0,
@@ -66,19 +66,71 @@ PlayerData = Klass({
 		position: {
 			body: {
 				x: 0,
-				y: 0,
-				vx: 0,
-				vy: 0
+				y: 0
 			},
 			island: 0,
 			map: 0
 		},
 		sprite: {
-			image: 'player/1',
-			animations: {
-				animation: 'down',
-				playing: false
-			}
+			image: 'player/1'
+		},
+		inventory: {},
+		skills: {}
+	},
+
+	initialize: function(_data){
+		this.data = fn.duplicate(this.data)
+		// put the data into this.data
+		if(_data){
+			this.update(_data)
+		}
+	},
+	update: function(_data){
+		// put the data into this.data
+		if(_data instanceof PlayerData){
+			this.updateFromPlayerData(_data)
+		}
+		else if(_data instanceof PlayerDataFull){
+			this.updateFromPlayerDataFull(_data)
+		}
+		else{
+			// json
+			this.updateFromJSON(_data)
+		}
+	},
+	updateFromJSON: function(_data){
+		fn.combindIn(this.data,_data)
+	},
+	updateFromPlayerData: function(_playerData){
+		fn.combindIn(this.data,_playerData.data);
+	},
+	updateFromPlayerDataFull: function(_playerDataFull){
+		fn.combindOver(this.data,_playerDataFull.data);
+	},
+	toPlayerData: function(){
+		return fn.combindIn(new PlayerData(),this.data);
+	},
+	toPlayerDataJSON: function(){
+		return new PlayerData(this).data;
+	}
+})
+
+PlayerData = Klass({
+	data: {
+		id: {
+			id: 0,
+			name: ''
+		},
+		position: {
+			body: {
+				x: 0,
+				y: 0
+			},
+			island: 0,
+			map: 0
+		},
+		sprite: {
+			image: 'player/1'
 		}
 	},
 
@@ -86,13 +138,36 @@ PlayerData = Klass({
 		this.data = fn.duplicate(this.data)
 		// put the data into this.data
 		if(_data){
-			fn.combind(this.data,_data)
+			this.update(_data)
 		}
 	},
-
 	update: function(_data){
 		// put the data into this.data
-		fn.combind(this.data,_data)
+		if(_data instanceof PlayerData){
+			this.updateFromPlayerData(_data)
+		}
+		else if(_data instanceof PlayerDataFull){
+			this.updateFromPlayerDataFull(_data)
+		}
+		else{
+			// json
+			this.updateFromJSON(_data)
+		}
+	},
+	updateFromJSON: function(_data){
+		fn.combindIn(this.data,_data)
+	},
+	updateFromPlayerData: function(_playerData){
+		fn.combindOver(this.data,_playerData.data);
+	},
+	updateFromPlayerDataFull: function(_playerDataFull){
+		fn.combindIn(this.data,_playerDataFull.data);
+	},
+	toPlayerDataFull: function(){
+		return new PlayerDataFull(this.data)
+	},
+	toPlayerDataFullJSON: function(){
+		return new PlayerDataFull(this).data
 	}
 })
 
@@ -111,7 +186,7 @@ module.exports = Klass({
 		this.socket.conn.player = this
 
 		// load the player data
-		this.data = new PlayerData(_playerData)
+		this.data = new PlayerDataFull(_playerData)
 
 		console.log('player: '+this.data.data.id.name+' loged on')
 
@@ -205,7 +280,7 @@ module.exports = Klass({
 		for (var i = 0; i < players.players.length; i++) {
 			if(players.players[i].data.data.id.id != this.data.data.id.id){
 				if(players.players[i].data.data.position.island == this.data.data.position.island && players.players[i].data.data.position.map == this.data.data.position.map){
-					a.push(players.players[i].data.data)
+					a.push(players.players[i].data.toPlayerDataJSON())
 				}
 			}
 		};

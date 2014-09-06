@@ -1,15 +1,29 @@
 module.exports = {
-	combind: function(obj,obj2){
+	combindOver: function(obj,obj2){
 		for (var val in obj2){
 			if(typeof obj2[val] !== 'object'){
 				obj[val] = obj2[val]
 			}
 			else{
 				if(typeof obj[val] == 'object'){
-					obj[val] = fn.combind(obj[val],obj2[val])
+					obj[val] = fn.combindOver(obj[val],obj2[val])
 				}
 				else{
-					obj[val] = fn.combind({},obj2[val])
+					obj[val] = fn.combindOver({},obj2[val])
+				}
+			}
+		}
+
+		return obj;
+	},
+	combindIn: function(obj,obj2){
+		for (var val in obj){
+			if(val in obj2){
+				if(typeof obj[val] !== 'object'){
+					obj[val] = obj2[val]
+				}
+				else if(typeof obj[val] == 'object'){
+					obj[val] = fn.combindIn(obj[val],obj2[val])
 				}
 			}
 		}

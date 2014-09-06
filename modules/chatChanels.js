@@ -10,7 +10,7 @@ Chanel = Klass({
 	players: [], //array of player objects
 	initialize: function(data){
 		this.data = fn.duplicate(this.data)
-		this.data = fn.combind(this.data,data)
+		this.data = fn.combindOver(this.data,data)
 
 		this.players = fn.duplicate(this.players)
 		this.messages = fn.duplicate(this.messages)
@@ -106,7 +106,7 @@ module.exports = Klass({
 	},
 	createChanel: function(data){
 		_id = this.lastID.toString()
-		_data = fn.combind({id:_id},data)
+		_data = fn.combindOver({id:_id},data)
 
 		this.chanels[_id] = new Chanel(_data)
 		this.lastID++
