@@ -1,12 +1,9 @@
-dataFile = require('./dataFile.js')
-
-module.exports = {
+module.exports = Klass({
 	files: [],
 
-	load: function(url){
+	load: function(url,required){
 		console.info('loading: '+url)
-		_f = new dataFile(url);
-		this.files.push(_f);
+		this.files.push(new DataFile(url,required));
 	},
 	get: function(url){
 		//see if we have it in cache
@@ -22,4 +19,4 @@ module.exports = {
 			this.files[i].save()
 		};
 	}
-}
+})

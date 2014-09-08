@@ -1,29 +1,26 @@
-/*
-{
-	url: String,
-	data: JSON,
-	save: function
-}
-*/
+module.exports = Klass({
+	url: '',
+	relUrl: '',
+	data: null,
 
-fs = require('fs')
-module.exports = function(url){
-	this.relUrl = url
-	this.url = './data/'+url
+	initialize: function(url,required){
+		this.relUrl = url
+		this.url = './data/'+url
 
-	if(fs.existsSync(this.url)){
-		this.data = fs.readFileSync(this.url,{encoding:'utf8'});
-		this.data = JSON.parse(this.data);
-	}
-	else{
-		console.error(this.url+' is missing')
-		process.exit(1)
-	}
+		if(fs.existsSync(this.url)){
+			this.data = fs.readFileSync(this.url,{encoding:'utf8'});
+			this.data = JSON.parse(this.data);
+		}
+		else{
+			console.error(this.url+' is missing')
+			if(required){
+				process.exit(1)
+			}
+		}
+	},
 
-	this.save = function(){
+	save: function(){
 		console.log('writing file: ' + this.relUrl)
 		fs.writeFileSync(this.url,JSON.stringify(this.data))
 	}
-
-	return this
-}
+})
