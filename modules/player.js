@@ -1,13 +1,33 @@
 PlayerIn = Klass({
 	name: '',
 	callback: null,
+	data: {},
 	initialize: function(name,callback){
-		this.name = name
+		this.name = name || ''
 		this.callback = callback
 	},
 	bind: function(socket){
-		// in the callback "this" is the socket
-		socket.on(this.name,this.callback)
+		if(this.callback){
+			f = _.partial(function(_this,callback,data){
+				_this.data = data;
+				callback = _.bind(callback,this);
+				callback(data);
+			},this,this.callback)
+			socket.on(this.name,f)
+		}
+	}
+})
+
+PlayerInDiff = PlayerIn.extend({
+	bind: function(socket){
+		if(this.callback){
+			f = _.partial(function(_this,callback,data){
+				fn.combindOver(_this.data,data)
+				callback = _.bind(callback,this);
+				callback(_this.data);
+			},this,this.callback)
+			socket.on(this.name,f)
+		}
 	}
 })
 
@@ -15,7 +35,6 @@ PlayerOut = Klass({
 	name: '',
 	socket: null,
 	initialize: function(name){
-		this.socket = null
 		this.name = name
 	},
 	data: function(data){
@@ -38,7 +57,7 @@ PlayerOutCache = PlayerOut.extend({
 	},
 	data: function(data){
 		if(JSON.stringify(data) !== JSON.stringify(this._data)){
-			this._data = fn.duplicate(data)
+			this._data = fn.duplicate(data);
 			this.changed = true
 		}
 	},
@@ -55,13 +74,27 @@ PlayerOutCache = PlayerOut.extend({
 	}
 })
 
+PlayerOutDiff = PlayerOut.extend({
+	_data: {},
+	data: function(data){
+		if(this.socket){
+			diff = fn.diff(this._data,data)
+			if(!_(diff).isEmpty()){
+				this.socket.emit(this.name,diff)
+				this._data = fn.duplicate(data);
+			}
+		}
+	}
+})
+
+//player data
 PlayerDataFull = Klass({
 	data: {
 		id: {
 			id: 0,
 			name: '',
 			email: '',
-			passowrd: ''
+			password: ''
 		},
 		position: {
 			body: {
@@ -79,7 +112,7 @@ PlayerDataFull = Klass({
 	},
 
 	initialize: function(_data){
-		this.data = fn.duplicate(this.data)
+		this.data = fn.duplicate(this.data);
 		// put the data into this.data
 		if(_data){
 			this.update(_data)
@@ -112,6 +145,9 @@ PlayerDataFull = Klass({
 	},
 	toPlayerDataJSON: function(){
 		return new PlayerData(this).data;
+	},
+	toSave: function(){
+		return fn.duplicate(this.data);
 	}
 })
 
@@ -135,7 +171,7 @@ PlayerData = Klass({
 	},
 
 	initialize: function(_data){
-		this.data = fn.duplicate(this.data)
+		this.data = fn.duplicate(this.data);
 		// put the data into this.data
 		if(_data){
 			this.update(_data)
@@ -171,11 +207,16 @@ PlayerData = Klass({
 	}
 })
 
+//player
 module.exports = Klass({
 	socket: null,
 	data: null, //playerData obj
 	in: null,
 	out: null,
+
+	// short hands
+	id: -1,
+	name: '',
 
 	initialize: function(_playerData,_socket){
 		// this.in = fn.duplicate(this.in,2)
@@ -191,9 +232,7 @@ module.exports = Klass({
 		console.log('player: '+this.data.data.id.name+' loged on')
 
 		this.in = {
-			update: new PlayerIn('update',function(data){
-				// remove the id part of the data
-				delete data.id
+			player: new PlayerInDiff('player',function(data){
 				this.player.data.update(data)
 			}),
 			chat: new PlayerIn('chat',function(data){
@@ -255,11 +294,15 @@ module.exports = Klass({
 				};
 
 				chat.leaveAll(this.player)
+
+				// save my data to the file
+				this.player.saveDown();
 			})
 		}
 		this.out = {
+			player: new PlayerOutDiff('player'),
 			players: new PlayerOutCache('players',100),
-			chat: new PlayerOut('chat')
+			chat: new PlayerOut('chat'),
 		}
 
 		// bind socket events
@@ -270,15 +313,16 @@ module.exports = Klass({
 			this.out[val].bind(this.socket)
 		};
 
-		// join the genral chanel
-		chat.join('0',this)
+		// set up the short hands
+		this.id = this.data.data.id.id
+		this.name = this.data.data.id.name
 	},
 
 	update: function(){
 		// send the player a list of all the players
 		a = []
 		for (var i = 0; i < players.players.length; i++) {
-			if(players.players[i].data.data.id.id != this.data.data.id.id){
+			if(players.players[i].id != this.id){
 				if(players.players[i].data.data.position.island == this.data.data.position.island && players.players[i].data.data.position.map == this.data.data.position.map){
 					a.push(players.players[i].data.toPlayerDataJSON())
 				}
@@ -286,5 +330,15 @@ module.exports = Klass({
 		};
 
 		this.out.players.data(a)
+	},
+
+	saveDown: function(){
+		// find the spot in the json
+		usersData = dataFiles.get('users.json').data
+		for (var i = 0; i < usersData.length; i++) {
+			if(usersData[i].id.id == this.id){
+				usersData[i] = this.data.data
+			}
+		};
 	}
 })
