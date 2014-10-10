@@ -3,7 +3,9 @@ module.exports = Klass({
 
 	load: function(url,required){
 		console.info('loading: '+url)
-		this.files.push(new DataFile(url,required));
+		d = new DataFile(url,required)
+		this.files.push(d);
+		return d;
 	},
 	get: function(url){
 		//see if we have it in cache

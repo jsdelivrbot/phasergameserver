@@ -1,25 +1,25 @@
 // server
+http = require('http');
 Klass = require('Klass')
 fn = require('./modules/functions.js')
 fs = require('fs')
 readline = require('readline')
 JSPath = require('jspath')
 _ = require('underscore')
-// repl = require("repl")
 
-// Commands = require('./modules/commands.js')
 Players = require('./modules/players.js')
 Player = require('./modules/player.js')
 ChatChanels = require('./modules/chatChanels.js')
 DataFile = require('./modules/dataFile.js')
 DataFiles = require('./modules/dataFiles.js')
+DataServer = require('./modules/dataServer.js')
 
 io = require('socket.io')(8181);
 
 dataFiles = new DataFiles()
 dataFiles.load('users.json',true)
 
-// commands = new Commands()
+dataServer = new DataServer()
 players = new Players()
 chat = new ChatChanels()
 
@@ -39,5 +39,3 @@ io.on('connection', function (socket) {
 		}
 	});
 });
-
-// repl.start("> ")
