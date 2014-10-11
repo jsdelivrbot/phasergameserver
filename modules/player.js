@@ -208,7 +208,7 @@ PlayerData = Klass({
 })
 
 //player
-Player = Klass({
+module.exports = Klass({
 	socket: null,
 	data: null, //playerData obj
 	in: null,
@@ -333,16 +333,12 @@ Player = Klass({
 	},
 
 	saveDown: function(){
-		// find the spot in the json 
-		// usersData = dataFiles.get('users.json').data
-		// for (var i = 0; i < usersData.length; i++) {
-		// 	if(usersData[i].id.id == this.id){
-		// 		usersData[i] = this.data.data
-		// 	}
-		// };
-
-		//removed data files, going to have to find another way to save
+		// find the spot in the json
+		usersData = dataFiles.get('users.json').data
+		for (var i = 0; i < usersData.length; i++) {
+			if(usersData[i].id.id == this.id){
+				usersData[i] = this.data.data
+			}
+		};
 	}
 })
-
-module.exports = Player;
