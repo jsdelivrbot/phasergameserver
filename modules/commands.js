@@ -76,7 +76,6 @@ module.exports = Klass({
 		this.commands.push(new Command('stop',function(){
 			console.log('saving data...')
 			players.saveDownAll()
-			dataFiles.saveAll()
 			console.log('done')
 			process.exit()
 		}))
