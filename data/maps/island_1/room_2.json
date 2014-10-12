@@ -85,6 +85,7 @@
  "orientation":"orthogonal",
  "properties":
     {
+     "mood":"dark",
      "spawnX":"15",
      "spawnY":"27"
     },

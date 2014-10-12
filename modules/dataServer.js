@@ -107,7 +107,7 @@ dataServer.server = http.createServer(function (req, res) {
 			res.end(JSON.stringify(dataServer.error('did not reconsize that type')))
 			break;
 	}
-}).listen(8282, '127.0.0.1');
+}).listen(8282);
 
 //info json
 fs.readFile('data/info.json', function (err, data) {
