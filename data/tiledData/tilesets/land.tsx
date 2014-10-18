@@ -24,14 +24,22 @@
  </terraintypes>
  <tile id="1" terrain="1,1,1,1"/>
  <tile id="3" terrain="0,1,0,0"/>
+ <tile id="5" terrain="1,1,1,1"/>
  <tile id="7" terrain="2,1,2,2"/>
+ <tile id="9" terrain="1,1,1,1"/>
  <tile id="11" terrain="3,1,3,3"/>
+ <tile id="13" terrain="1,1,1,1"/>
  <tile id="15" terrain="4,1,4,4"/>
+ <tile id="17" terrain="1,1,1,1"/>
+ <tile id="21" terrain="1,1,1,1"/>
  <tile id="23" terrain="5,1,5,5"/>
  <tile id="27" terrain="6,,6,6"/>
  <tile id="31" terrain="7,,7,7"/>
+ <tile id="33" terrain="1,1,1,1"/>
  <tile id="35" terrain="8,,8,8"/>
+ <tile id="37" terrain="1,1,1,1"/>
  <tile id="39" terrain="9,1,9,9"/>
+ <tile id="41" terrain="1,1,1,1"/>
  <tile id="43" terrain="10,1,10,10"/>
  <tile id="47" terrain="10,11,10,10"/>
  <tile id="51" terrain="1,11,1,1"/>
