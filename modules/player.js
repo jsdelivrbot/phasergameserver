@@ -5,6 +5,7 @@ PlayerIn = Klass({
 	initialize: function(name,callback){
 		this.name = name || ''
 		this.callback = callback
+		this.data = fn.duplicate(this.data);
 	},
 	bind: function(socket){
 		if(this.callback){
@@ -24,7 +25,7 @@ PlayerInDiff = PlayerIn.extend({
 			f = _.partial(function(_this,callback,data){
 				fn.combindOver(_this.data,data)
 				callback = _.bind(callback,this);
-				callback(_this.data);
+				callback(data);
 			},this,this.callback)
 			socket.on(this.name,f)
 		}
@@ -52,8 +53,9 @@ PlayerOutCache = PlayerOut.extend({
 	changed: false,
 	initialize: function(name,timing){
 		this.supr(name)
+		this._data = fn.duplicate(this._data);
 
-		setInterval(this.test,timing,this)
+		setInterval(_(this.test).bind(this),timing)
 	},
 	data: function(data){
 		if(JSON.stringify(data) !== JSON.stringify(this._data)){
@@ -61,9 +63,9 @@ PlayerOutCache = PlayerOut.extend({
 			this.changed = true
 		}
 	},
-	test: function(_this){
-		if(_this.changed){
-			_this.send(_this._data)
+	test: function(){
+		if(this.changed){
+			this.send(this._data)
 		}
 	},
 	send: function(data){
@@ -76,6 +78,10 @@ PlayerOutCache = PlayerOut.extend({
 
 PlayerOutDiff = PlayerOut.extend({
 	_data: {},
+	initialize: function(name){
+		this.supr(name)
+		this._data = fn.duplicate(this._data);
+	},
 	data: function(data){
 		if(this.socket){
 			diff = fn.diff(this._data,data)
@@ -141,7 +147,7 @@ PlayerDataFull = Klass({
 		fn.combindOver(this.data,_playerDataFull.data);
 	},
 	toPlayerData: function(){
-		return fn.combindIn(new PlayerData(),this.data);
+		return new PlayerData(this);
 	},
 	toPlayerDataJSON: function(){
 		return new PlayerData(this).data;
@@ -228,6 +234,7 @@ Player = Klass({
 
 		// load the player data
 		this.data = new PlayerDataFull(_playerData)
+		this.data.player = this
 
 		console.log('player: '+this.data.data.id.name+' loged on')
 
@@ -320,11 +327,11 @@ Player = Klass({
 
 	update: function(){
 		// send the player a list of all the players
-		a = []
+		a = {}
 		for (var i = 0; i < players.players.length; i++) {
-			if(players.players[i].id != this.id){
+			if(players.players[i].id !== this.id){
 				if(players.players[i].data.data.position.island == this.data.data.position.island && players.players[i].data.data.position.map == this.data.data.position.map){
-					a.push(players.players[i].data.toPlayerDataJSON())
+					a[players.players[i].id] = players.players[i].data.toPlayerDataJSON()
 				}
 			}
 		};
