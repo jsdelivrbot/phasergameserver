@@ -113,7 +113,10 @@ PlayerDataFull = Klass({
 		sprite: {
 			image: 'player/1'
 		},
-		inventory: {},
+		inventory: {
+			items: [],
+			resources: []
+		},
 		skills: {}
 	},
 
