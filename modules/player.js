@@ -113,10 +113,7 @@ PlayerDataFull = Klass({
 		sprite: {
 			image: 'player/1'
 		},
-		inventory: {
-			items: [],
-			resources: []
-		},
+		inventory: [],
 		skills: {}
 	},
 
@@ -141,10 +138,10 @@ PlayerDataFull = Klass({
 		}
 	},
 	updateFromJSON: function(_data){
-		fn.combindIn(this.data,_data)
+		fn.combindOver(this.data,_data) //using combind over because combind in dose not work well with arrays
 	},
 	updateFromPlayerData: function(_playerData){
-		fn.combindIn(this.data,_playerData.data);
+		fn.combindOver(this.data,_playerData.data);
 	},
 	updateFromPlayerDataFull: function(_playerDataFull){
 		fn.combindOver(this.data,_playerDataFull.data);
@@ -200,13 +197,13 @@ PlayerData = Klass({
 		}
 	},
 	updateFromJSON: function(_data){
-		fn.combindIn(this.data,_data)
+		fn.combindOver(this.data,_data)
 	},
 	updateFromPlayerData: function(_playerData){
 		fn.combindOver(this.data,_playerData.data);
 	},
 	updateFromPlayerDataFull: function(_playerDataFull){
-		fn.combindIn(this.data,_playerDataFull.data);
+		fn.combindOver(this.data,_playerDataFull.data);
 	},
 	toPlayerDataFull: function(){
 		return new PlayerDataFull(this.data)
