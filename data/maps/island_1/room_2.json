@@ -81,6 +81,32 @@
          "width":30,
          "x":0,
          "y":0
+        }, 
+        {
+         "height":30,
+         "name":"resources",
+         "objects":[
+                {
+                 "height":32,
+                 "name":"ore",
+                 "properties":
+                    {
+                     "count":"1",
+                     "id":"resource.ore.iron",
+                     "refresh":"30"
+                    },
+                 "type":"resource",
+                 "visible":true,
+                 "width":32,
+                 "x":192,
+                 "y":544
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "width":30,
+         "x":0,
+         "y":0
         }],
  "orientation":"orthogonal",
  "properties":

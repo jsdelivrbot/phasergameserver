@@ -15,8 +15,6 @@ io.on('connection', function (socket) {
 	socket.on('login', function (data,collback) {
 		_player = players.login(data.email,data.password,socket);
 		if(_player !== false){
-			_player.out.player.data(_player.data.data);
-
 			collback(true)
 
 			// join the genral chanel

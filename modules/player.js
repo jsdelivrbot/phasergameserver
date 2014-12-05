@@ -112,9 +112,7 @@ PlayerDataFull = Klass({
 		},
 		sprite: {
 			image: 'player/1'
-		},
-		inventory: [],
-		skills: {}
+		}
 	},
 
 	initialize: function(_data){
@@ -217,6 +215,7 @@ PlayerData = Klass({
 Player = Klass({
 	socket: null,
 	data: null, //playerData obj
+	inventory: [],
 	in: null,
 	out: null,
 
@@ -235,6 +234,8 @@ Player = Klass({
 		// load the player data
 		this.data = new PlayerDataFull(_playerData)
 		this.data.player = this
+
+		this.inventory = [];
 
 		console.log('player: '+this.data.data.id.name+' loged on')
 
@@ -304,12 +305,17 @@ Player = Klass({
 
 				// save my data to the file
 				this.player.saveDown();
+			}),
+			inventory: new PlayerInDiff('inventory',function(diff){
+				fn.applyDiff(this.player.inventory,diff);
+				fn.applyDiff(this.player.out.inventory._data,diff)
 			})
 		}
 		this.out = {
 			player: new PlayerOutDiff('player'),
 			players: new PlayerOutCache('players',100),
 			chat: new PlayerOut('chat'),
+			inventory: new PlayerOutDiff('inventory')
 		}
 
 		// bind socket events
@@ -319,6 +325,10 @@ Player = Klass({
 		for (var val in this.out) {
 			this.out[val].bind(this.socket)
 		};
+
+		//send the data position/inventory to the player
+		this.out.player.data(this.data.data);
+		this.out.inventory.data(this.inventory);
 
 		// set up the short hands
 		this.id = this.data.data.id.id
