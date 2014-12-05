@@ -30,6 +30,14 @@
 			{
 				"id":"6",
 				"url":"maps/island_1/room_6.json"
+			},
+			{
+				"id":"7",
+				"url":"maps/island_1/room_7.json"
+			},
+			{
+				"id":"8",
+				"url":"maps/island_1/room_8.json"
 			}
 		]
 	}
