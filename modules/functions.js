@@ -23,15 +23,14 @@ module.exports = {
 		return obj;
 	},
 	//cant use _.extend because it makes a shallow extend
-	combindIn: function(obj,obj2){ //dont use when obj contains arrays, obj2 gose in obj, values that are not in obj are NOT added
-		for (var val in obj){
-			if(typeof obj2[val] !== 'undefined'){
-				if(typeof obj[val] !== 'object'){
-					obj[val] = obj2[val]
-				}
-				else if(typeof obj[val] == 'object'){
-					obj[val] = fn.combindIn(obj[val],obj2[val])
-				}
+	combindIn: function(obj,obj2){ //obj2 gose in obj, values that are not in obj are NOT added (works with arrays)
+		for(var i in obj2){
+			if(obj[i] != undefined){
+				obj[i] = (_.isObject(obj2[i]))? fn.combindIn(obj[i],obj2[i]) : obj2[i];
+			}
+			//it may a index in a array
+			else if(!isNaN(i)){
+				obj[i] = (_.isObject(obj2[i]))? fn.duplicate(obj2[i]) : obj2[i];
 			}
 		}
 
@@ -72,45 +71,6 @@ module.exports = {
 			return obj2
 		}
 	},
-	diff: function (prev, now) {
-	    var changes = {};
-	    var prop = {};
-	    var c = {};
-	    // prev = prev || {}
-	    //-----
-
-	    for (prop in now) { //ignore jslint
-	        if (prop.indexOf("_KO") > -1) {
-	            continue; //ignore jslint
-	        }
-
-	        if (!prev || prev[prop] !== now[prop]) {
-	            if (_.isArray(now[prop])) {
-	                c = fn.diff(prev[prop],now[prop]);
-	                if(!_.isEmpty(c)){
-	                	changes[prop] = c;
-	                }
-	            }
-	            else if (_.isObject(now[prop])){
-	                // Recursion alert
-	                if(prev[prop]){
-	                	c = fn.diff(prev[prop], now[prop]);
-		                if (!_.isEmpty(c)) {
-		                    changes[prop] = c;
-		                }
-	                }
-	                else{
-	                	c = fn.duplicate(now[prop]);
-	                    changes[prop] = c;
-	                }
-	            } else {
-	                changes[prop] = now[prop];
-	            }
-	        }
-	    }
-
-	    return changes;
-	},
 	parseURL: function(url) {
 	    var parser = document.createElement('a'),
 	        searchObject = {},
@@ -134,8 +94,8 @@ module.exports = {
 	        hash: parser.hash
 	    };
 	},
-	isDiff: function(prev, now){ //need to build real diff function first, because this dose not take into account remove indexes in arrays
-	   //need building, needs to be light weight
+	isEmptyDiff: function(diff){ //need to build real diff function first, because this dose not take into account remove indexes in arrays
+	   return (!_.isEmpty(diff.added) + !_.isEmpty(diff.changed) + !_.isEmpty(diff.removed) == 0);
 	},
 	getDiff: function(prev, now, str, diff){ //create a diff obj, that contains an array of values that changed and values that have been added/removed
 		diff = diff || {
@@ -199,8 +159,30 @@ module.exports = {
 		for(var i in diff.removed){
 			fn.removeValue(obj,i.split('.'));
 		}
+
+		return obj;
+	},
+	buildDiff: function(diff){ //build an obj that represents the a diff obj
+		diff = diff || {
+			added: {},
+			changed: {},
+			removed: {}
+		};
+		obj = {};
+
+		//add
+		for(var i in diff.added){
+			fn.setValue(obj,i.split('.'),diff.added[i]);
+		}
+		//change
+		for(var i in diff.changed){
+			fn.setValue(obj,i.split('.'),diff.changed[i]);
+		}
+
+		return obj;
 	},
 	setValue: function(obj,a,value){
+		obj[a[0]] = obj[a[0]] || (isNaN(a[1]))? {} : [];
 		if(a.length == 1){
 			obj[a[0]] = value;
 			return value;

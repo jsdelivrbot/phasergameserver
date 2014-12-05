@@ -22,10 +22,10 @@ PlayerIn = Klass({
 PlayerInDiff = PlayerIn.extend({
 	bind: function(socket){
 		if(this.callback){
-			f = _.partial(function(_this,callback,data){
-				fn.combindOver(_this.data,data)
+			f = _.partial(function(_this,callback,diff){
+				fn.applyDiff(_this.data,diff);
 				callback = _.bind(callback,this);
-				callback(data);
+				callback(diff);
 			},this,this.callback)
 			socket.on(this.name,f)
 		}
@@ -84,8 +84,8 @@ PlayerOutDiff = PlayerOut.extend({
 	},
 	data: function(data){
 		if(this.socket){
-			diff = fn.diff(this._data,data)
-			if(!_(diff).isEmpty()){
+			var diff = fn.getDiff(this._data,data)
+			if(!fn.isEmptyDiff(diff)){
 				this.socket.emit(this.name,diff)
 				this._data = fn.duplicate(data);
 			}
@@ -197,13 +197,13 @@ PlayerData = Klass({
 		}
 	},
 	updateFromJSON: function(_data){
-		fn.combindOver(this.data,_data)
+		fn.combindIn(this.data,_data)
 	},
 	updateFromPlayerData: function(_playerData){
-		fn.combindOver(this.data,_playerData.data);
+		fn.combindIn(this.data,_playerData.data);
 	},
 	updateFromPlayerDataFull: function(_playerDataFull){
-		fn.combindOver(this.data,_playerDataFull.data);
+		fn.combindIn(this.data,_playerDataFull.data);
 	},
 	toPlayerDataFull: function(){
 		return new PlayerDataFull(this.data)
@@ -239,8 +239,8 @@ Player = Klass({
 		console.log('player: '+this.data.data.id.name+' loged on')
 
 		this.in = {
-			player: new PlayerInDiff('player',function(data){
-				this.player.data.update(data)
+			player: new PlayerInDiff('player',function(diff){
+				this.player.data.update(fn.buildDiff(diff))
 			}),
 			chat: new PlayerIn('chat',function(data){
 				// type
