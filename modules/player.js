@@ -350,13 +350,8 @@ Player = Klass({
 	},
 
 	saveDown: function(){
-		// find the spot in the json 
-		usersData = players.users
-		for (var i = 0; i < usersData.length; i++) {
-			if(usersData[i].id.id == this.id){
-				usersData[i] = this.data.data
-			}
-		};
+		//save to db
+		db.player.set(this.id,this.data.data);
 	}
 })
 

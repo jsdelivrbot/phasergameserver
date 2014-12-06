@@ -4,27 +4,31 @@ Player = require('./player.js')
 
 players = {
 	players: [],
-	users: [],
 	step: null,
 
 	//functions
-	login: function(email,password,socket){
-		for (var i = 0; i < players.users.length; i++) {
-			if(email === players.users[i].id.email && password === players.users[i].id.password){
-				for (var j = 0; j < players.players.length; j++) {
-					if(players.users[i].id.id == players.players[j].id){
-						return false;
-					}
-				};
+	login: function(email,password,socket,cb){
+		db.player.getFromEmail(email,function(data){
+			if(data){
+				if(password === data.id.password){
+					//see if they are loged on
+					for (var j = 0; j < players.players.length; j++) {
+						if(data.id.id == players.players[j].id){
+							cb(false);
+							return;
+						}
+					};
 
-				_player = new Player(players.users[i],socket)
-				players.players.push(_player)
+					_player = new Player(data,socket);
+					players.players.push(_player);
 
-				// return the playerData object
-				return _player;
+					cb(_player);
+					return;
+				}
 			}
-		};
-		return false;
+
+			cb(false);
+		})
 	},
 
 	update: function(){
@@ -43,13 +47,6 @@ players = {
 
 //set up players
 players.step = setInterval(players.update,100)
-
-fs.readFile('data/users.json', function (err, data) {
-  	if (err) throw err;
-  	console.log('loaded user data');
-
-  	players.users = JSON.parse(data);
-})
 
 //export
 module.exports = players;
