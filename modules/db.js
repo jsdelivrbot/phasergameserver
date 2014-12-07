@@ -4,13 +4,14 @@ db = {
 	db: null,
 	init: function(){
 		this.db = sql.createConnection({
-			host: 'localhost',
-			user: 'root',
-			password: 'bionicle13',
-			database: 'phasergame'
+			host: CONFIG.dataBase.host,
+			user: CONFIG.dataBase.user,
+			password: CONFIG.dataBase.password,
+			database: CONFIG.dataBase.dataBase
 		});
 		this.db.connect(function(err){
 			if(err){
+				console.log('failed to connect to the data base');
 				throw err;
 			}
 			console.log('connected to the data base');
@@ -21,7 +22,7 @@ db = {
 			db.db.query(sql,function(err, rows, fields){
 				if(err) throw err;
 				if(cb){
-					cb.bind(fields)(rows); //in cb "this" is the fields
+					cb(rows); //in cb "this" is the fields
 				}
 			})
 		}
@@ -92,7 +93,6 @@ db = {
 		}
 	}
 }
-db.init();
 
 //export
 module.exports = db;

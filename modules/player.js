@@ -235,8 +235,6 @@ Player = Klass({
 		this.data = new PlayerDataFull(_playerData)
 		this.data.player = this
 
-		this.inventory = [];
-
 		console.log('player: '+this.data.data.id.name+' loged on')
 
 		this.in = {
@@ -326,13 +324,20 @@ Player = Klass({
 			this.out[val].bind(this.socket)
 		};
 
-		//send the data position/inventory to the player
-		this.out.player.data(this.data.data);
-		this.out.inventory.data(this.inventory);
-
 		// set up the short hands
 		this.id = this.data.data.id.id
 		this.name = this.data.data.id.name
+
+		//load the inventory
+		this.inventory = [];
+		db.query("SELECT inventory FROM users WHERE id="+this.id,function(data){
+			data = (data[0].inventory.length)? JSON.parse(data[0].inventory) : [];
+			this.inventory = data;
+			this.out.inventory.data(data);
+		}.bind(this))
+
+		//send the data position/inventory to the player
+		this.out.player.data(this.data.data);
 	},
 
 	update: function(){
@@ -352,6 +357,7 @@ Player = Klass({
 	saveDown: function(){
 		//save to db
 		db.player.set(this.id,this.data.data);
+		db.query("update users set inventory='"+JSON.stringify(this.inventory)+"' where id="+this.id)
 	}
 })
 

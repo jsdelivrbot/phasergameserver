@@ -1,0 +1,13 @@
+{
+	"dataBase": {
+		"host": "localhost",
+		"dataBase": "phasergame",
+		"user": "root",
+		"password": "bionicle13"
+	},
+	"serverInfo": {
+		"title": "Main server",
+		"description": "",
+		"iconUrl": ""
+	}
+}

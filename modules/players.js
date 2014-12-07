@@ -7,6 +7,10 @@ players = {
 	step: null,
 
 	//functions
+	init: function(){
+		//set up players
+		this.step = setInterval(this.update,100)
+	},
 	login: function(email,password,socket,cb){
 		db.player.getFromEmail(email,function(data){
 			if(data){
@@ -30,23 +34,18 @@ players = {
 			cb(false);
 		})
 	},
-
 	update: function(){
 		// send down the data
 		for (var i = 0; i < players.players.length; i++) {
 			players.players[i].update()
 		};
 	},
-
 	saveDownAll: function(){
 		for (var i = 0; i < players.players.length; i++) {
 			players.players[i].saveDown()
 		};
 	} 
 }
-
-//set up players
-players.step = setInterval(players.update,100)
 
 //export
 module.exports = players;

@@ -97,45 +97,6 @@ Chanel = Klass({
 	}
 })
 
-// module.exports = Klass({
-// 	lastID: 0,
-// 	chanels: {},
-// 	initialize: function(){
-// 		// create the genral chanel
-// 		this.createChanel({title: 'Genral', canLeave: false})
-// 	},
-// 	createChanel: function(data){
-// 		_id = this.lastID.toString()
-// 		_data = fn.combindOver({id:_id},data)
-
-// 		this.chanels[_id] = new Chanel(_data)
-// 		this.lastID++
-
-// 		return _id
-// 	},
-// 	message: function(chanelID,message,player){
-// 		// see if the player is in the chanel
-// 		if(this.chanels[chanelID]){
-// 			this.chanels[chanelID].message(message,player)
-// 		}
-// 	},
-// 	join: function(chanelID,player){
-// 		if(this.chanels[chanelID]){
-// 			this.chanels[chanelID].join(player)
-// 		}
-// 	},
-// 	leave: function(chanelID,player){
-// 		if(this.chanels[chanelID]){
-// 			this.chanels[chanelID].leave(player)
-// 		}
-// 	},
-// 	leaveAll: function(player){
-// 		for (var i in this.chanels) {
-// 			this.chanels[i].leave(player)
-// 		};
-// 	}
-// })
-
 chat = {
 	lastID: 0,
 	chanels: {},
