@@ -1,14 +1,22 @@
 // libraries
-Klass = require('Klass')
-fn = require('./modules/functions.js')
+Klass = require('Klass');
+fn = require('./modules/functions.js');
 fs = require('fs');
-readline = require('readline')
-JSPath = require('jspath')
-_ = require('underscore')
-players = require('./modules/players.js')
-chat = require('./modules/chatChanels.js')
-dataServer = require('./modules/dataServer.js')
+readline = require('readline');
+JSPath = require('jspath');
+_ = require('underscore');
+colors = require('colors');
+players = require('./modules/players.js');
+chat = require('./modules/chatChanels.js');
+dataServer = require('./modules/dataServer.js');
 db = require('./modules/db.js');
+
+//set the log colors
+colors.setTheme({
+	info: 'cyan',
+	warn: 'yellow',
+	error: 'red'
+});
 
 //set the files
 CONFIG = {};

@@ -44,7 +44,6 @@ db = {
 								x: data.x,
 								y: data.y
 							},
-							island: data.island,
 							map: data.map
 						},
 						sprite: {
@@ -74,7 +73,6 @@ db = {
 								x: data.x,
 								y: data.y
 							},
-							island: data.island,
 							map: data.map
 						},
 						sprite: {
@@ -89,7 +87,7 @@ db = {
 		},
 		set: function(id,data){
 			//parse the player data into sql
-			db.query("UPDATE users SET email='"+data.id.email+"', password='"+data.id.password+"', name='"+data.id.name+"', x="+Math.round(data.position.body.x)+", y="+Math.round(data.position.body.y)+", island="+data.position.island+", map="+data.position.map+", image='"+data.sprite.image+"' WHERE id="+id)
+			db.query("UPDATE users SET email='"+data.id.email+"', password='"+data.id.password+"', name='"+data.id.name+"', x="+Math.round(data.position.body.x)+", y="+Math.round(data.position.body.y)+", map="+data.position.map+", image='"+data.sprite.image+"' WHERE id="+id)
 		}
 	}
 }

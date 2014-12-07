@@ -6,6 +6,7 @@ dataServer = {
 		info: null,
 		map: null
 	},
+	maps: [],
 	init: function(){
 		//set up
 		this.server = http.createServer(function (req, res) {
@@ -21,18 +22,48 @@ dataServer = {
 					break;
 				case 'map':
 					//see if the var are there
-					if(data.query.island === undefined || data.query.map === undefined || data.query.island < 0 || data.query.map < 0){
+					if(data.query.map === undefined || data.query.map < 0){
 						json = this.error('no map info sent')
 						res.end(JSON.stringify(json))
 						return;
 					}
 
-					//get the map
-					fs.readFile('data/'+this.data.maps[data.query.island].maps[data.query.map].url, function (err, data) {
-						if (err) throw err;
+					id = data.query.map;
 
-						res.end(data);
-					});
+					//get the url from the DB
+					if(this.maps[id]){
+						//its there, send it to the client
+						fs.readFile(this.maps[id].url,function(err, data){
+							if(err){
+								json = this.error('failed to read the map file')
+								res.end(JSON.stringify(json))
+								throw err;
+							}
+							res.end(data);
+						})
+					}
+					else{
+						//its not there, load it
+						db.query('select * from maps where id='+data.query.map,function(mapId,data){
+							if(data.length){
+								this.maps[id] = data[0];
+
+								//send it back
+								fs.readFile(this.maps[id].url,function(err, data){
+									if(err){
+										json = this.error('failed to read the map file')
+										res.end(JSON.stringify(json))
+										throw err;
+									}
+									res.end(data);
+								}.bind(this))
+							}
+							else{
+								json = this.error('failed to get map from server')
+								res.end(JSON.stringify(json))
+							}
+						}.bind(this,data.query.map))
+					}
 					break;
 				default:
 					res.end(JSON.stringify(this.error('did not reconsize that type')))
@@ -49,6 +80,7 @@ dataServer = {
 		}.bind(this))
 	},
 	error: function(message){
+		console.log(message.error)
 		return {status: false, message: message || 'no message'};
 	}
 }

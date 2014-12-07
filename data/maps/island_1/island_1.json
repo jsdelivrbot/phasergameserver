@@ -64,7 +64,6 @@
                  "name":"room_1",
                  "properties":
                     {
-                     "island":"0",
                      "map":"1"
                     },
                  "type":"door",
@@ -78,7 +77,6 @@
                  "name":"room_2",
                  "properties":
                     {
-                     "island":"0",
                      "map":"2"
                     },
                  "type":"door",
@@ -92,7 +90,6 @@
                  "name":"room_1",
                  "properties":
                     {
-                     "island":"0",
                      "map":"4"
                     },
                  "type":"door",
@@ -106,7 +103,6 @@
                  "name":"room_1",
                  "properties":
                     {
-                     "island":"0",
                      "map":"5"
                     },
                  "type":"door",
@@ -120,7 +116,6 @@
                  "name":"room_7",
                  "properties":
                     {
-                     "island":"0",
                      "map":"7"
                     },
                  "type":"door",

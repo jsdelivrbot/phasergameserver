@@ -107,7 +107,6 @@ PlayerDataFull = Klass({
 				x: 0,
 				y: 0
 			},
-			island: 0,
 			map: 0
 		},
 		sprite: {
@@ -166,7 +165,6 @@ PlayerData = Klass({
 				x: 0,
 				y: 0
 			},
-			island: 0,
 			map: 0
 		},
 		sprite: {
@@ -345,7 +343,7 @@ Player = Klass({
 		a = {}
 		for (var i = 0; i < players.players.length; i++) {
 			if(players.players[i].id !== this.id){
-				if(players.players[i].data.data.position.island == this.data.data.position.island && players.players[i].data.data.position.map == this.data.data.position.map){
+				if(players.players[i].data.data.position.map == this.data.data.position.map){
 					a[players.players[i].id] = players.players[i].data.toPlayerDataJSON()
 				}
 			}
