@@ -25,7 +25,7 @@ dataServer = {
 					if(data.query.map === undefined || data.query.map < 0){
 						json = this.error('no map info sent')
 						res.end(JSON.stringify(json))
-						return;
+						break;
 					}
 
 					id = data.query.map;
@@ -65,9 +65,9 @@ dataServer = {
 						}.bind(this,data.query.map))
 					}
 					break;
-				default:
-					res.end(JSON.stringify(this.error('did not reconsize that type')))
-					break;
+				default: 
+					res.statusCode = 404;
+					res.end();
 			}
 		}.bind(this)).listen(8282);
 

@@ -356,6 +356,7 @@ Player = Klass({
 		//save to db
 		db.player.set(this.id,this.data.data);
 		db.query("update users set inventory='"+JSON.stringify(this.inventory)+"' where id="+this.id)
+		db.query("update users set lastOn=CURRENT_TIMESTAMP where id="+this.id)
 	}
 })
 
