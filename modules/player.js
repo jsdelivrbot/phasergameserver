@@ -107,7 +107,8 @@ PlayerDataFull = Klass({
 				x: 0,
 				y: 0
 			},
-			map: 0
+			map: 0,
+			loading: false
 		},
 		sprite: {
 			image: 'player/1'
@@ -343,7 +344,7 @@ Player = Klass({
 		a = {}
 		for (var i = 0; i < players.players.length; i++) {
 			if(players.players[i].id !== this.id){
-				if(players.players[i].data.data.position.map == this.data.data.position.map){
+				if(players.players[i].data.data.position.map == this.data.data.position.map && players.players[i].data.data.position.loading == false){
 					a[players.players[i].id] = players.players[i].data.toPlayerDataJSON()
 				}
 			}

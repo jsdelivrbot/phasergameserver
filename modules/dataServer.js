@@ -10,7 +10,8 @@ dataServer = {
 	init: function(){
 		//set up
 		this.server = http.createServer(function (req, res) {
-			res.writeHead(200, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'});
+			res.setHeader('Content-Type', 'application/json');
+			res.setHeader('Access-Control-Allow-Origin', '*');
 
 			data = URL.parse(req.url, true)
 
@@ -23,8 +24,7 @@ dataServer = {
 				case 'map':
 					//see if the var are there
 					if(data.query.map === undefined || data.query.map < 0){
-						json = this.error('no map info sent')
-						res.end(JSON.stringify(json))
+						res.end(this.mapError('no map data sent'));
 						break;
 					}
 
@@ -33,13 +33,15 @@ dataServer = {
 					//get the url from the DB
 					if(this.maps[id]){
 						//its there, send it to the client
-						fs.readFile(this.maps[id].url,function(err, data){
+						fs.readFile(this.maps[id].url,function(err, file){
 							if(err){
-								json = this.error('failed to read the map file')
-								res.end(JSON.stringify(json))
+								res.end(this.mapError('cant find map file'));
 								throw err;
 							}
-							res.end(data);
+							res.end(JSON.stringify({
+								status: true,
+								data: JSON.parse(file)
+							}));
 						})
 					}
 					else{
@@ -49,25 +51,27 @@ dataServer = {
 								this.maps[id] = data[0];
 
 								//send it back
-								fs.readFile(this.maps[id].url,function(err, data){
+								fs.readFile(this.maps[id].url,function(err, file){
 									if(err){
-										json = this.error('failed to read the map file')
-										res.end(JSON.stringify(json))
-										throw err;
+										res.end(this.mapError('cant find map file'));
 									}
-									res.end(data);
+									else{
+										res.end(JSON.stringify({
+											status: true,
+											data: JSON.parse(file)
+										}));
+									}
 								}.bind(this))
 							}
 							else{
-								json = this.error('failed to get map from server')
-								res.end(JSON.stringify(json))
+								res.end(this.mapError('map not in server'));
 							}
 						}.bind(this,data.query.map))
 					}
 					break;
 				default: 
-					res.statusCode = 404;
-					res.end();
+					res.statusCode = 400;
+					res.end(this.mapError('no query'));
 			}
 		}.bind(this)).listen(8282);
 
@@ -79,9 +83,8 @@ dataServer = {
 		  	this.data.maps = JSON.parse(data);
 		}.bind(this))
 	},
-	error: function(message){
-		console.log(message.error)
-		return {status: false, message: message || 'no message'};
+	mapError: function(message){
+		return JSON.stringify({status: false, message: message || 'no message'});
 	}
 }
 
