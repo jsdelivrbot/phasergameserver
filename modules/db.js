@@ -2,7 +2,41 @@ sql = require('mysql');
 
 db = {
 	db: null,
+	connected: false,
+	timeout: null,
 	init: function(){
+		this.connect()
+	},
+	query: function(sql,cb){
+		if(db.connected){
+			db.db.query(sql,function(err, rows, fields){
+				if(err) throw err;
+				if(cb){
+					cb(rows);
+				}
+			})
+
+			//refresh the time out
+			clearTimeout(db.timeout);
+			db.timeout = setTimeout(function(){
+				console.log('no database activity, closing connection'.info)
+				db.disconect()
+			},1000*60*10)
+		}
+		else{
+			//connect and query
+			db.connect(function(){
+				db.db.query(sql,function(err, rows, fields){
+					if(err) throw err;
+					if(cb){
+						cb(rows);
+					}
+				})
+			})
+		}
+	},
+	connect: function(cb){
+		cb = cb || function(){};
 		this.db = sql.createConnection({
 			host: CONFIG.dataBase.host,
 			user: CONFIG.dataBase.user,
@@ -14,17 +48,20 @@ db = {
 				console.log('failed to connect to the data base');
 				throw err;
 			}
+			db.connected = true;
 			console.log('connected to the data base');
+			cb();
 		});
+
+		db.timeout = setTimeout(function(){
+			console.log('no database activity, closing connection'.info)
+			db.disconect()
+		},1000*60*10)
 	},
-	query: function(sql,cb){
-		if(db.db){
-			db.db.query(sql,function(err, rows, fields){
-				if(err) throw err;
-				if(cb){
-					cb(rows); //in cb "this" is the fields
-				}
-			})
+	disconect: function(cb){
+		if(db.connected){
+			db.db.close();
+			db.connected = false;
 		}
 	},
 	player: {

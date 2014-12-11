@@ -3,7 +3,6 @@ Klass = require('Klass');
 fn = require('./modules/functions.js');
 fs = require('fs');
 readline = require('readline');
-JSPath = require('jspath');
 _ = require('underscore');
 colors = require('colors');
 players = require('./modules/players.js');

@@ -161,6 +161,7 @@ PlayerData = Klass({
 			id: 0,
 			name: ''
 		},
+		health: 1000,
 		position: {
 			body: {
 				x: 0,
@@ -215,6 +216,7 @@ Player = Klass({
 	socket: null,
 	data: null, //playerData obj
 	inventory: [],
+	health: 1000,
 	in: null,
 	out: null,
 
@@ -306,13 +308,36 @@ Player = Klass({
 			inventory: new PlayerInDiff('inventory',function(diff){
 				fn.applyDiff(this.player.inventory,diff);
 				fn.applyDiff(this.player.out.inventory._data,diff)
+			}),
+			attack: new PlayerIn('attack',function(data){
+				switch(data.type){
+					case 'respawn':
+						this.health = 1000;
+						this.out.attack.data({
+							type: 'respawn',
+							health: this.health
+						})
+						break;
+					case 'attack': 
+						//find out what type of attack it is and run it
+						for(var i in players.players){
+							if(players.players[i].id == data.id){
+								players.players[i].damage(data.health);
+							}
+						}
+						break;
+					case 'health':
+						this.health = data.health;
+						break;
+				}
 			})
 		}
 		this.out = {
 			player: new PlayerOutDiff('player'),
 			players: new PlayerOutCache('players',100),
 			chat: new PlayerOut('chat'),
-			inventory: new PlayerOutDiff('inventory')
+			inventory: new PlayerOutDiff('inventory'),
+			attack: new PlayerOut('attack')
 		}
 
 		// bind socket events
@@ -329,10 +354,16 @@ Player = Klass({
 
 		//load the inventory
 		this.inventory = [];
-		db.query("SELECT inventory FROM users WHERE id="+this.id,function(data){
-			data = (data[0].inventory.length)? JSON.parse(data[0].inventory) : [];
-			this.inventory = data;
-			this.out.inventory.data(data);
+		db.query("SELECT inventory, health FROM users WHERE id="+this.id,function(data){
+			inven = (data[0].inventory.length)? JSON.parse(data[0].inventory) : [];
+
+			this.health = (data[0])? data[0].health : 1000;
+			this.inventory = inven;
+			this.out.inventory.data(inven);
+			this.out.attack.data({
+				type: 'health',
+				health: this.health
+			})
 		}.bind(this))
 
 		//send the data position/inventory to the player
@@ -346,6 +377,7 @@ Player = Klass({
 			if(players.players[i].id !== this.id){
 				if(players.players[i].data.data.position.map == this.data.data.position.map && players.players[i].data.data.position.loading == false){
 					a[players.players[i].id] = players.players[i].data.toPlayerDataJSON()
+					a[players.players[i].id].health = players.players[i].health;
 				}
 			}
 		};
@@ -353,10 +385,18 @@ Player = Klass({
 		this.out.players.data(a)
 	},
 
+	damage: function(health){
+		this.health -= health;
+		this.out.attack.data({
+			type: 'damage',
+			health: this.health
+		})
+	},
+
 	saveDown: function(){
 		//save to db
 		db.player.set(this.id,this.data.data);
-		db.query("update users set inventory='"+JSON.stringify(this.inventory)+"' where id="+this.id)
+		db.query("update users set inventory='"+JSON.stringify(this.inventory)+"', health="+this.health+" where id="+this.id)
 		db.query("update users set lastOn=CURRENT_TIMESTAMP where id="+this.id)
 	}
 })
