@@ -1,14 +1,14 @@
 sql = require('mysql');
 
 db = {
-	db: null,
-	connected: false,
+	db: {},
 	timeout: null,
+	connecting: false,
 	init: function(){
 		this.connect()
 	},
 	query: function(sql,cb){
-		if(db.connected){
+		if(db.db.state === 'authenticated'){
 			db.db.query(sql,function(err, rows, fields){
 				if(err) throw err;
 				if(cb){
@@ -19,9 +19,9 @@ db = {
 			//refresh the time out
 			clearTimeout(db.timeout);
 			db.timeout = setTimeout(function(){
-				console.log('no database activity, closing connection'.info)
+				console.log('no database activity, closing '+'connection'.info)
 				db.disconect()
-			},1000*60*10)
+			},1000*60)
 		}
 		else{
 			//connect and query
@@ -37,31 +37,37 @@ db = {
 	},
 	connect: function(cb){
 		cb = cb || function(){};
-		this.db = sql.createConnection({
+		//see if we are trying to connect, if so add the cb to the existing connection
+		if(db.connecting){
+			db.db.once('connect',cb);
+			return;
+		}
+
+		db.db = sql.createConnection({
 			host: CONFIG.dataBase.host,
 			user: CONFIG.dataBase.user,
 			password: CONFIG.dataBase.password,
 			database: CONFIG.dataBase.dataBase
 		});
-		this.db.connect(function(err){
+		db.connecting = true;
+		db.db.connect(function(err){
 			if(err){
 				console.log('failed to connect to the data base');
 				throw err;
 			}
-			db.connected = true;
-			console.log('connected to the data base');
+			console.log('connected'.info+' to the data base');
+			db.connecting = false;
 			cb();
 		});
 
 		db.timeout = setTimeout(function(){
-			console.log('no database activity, closing connection'.info)
+			console.log('no database activity'.info+', closing connection')
 			db.disconect()
-		},1000*60*10)
+		},1000*60)
 	},
 	disconect: function(cb){
-		if(db.connected){
-			db.db.close();
-			db.connected = false;
+		if(db.db.state === 'authenticated'){
+			db.db.end();
 		}
 	},
 	player: {
