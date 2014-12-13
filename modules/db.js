@@ -19,7 +19,7 @@ db = {
 			//refresh the time out
 			clearTimeout(db.timeout);
 			db.timeout = setTimeout(function(){
-				console.log('no database activity, closing '+'connection'.info)
+				console.log('no database activity, closing '.info+'connection')
 				db.disconect()
 			},1000*60)
 		}
