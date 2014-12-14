@@ -1,67 +1,3 @@
-// module.exports = Klass({
-// 	server: null,
-// 	data: {
-// 		info: null,
-// 		maps: null
-// 	},
-
-// 	initialize: function(){
-
-// 		//info json
-// 		fs.readFile('data/info.json', _(function (err, data) {
-// 		  	if (err) throw err;
-// 		  	console.log('loaded server info');
-
-// 		  	this.data.info = JSON.parse(data);
-// 		}).bind(this))
-
-// 		//maps json
-// 		fs.readFile('data/maps.json', _(function (err, data) {
-// 		  	if (err) throw err;
-// 		  	console.log('loaded maps');
-
-// 		  	this.data.maps = JSON.parse(data);
-// 		}).bind(this))
-
-// 		this.server = http.createServer(function (req, res) {
-// 			res.writeHead(200, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'});
-
-// 			data = require('url').parse(req.url, true)
-
-// 			switch(data.query.type){
-// 				case 'info':
-// 					json = fn.duplicate(dataServer.data.info)
-// 					json.status = true
-// 					json.numberOfPlayers = players.players.length;
-// 					res.end(JSON.stringify(json))
-// 					break;
-// 				case 'map':
-// 					//see if the var are there
-// 					if(typeof data.query.island === 'undefined' || typeof data.query.map === 'undefined'){
-// 						json = dataServer.error('no map info sent')
-// 						res.end(JSON.stringify(json))
-// 						return;
-// 					}
-
-// 					//get the map
-// 					fs.readFile('data/'+dataServer.data.maps[data.query.island].maps[data.query.map].url, function (err, data) {
-// 						if (err) throw err;
-
-// 						res.end(data);
-// 					});
-// 					break;
-// 				default:
-// 					res.end(JSON.stringify(dataServer.error('did not reconsize that type')))
-// 					break;
-// 			}
-// 		}).listen(8282, '127.0.0.1');
-// 	},
-
-// 	error: function(message){
-// 		return {status: false, message: message || 'no message'};
-// 	}
-// })
-
 URL = require('url');
 
 dataServer = {
@@ -70,59 +6,98 @@ dataServer = {
 		info: null,
 		map: null
 	},
-	error: function(message){
-		return {status: false, message: message || 'no message'};
+	maps: [],
+	init: function(){
+		//set up
+		this.server = http.createServer(function (req, res) {
+			res.setHeader('Content-Type', 'application/json');
+			res.setHeader('Access-Control-Allow-Origin', '*');
+
+			data = URL.parse(req.url, true)
+
+			switch(data.query.type){
+				case 'info':
+					json = fn.duplicate(dataFiles.config.serverInfo)
+					json.players = players.players.length;
+					res.end(JSON.stringify(json))
+					break;
+				case 'map':
+					//see if the var are there
+					if(data.query.map === undefined || data.query.map < 0){
+						res.end(this.mapError('no map data sent'));
+						break;
+					}
+
+					id = data.query.map;
+
+					//get the url from the DB
+					if(this.maps[id]){
+						//its there, send it to the client
+						fs.readFile(this.maps[id].url,function(err, file){
+							if(err){
+								res.end(this.mapError('cant find map file'));
+								throw err;
+							}
+							res.end(JSON.stringify({
+								status: true,
+								data: JSON.parse(file)
+							}));
+						})
+					}
+					else{
+						//its not there, load it
+						db.query('select * from maps where id='+data.query.map,function(mapId,data){
+							if(data.length){
+								this.maps[id] = data[0];
+
+								//send it back
+								fs.readFile(this.maps[id].url,function(err, file){
+									if(err){
+										res.end(this.mapError('cant find map file'));
+									}
+									else{
+										res.end(JSON.stringify({
+											status: true,
+											data: JSON.parse(file)
+										}));
+									}
+								}.bind(this))
+							}
+							else{
+								res.end(this.mapError('map not in server'));
+							}
+						}.bind(this,data.query.map))
+					}
+					break;
+				case 'dataFile':
+					switch(data.query.file){
+						case 'items':
+							res.end(JSON.stringify(dataFiles.items));
+							break;
+						case 'resourceProfiles':
+							res.end(JSON.stringify(dataFiles.resourceProfiles));
+							break;
+						case 'damageProfiles':
+							res.end(JSON.stringify(dataFiles.damageProfiles));
+							break;
+						case 'miningProfiles':
+							res.end(JSON.stringify(dataFiles.miningProfiles));
+							break;
+						default:
+							res.statusCode = 400;
+							res.end('dont know what that file is');
+							break;
+					}
+					break;
+				default: 
+					res.statusCode = 400;
+					res.end(this.mapError('no query'));
+			}
+		}.bind(this)).listen(8282);
+	},
+	mapError: function(message){
+		return JSON.stringify({status: false, message: message || 'no message'});
 	}
 }
-
-//set up
-dataServer.server = http.createServer(function (req, res) {
-	res.writeHead(200, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'});
-
-	data = URL.parse(req.url, true)
-
-	switch(data.query.type){
-		case 'info':
-			json = fn.duplicate(dataServer.data.info)
-			json.status = true
-			json.numberOfPlayers = players.players.length;
-			res.end(JSON.stringify(json))
-			break;
-		case 'map':
-			//see if the var are there
-			if(typeof data.query.island === 'undefined' || typeof data.query.map === 'undefined'){
-				json = dataServer.error('no map info sent')
-				res.end(JSON.stringify(json))
-				return;
-			}
-
-			//get the map
-			fs.readFile('data/'+dataServer.data.maps[data.query.island].maps[data.query.map].url, function (err, data) {
-				if (err) throw err;
-
-				res.end(data);
-			});
-			break;
-		default:
-			res.end(JSON.stringify(dataServer.error('did not reconsize that type')))
-			break;
-	}
-}).listen(8282);
-
-//info json
-fs.readFile('data/info.json', function (err, data) {
-  	if (err) throw err;
-  	console.log('loaded server info');
-
-  	dataServer.data.info = JSON.parse(data);
-})
-
-//maps json
-fs.readFile('data/maps.json', function (err, data) {
-  	if (err) throw err;
-  	console.log('loaded maps');
-
-  	dataServer.data.maps = JSON.parse(data);
-})
 
 module.exports = dataServer;

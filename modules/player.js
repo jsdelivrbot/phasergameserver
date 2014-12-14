@@ -5,6 +5,7 @@ PlayerIn = Klass({
 	initialize: function(name,callback){
 		this.name = name || ''
 		this.callback = callback
+		this.data = fn.duplicate(this.data);
 	},
 	bind: function(socket){
 		if(this.callback){
@@ -21,10 +22,10 @@ PlayerIn = Klass({
 PlayerInDiff = PlayerIn.extend({
 	bind: function(socket){
 		if(this.callback){
-			f = _.partial(function(_this,callback,data){
-				fn.combindOver(_this.data,data)
+			f = _.partial(function(_this,callback,diff){
+				fn.applyDiff(_this.data,diff);
 				callback = _.bind(callback,this);
-				callback(_this.data);
+				callback(diff);
 			},this,this.callback)
 			socket.on(this.name,f)
 		}
@@ -52,8 +53,9 @@ PlayerOutCache = PlayerOut.extend({
 	changed: false,
 	initialize: function(name,timing){
 		this.supr(name)
+		this._data = fn.duplicate(this._data);
 
-		setInterval(this.test,timing,this)
+		setInterval(_(this.test).bind(this),timing)
 	},
 	data: function(data){
 		if(JSON.stringify(data) !== JSON.stringify(this._data)){
@@ -61,9 +63,9 @@ PlayerOutCache = PlayerOut.extend({
 			this.changed = true
 		}
 	},
-	test: function(_this){
-		if(_this.changed){
-			_this.send(_this._data)
+	test: function(){
+		if(this.changed){
+			this.send(this._data)
 		}
 	},
 	send: function(data){
@@ -76,10 +78,14 @@ PlayerOutCache = PlayerOut.extend({
 
 PlayerOutDiff = PlayerOut.extend({
 	_data: {},
+	initialize: function(name){
+		this.supr(name)
+		this._data = fn.duplicate(this._data);
+	},
 	data: function(data){
 		if(this.socket){
-			diff = fn.diff(this._data,data)
-			if(!_(diff).isEmpty()){
+			var diff = fn.getDiff(this._data,data)
+			if(!fn.isEmptyDiff(diff)){
 				this.socket.emit(this.name,diff)
 				this._data = fn.duplicate(data);
 			}
@@ -101,14 +107,71 @@ PlayerDataFull = Klass({
 				x: 0,
 				y: 0
 			},
-			island: 0,
+			map: 0,
+			loading: false
+		},
+		sprite: {
+			image: 'player/1'
+		}
+	},
+
+	initialize: function(_data){
+		this.data = fn.duplicate(this.data);
+		// put the data into this.data
+		if(_data){
+			this.update(_data)
+		}
+	},
+	update: function(_data){
+		// put the data into this.data
+		if(_data instanceof PlayerData){
+			this.updateFromPlayerData(_data)
+		}
+		else if(_data instanceof PlayerDataFull){
+			this.updateFromPlayerDataFull(_data)
+		}
+		else{
+			// json
+			this.updateFromJSON(_data)
+		}
+	},
+	updateFromJSON: function(_data){
+		fn.combindOver(this.data,_data) //using combind over because combind in dose not work well with arrays
+	},
+	updateFromPlayerData: function(_playerData){
+		fn.combindOver(this.data,_playerData.data);
+	},
+	updateFromPlayerDataFull: function(_playerDataFull){
+		fn.combindOver(this.data,_playerDataFull.data);
+	},
+	toPlayerData: function(){
+		return new PlayerData(this);
+	},
+	toPlayerDataJSON: function(){
+		return new PlayerData(this).data;
+	},
+	toSave: function(){
+		return fn.duplicate(this.data);
+	}
+})
+
+PlayerData = Klass({
+	data: {
+		id: {
+			id: 0,
+			name: ''
+		},
+		health: 1000,
+		position: {
+			body: {
+				x: 0,
+				y: 0
+			},
 			map: 0
 		},
 		sprite: {
 			image: 'player/1'
-		},
-		inventory: {},
-		skills: {}
+		}
 	},
 
 	initialize: function(_data){
@@ -138,65 +201,6 @@ PlayerDataFull = Klass({
 		fn.combindIn(this.data,_playerData.data);
 	},
 	updateFromPlayerDataFull: function(_playerDataFull){
-		fn.combindOver(this.data,_playerDataFull.data);
-	},
-	toPlayerData: function(){
-		return fn.combindIn(new PlayerData(),this.data);
-	},
-	toPlayerDataJSON: function(){
-		return new PlayerData(this).data;
-	},
-	toSave: function(){
-		return fn.duplicate(this.data);
-	}
-})
-
-PlayerData = Klass({
-	data: {
-		id: {
-			id: 0,
-			name: ''
-		},
-		position: {
-			body: {
-				x: 0,
-				y: 0
-			},
-			island: 0,
-			map: 0
-		},
-		sprite: {
-			image: 'player/1'
-		}
-	},
-
-	initialize: function(_data){
-		this.data = fn.duplicate(this.data);
-		// put the data into this.data
-		if(_data){
-			this.update(_data)
-		}
-	},
-	update: function(_data){
-		// put the data into this.data
-		if(_data instanceof PlayerData){
-			this.updateFromPlayerData(_data)
-		}
-		else if(_data instanceof PlayerDataFull){
-			this.updateFromPlayerDataFull(_data)
-		}
-		else{
-			// json
-			this.updateFromJSON(_data)
-		}
-	},
-	updateFromJSON: function(_data){
-		fn.combindIn(this.data,_data)
-	},
-	updateFromPlayerData: function(_playerData){
-		fn.combindOver(this.data,_playerData.data);
-	},
-	updateFromPlayerDataFull: function(_playerDataFull){
 		fn.combindIn(this.data,_playerDataFull.data);
 	},
 	toPlayerDataFull: function(){
@@ -211,6 +215,8 @@ PlayerData = Klass({
 Player = Klass({
 	socket: null,
 	data: null, //playerData obj
+	inventory: [],
+	health: 1000,
 	in: null,
 	out: null,
 
@@ -228,12 +234,13 @@ Player = Klass({
 
 		// load the player data
 		this.data = new PlayerDataFull(_playerData)
+		this.data.player = this
 
 		console.log('player: '+this.data.data.id.name+' loged on')
 
 		this.in = {
-			player: new PlayerInDiff('player',function(data){
-				this.player.data.update(data)
+			player: new PlayerInDiff('player',function(diff){
+				this.player.data.update(fn.buildDiff(diff))
 			}),
 			chat: new PlayerIn('chat',function(data){
 				// type
@@ -297,12 +304,40 @@ Player = Klass({
 
 				// save my data to the file
 				this.player.saveDown();
+			}),
+			inventory: new PlayerInDiff('inventory',function(diff){
+				fn.applyDiff(this.player.inventory,diff);
+				fn.applyDiff(this.player.out.inventory._data,diff)
+			}),
+			attack: new PlayerIn('attack',function(data){
+				switch(data.type){
+					case 'respawn':
+						this.health = 1000;
+						this.out.attack.data({
+							type: 'respawn',
+							health: this.health
+						})
+						break;
+					case 'attack': 
+						//find out what type of attack it is and run it
+						for(var i in players.players){
+							if(players.players[i].id == data.id){
+								players.players[i].damage(data.health);
+							}
+						}
+						break;
+					case 'health':
+						this.health = data.health;
+						break;
+				}
 			})
 		}
 		this.out = {
 			player: new PlayerOutDiff('player'),
 			players: new PlayerOutCache('players',100),
 			chat: new PlayerOut('chat'),
+			inventory: new PlayerOutDiff('inventory'),
+			attack: new PlayerOut('attack')
 		}
 
 		// bind socket events
@@ -316,15 +351,33 @@ Player = Klass({
 		// set up the short hands
 		this.id = this.data.data.id.id
 		this.name = this.data.data.id.name
+
+		//load the inventory
+		this.inventory = [];
+		db.query("SELECT inventory, health FROM users WHERE id="+this.id,function(data){
+			inven = (data[0].inventory.length)? JSON.parse(data[0].inventory) : [];
+
+			this.health = (data[0])? data[0].health : 1000;
+			this.inventory = inven;
+			this.out.inventory.data(inven);
+			this.out.attack.data({
+				type: 'health',
+				health: this.health
+			})
+		}.bind(this))
+
+		//send the data position/inventory to the player
+		this.out.player.data(this.data.data);
 	},
 
 	update: function(){
 		// send the player a list of all the players
-		a = []
+		a = {}
 		for (var i = 0; i < players.players.length; i++) {
-			if(players.players[i].id != this.id){
-				if(players.players[i].data.data.position.island == this.data.data.position.island && players.players[i].data.data.position.map == this.data.data.position.map){
-					a.push(players.players[i].data.toPlayerDataJSON())
+			if(players.players[i].id !== this.id){
+				if(players.players[i].data.data.position.map == this.data.data.position.map && players.players[i].data.data.position.loading == false){
+					a[players.players[i].id] = players.players[i].data.toPlayerDataJSON()
+					a[players.players[i].id].health = players.players[i].health;
 				}
 			}
 		};
@@ -332,16 +385,19 @@ Player = Klass({
 		this.out.players.data(a)
 	},
 
-	saveDown: function(){
-		// find the spot in the json 
-		// usersData = dataFiles.get('users.json').data
-		// for (var i = 0; i < usersData.length; i++) {
-		// 	if(usersData[i].id.id == this.id){
-		// 		usersData[i] = this.data.data
-		// 	}
-		// };
+	damage: function(health){
+		this.health -= health;
+		this.out.attack.data({
+			type: 'damage',
+			health: this.health
+		})
+	},
 
-		//removed data files, going to have to find another way to save
+	saveDown: function(){
+		//save to db
+		db.player.set(this.id,this.data.data);
+		db.query("update users set inventory='"+JSON.stringify(this.inventory)+"', health="+this.health+" where id="+this.id)
+		// db.query("update users set lastOn=CURRENT_TIMESTAMP where id="+this.id) added a trigger to the data base
 	}
 })
 
