@@ -17,7 +17,7 @@ dataServer = {
 
 			switch(data.query.type){
 				case 'info':
-					json = fn.duplicate(CONFIG.serverInfo)
+					json = fn.duplicate(dataFiles.config.serverInfo)
 					json.players = players.players.length;
 					res.end(JSON.stringify(json))
 					break;
@@ -69,19 +69,31 @@ dataServer = {
 						}.bind(this,data.query.map))
 					}
 					break;
+				case 'dataFile':
+					switch(data.query.file){
+						case 'items':
+							res.end(JSON.stringify(dataFiles.items));
+							break;
+						case 'resourceProfiles':
+							res.end(JSON.stringify(dataFiles.resourceProfiles));
+							break;
+						case 'damageProfiles':
+							res.end(JSON.stringify(dataFiles.damageProfiles));
+							break;
+						case 'miningProfiles':
+							res.end(JSON.stringify(dataFiles.miningProfiles));
+							break;
+						default:
+							res.statusCode = 400;
+							res.end('dont know what that file is');
+							break;
+					}
+					break;
 				default: 
 					res.statusCode = 400;
 					res.end(this.mapError('no query'));
 			}
 		}.bind(this)).listen(8282);
-
-		//maps json
-		fs.readFile('data/maps.json', function (err, data) {
-		  	if (err) throw err;
-		  	console.log('loaded maps');
-
-		  	this.data.maps = JSON.parse(data);
-		}.bind(this))
 	},
 	mapError: function(message){
 		return JSON.stringify({status: false, message: message || 'no message'});

@@ -44,10 +44,10 @@ db = {
 		}
 
 		db.db = sql.createConnection({
-			host: CONFIG.dataBase.host,
-			user: CONFIG.dataBase.user,
-			password: CONFIG.dataBase.password,
-			database: CONFIG.dataBase.dataBase
+			host: dataFiles.config.dataBase.host,
+			user: dataFiles.config.dataBase.user,
+			password: dataFiles.config.dataBase.password,
+			database: dataFiles.config.dataBase.dataBase
 		});
 		db.connecting = true;
 		db.db.connect(function(err){

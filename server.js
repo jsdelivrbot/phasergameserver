@@ -9,6 +9,7 @@ players = require('./modules/players.js');
 chat = require('./modules/chatChanels.js');
 dataServer = require('./modules/dataServer.js');
 db = require('./modules/db.js');
+dataFiles = require('./modules/dataFiles.js');
 
 //set the log colors
 colors.setTheme({
@@ -17,19 +18,8 @@ colors.setTheme({
 	error: 'red'
 });
 
-//set the files
-CONFIG = {};
-
-//load the files
-start = _.after(1,init)
-fs.readFile('config.json', function (err, data) {
-  	if (err) throw err;
-  	console.log('loaded config');
-
-  	CONFIG = JSON.parse(data);
-
-  	start();
-})
+//load the dataFiles
+dataFiles.load(init);
 
 function init(){
 	//start

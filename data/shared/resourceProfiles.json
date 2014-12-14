@@ -1,0 +1,10 @@
+{
+	"ore":{
+		"iron":{
+			"time": 10,
+			"image": "",
+			"collectedImage": "",
+			"itemID": "resource.ore.iron"
+		}
+	}
+}
