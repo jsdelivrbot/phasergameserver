@@ -18,37 +18,37 @@
 		"ore": {
 			"iron": {
 				"title": "Iron Ore",
-				"img": "",
+				"img": "blender/images/items/resources/ore/iron.png",
 				"weight": 0
 			},
 			"copper": {
 				"title": "Copper Ore",
-				"img": "",
+				"img": "blender/images/items/resources/ore/copper.png",
 				"weight": 0
 			},
 			"adamantium": {
 				"title": "Adamantium Ore",
-				"img": "",
+				"img": "blender/images/items/resources/ore/adamantium.png",
 				"weight": 0
 			},
 			"silver": {
 				"title": "Silver Ore",
-				"img": "",
+				"img": "blender/images/items/resources/ore/silver.png",
 				"weight": 0
 			},
 			"gold": {
 				"title": "Gold Ore",
-				"img": "",
+				"img": "blender/images/items/resources/ore/gold.png",
 				"weight": 0
 			},
 			"sapphire": {
 				"title": "Sapphire Ore",
-				"img": "",
+				"img": "blender/images/items/resources/ore/sapphire.png",
 				"weight": 0
 			},
 			"ruby": {
 				"title": "Ruby Ore",
-				"img": "",
+				"img": "blender/images/items/resources/ore/ruby.png",
 				"weight": 0
 			}
 		},
