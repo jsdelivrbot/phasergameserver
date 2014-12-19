@@ -1,21 +1,19 @@
-URL = require('url');
+var http = require("http");
+var url = require("url");
+var path = require("path");
+var fs = require("fs");
 
 dataServer = {
 	server: null,
-	data: {
-		info: null,
-		map: null
-	},
 	maps: [],
 	init: function(){
 		//set up
 		this.server = http.createServer(function (req, res) {
-			res.setHeader('Content-Type', 'application/json');
 			res.setHeader('Access-Control-Allow-Origin', '*');
+			res.setHeader('Content-Type', 'application/json');
 
-			data = URL.parse(req.url, true)
-
-			switch(data.query.type){
+			_url = url.parse(req.url, true)
+			switch(_url.query.type){
 				case 'info':
 					json = fn.duplicate(dataFiles.config.serverInfo)
 					json.players = players.players.length;
@@ -23,12 +21,12 @@ dataServer = {
 					break;
 				case 'map':
 					//see if the var are there
-					if(data.query.map === undefined || data.query.map < 0){
+					if(_url.query.map === undefined || _url.query.map < 0){
 						res.end(this.mapError('no map data sent'));
 						break;
 					}
 
-					id = data.query.map;
+					id = parseInt(_url.query.map);
 
 					//get the url from the DB
 					if(this.maps[id]){
@@ -46,7 +44,7 @@ dataServer = {
 					}
 					else{
 						//its not there, load it
-						db.query('select * from maps where id='+data.query.map,function(mapId,data){
+						db.query('select * from maps where id='+_url.query.map,function(mapId,data){
 							if(data.length){
 								this.maps[id] = data[0];
 
@@ -66,13 +64,13 @@ dataServer = {
 							else{
 								res.end(this.mapError('map not in server'));
 							}
-						}.bind(this,data.query.map))
+						}.bind(this,_url.query.map))
 					}
 					break;
 				case 'dataFile':
-					switch(data.query.file){
+					switch(_url.query.file){
 						case 'items':
-							res.end(JSON.stringify(dataFiles.items));
+							res.end(JSON.stringify(dataFiles.itemProfiles));
 							break;
 						case 'resourceProfiles':
 							res.end(JSON.stringify(dataFiles.resourceProfiles));

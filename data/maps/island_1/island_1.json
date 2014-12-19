@@ -130,6 +130,137 @@
          "width":500,
          "x":0,
          "y":0
+        }, 
+        {
+         "height":500,
+         "name":"resources",
+         "objects":[
+                {
+                 "height":32,
+                 "name":"tree",
+                 "properties":
+                    {
+                     "amount":"1 2",
+                     "refresh":"20",
+                     "resources":"log log"
+                    },
+                 "type":"resource",
+                 "visible":true,
+                 "width":32,
+                 "x":5600,
+                 "y":9312
+                }, 
+                {
+                 "height":32,
+                 "name":"tree",
+                 "properties":
+                    {
+                     "amount":"1 2",
+                     "refresh":"20",
+                     "resources":"log log"
+                    },
+                 "type":"resource",
+                 "visible":true,
+                 "width":32,
+                 "x":5472,
+                 "y":9408
+                }, 
+                {
+                 "height":32,
+                 "name":"tree",
+                 "properties":
+                    {
+                     "amount":"1 2",
+                     "refresh":"20",
+                     "resources":"log log"
+                    },
+                 "type":"resource",
+                 "visible":true,
+                 "width":32,
+                 "x":5312,
+                 "y":9248
+                }, 
+                {
+                 "height":32,
+                 "name":"tree",
+                 "properties":
+                    {
+                     "amount":"1 2",
+                     "refresh":"20",
+                     "resources":"log log"
+                    },
+                 "type":"resource",
+                 "visible":true,
+                 "width":32,
+                 "x":7360,
+                 "y":8416
+                }, 
+                {
+                 "height":32,
+                 "name":"tree",
+                 "properties":
+                    {
+                     "amount":"1 2",
+                     "refresh":"20",
+                     "resources":"log log"
+                    },
+                 "type":"resource",
+                 "visible":true,
+                 "width":32,
+                 "x":7712,
+                 "y":8384
+                }, 
+                {
+                 "height":32,
+                 "name":"tree",
+                 "properties":
+                    {
+                     "amount":"1 2",
+                     "refresh":"20",
+                     "resources":"log log"
+                    },
+                 "type":"resource",
+                 "visible":true,
+                 "width":32,
+                 "x":6624,
+                 "y":8224
+                }, 
+                {
+                 "height":32,
+                 "name":"tree",
+                 "properties":
+                    {
+                     "amount":"1 2",
+                     "refresh":"20",
+                     "resources":"log log"
+                    },
+                 "type":"resource",
+                 "visible":true,
+                 "width":32,
+                 "x":7008,
+                 "y":8160
+                }, 
+                {
+                 "height":32,
+                 "name":"tree",
+                 "properties":
+                    {
+                     "amount":"1 2",
+                     "refresh":"20",
+                     "resources":"log log"
+                    },
+                 "type":"resource",
+                 "visible":true,
+                 "width":32,
+                 "x":7520,
+                 "y":8192
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "width":500,
+         "x":0,
+         "y":0
         }],
  "orientation":"orthogonal",
  "properties":

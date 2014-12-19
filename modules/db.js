@@ -52,8 +52,8 @@ db = {
 		db.connecting = true;
 		db.db.connect(function(err){
 			if(err){
-				console.log('failed to connect to the data base');
-				throw err;
+				console.log('failed to connect to the data base'.error);
+				process.exit();
 			}
 			console.log('connected'.info+' to the data base');
 			db.connecting = false;

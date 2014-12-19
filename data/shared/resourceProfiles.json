@@ -1,10 +1,60 @@
 {
+	"log":{
+		"time": 10,
+		"image": "",
+		"collectedImage": "",
+		"itemID": "resource.log",
+		"spawnChance": 100
+	},
 	"ore":{
 		"iron":{
 			"time": 10,
 			"image": "",
 			"collectedImage": "",
-			"itemID": "resource.ore.iron"
+			"itemID": "resource.ore.iron",
+			"spawnChance": 50
+		},
+		"copper":{
+			"time": 10,
+			"image": "",
+			"collectedImage": "",
+			"itemID": "resource.ore.copper",
+			"spawnChance": 50
+		},
+		"adamantium":{
+			"time": 10,
+			"image": "",
+			"collectedImage": "",
+			"itemID": "resource.ore.adamantium",
+			"spawnChance": 50
+		},
+		"silver":{
+			"time": 10,
+			"image": "",
+			"collectedImage": "",
+			"itemID": "resource.ore.silver",
+			"spawnChance": 50
+		},
+		"gold":{
+			"time": 10,
+			"image": "",
+			"collectedImage": "",
+			"itemID": "resource.ore.gold",
+			"spawnChance": 50
+		},
+		"sapphire":{
+			"time": 10,
+			"image": "",
+			"collectedImage": "",
+			"itemID": "resource.ore.sapphire",
+			"spawnChance": 50
+		},
+		"ruby":{
+			"time": 10,
+			"image": "",
+			"collectedImage": "",
+			"itemID": "resource.ore.ruby",
+			"spawnChance": 50
 		}
 	}
 }

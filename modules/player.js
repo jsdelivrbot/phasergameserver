@@ -9,10 +9,10 @@ PlayerIn = Klass({
 	},
 	bind: function(socket){
 		if(this.callback){
-			f = _.partial(function(_this,callback,data){
+			f = _.partial(function(_this,callback,data,cb){
 				_this.data = data;
 				callback = _.bind(callback,this);
-				callback(data);
+				callback(data,cb);
 			},this,this.callback)
 			socket.on(this.name,f)
 		}
@@ -22,10 +22,10 @@ PlayerIn = Klass({
 PlayerInDiff = PlayerIn.extend({
 	bind: function(socket){
 		if(this.callback){
-			f = _.partial(function(_this,callback,diff){
+			f = _.partial(function(_this,callback,diff,cb){
 				fn.applyDiff(_this.data,diff);
 				callback = _.bind(callback,this);
-				callback(diff);
+				callback(diff,cb);
 			},this,this.callback)
 			socket.on(this.name,f)
 		}
@@ -289,22 +289,6 @@ Player = Klass({
 						break;
 				}
 			}),
-			disconnect: new PlayerIn('disconnect',function(data){
-				console.log('player: '+this.player.data.data.id.name+' loged off')
-
-				//remove player from the players: array
-				for (var i = 0; i < players.players.length; i++) {
-					if(players.players[i].data.data.id.id == this.player.data.data.id.id){
-						players.players.splice(i,1)
-						break;
-					}
-				};
-
-				chat.leaveAll(this.player)
-
-				// save my data to the file
-				this.player.saveDown();
-			}),
 			inventory: new PlayerInDiff('inventory',function(diff){
 				fn.applyDiff(this.player.inventory,diff);
 				fn.applyDiff(this.player.out.inventory._data,diff)
@@ -330,6 +314,53 @@ Player = Klass({
 						this.health = data.health;
 						break;
 				}
+			}),
+			resources: new PlayerIn('resources',function(data,cb){
+				switch(data.type){
+					case 'map':
+						resources.getForMap(data.map,function(resr){
+							//loop through the resr and build the array that the client wants
+							a = [];
+							for (var i = 0; i < resr.length; i++) {
+								a.push({
+									id: resr[i].id,
+									resourceID: resr[i].currentResource,
+									amount: resr[i].currentAmount,
+									mined: resr[i].mined,
+									position: resr[i].position,
+									size: resr[i].size
+								})
+							};
+
+							if(cb){
+								cb(a);
+							}
+							else{
+								this.player.out.resources.data({
+									type: 'resources',
+									map: data.map,
+									resources: a
+								})
+							}
+						});
+						break;
+					case 'mine':
+						resr = resources.find(data.id)[0];
+						if(resr){
+							resources.resource.mine(resr,this.player);
+							if(cb) cb(true);
+						}
+						else{
+							//failed to find it
+							if(cb) cb(false);
+						}
+						break;
+				}
+			}),
+			disconnect: new PlayerIn('disconnect',function(data){
+				console.log('player: '+this.player.data.data.id.name+' loged off')
+
+				this.player.exit();
 			})
 		}
 		this.out = {
@@ -337,7 +368,8 @@ Player = Klass({
 			players: new PlayerOutCache('players',100),
 			chat: new PlayerOut('chat'),
 			inventory: new PlayerOutDiff('inventory'),
-			attack: new PlayerOut('attack')
+			attack: new PlayerOut('attack'),
+			resources: new PlayerOut('resources')
 		}
 
 		// bind socket events
@@ -351,6 +383,24 @@ Player = Klass({
 		// set up the short hands
 		this.id = this.data.data.id.id
 		this.name = this.data.data.id.name
+
+		//bind to the resources change event to we can tell the player if a resources has changed
+		this.resourceListener = function(data){ //tied the function to the player obj so we can remove it later
+			if(data.position.map === this.data.data.position.map){
+				//send it to the client so they know this resource has changed
+				this.out.resources.data({
+					type: 'change',
+					resource: {
+						id: data.id,
+						resourceID: data.currentResource,
+						amount: data.currentAmount,
+						mined: data.mined
+					}
+
+				})
+			}
+		}.bind(this);
+		resources.events.on('change',this.resourceListener);
 
 		//load the inventory
 		this.inventory = [];
@@ -393,11 +443,50 @@ Player = Klass({
 		})
 	},
 
+	addItem: function(itemID, amount){
+		//see if its an item
+		if(dataFiles.items[itemID] === undefined) return false;
+		for (var i = 0; i < this.inventory.length; i++) {
+			if(this.inventory[i].id === itemID){
+				this.inventory[i].count += amount;
+				this.out.inventory.data(this.inventory);
+				return true;
+			}
+		};
+
+		//if it made it this far it means we dont have it in are inventory
+		this.inventory.push({
+			id: itemID,
+			count: amount
+		})
+		this.out.inventory.data(this.inventory);
+		return true;
+	},
+
+	exit: function(){ //this function is called when the player obj is being removed
+		//remove player from the players: array
+		for (var i = 0; i < players.players.length; i++) {
+			if(players.players[i].data.data.id.id == this.data.data.id.id){
+				players.players.splice(i,1)
+				break;
+			}
+		};
+
+		//remove event listeners on resources
+		resources.events.removeListener('change',this.resourceListener);
+
+		chat.leaveAll(this)
+
+		// save my data to the file
+		this.saveDown();
+	},
+
 	saveDown: function(){
 		//save to db
 		db.player.set(this.id,this.data.data);
-		db.query("update users set inventory='"+JSON.stringify(this.inventory)+"', health="+this.health+" where id="+this.id)
-		// db.query("update users set lastOn=CURRENT_TIMESTAMP where id="+this.id) added a trigger to the data base
+		db.query("UPDATE users SET inventory='"+JSON.stringify(this.inventory)+"', health="+this.health+" WHERE id="+this.id,function(data){
+			// console.log(data);
+		})
 	}
 })
 

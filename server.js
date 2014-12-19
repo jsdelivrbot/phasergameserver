@@ -10,6 +10,7 @@ chat = require('./modules/chatChanels.js');
 dataServer = require('./modules/dataServer.js');
 db = require('./modules/db.js');
 dataFiles = require('./modules/dataFiles.js');
+resources = require('./modules/resources.js');
 
 //set the log colors
 colors.setTheme({
