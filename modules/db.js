@@ -35,6 +35,11 @@ db = {
 			})
 		}
 	},
+	ec: function(str){
+		if(this.db){
+			return this.db.escape(str);
+		}
+	},
 	connect: function(cb){
 		cb = cb || function(){};
 		//see if we are trying to connect, if so add the cb to the existing connection
@@ -73,7 +78,7 @@ db = {
 	player: {
 		get: function(id,cb){
 			//get the players data and build a playerDataFull out of it
-			db.query('SELECT * FROM users WHERE id='+id, function(data){
+			db.query('SELECT * FROM users WHERE id='+db.ec(id), function(data){
 				if(data.length){
 					cb({
 						id: {
@@ -101,7 +106,7 @@ db = {
 		},
 		getFromEmail: function(email,cb){
 			//get the players data and build a playerDataFull out of it
-			db.query("SELECT * FROM users WHERE email='"+email+"'", function(data){
+			db.query("SELECT * FROM users WHERE email="+db.ec(email), function(data){
 				if(data.length){
 					data = data[0];
 					cb({
