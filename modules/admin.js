@@ -8,7 +8,7 @@ admin = function(socket,playerData){
 
 	// maps
 	socket.on('createMap',function(data,cb){
-		db.query("INSERT INTO `maps`(`name`, `desc`, `island`) VALUES ("+db.ec(data.name)+", "+db.ec(data.desc)+", "+db.ec(data.island)+")",function(data){
+		db.query("INSERT INTO `maps`(`name`, `desc`, `island`, `width`, `height`) VALUES ("+db.ec(data.name)+", "+db.ec(data.desc)+", "+db.ec(data.island)+", "+db.ec(data.width)+", "+db.ec(data.height)+")",function(data){
 			db.query('SELECT * FROM maps',function(data){
 				socket.emit('mapsUpdate',data)
 			})
@@ -28,7 +28,18 @@ admin = function(socket,playerData){
 			cb(true);
 		})
 	})
+	socket.on('getChunk',function(data,cb){
+		db.query('SELECT data FROM chunks WHERE map='+db.ec(data.map)+' AND x='+db.ec(data.x)+' AND y='+db.ec(data.y),function(data){
+			if(data.length){
+				cb(data);
+			}
+			else{
+				cb(false);
+			}
+		})
+	})
 
+	// users
 	socket.on('users',function(select,cb){
 		db.query('SELECT * FROM users LIMIT '+db.ec(select.from)+', '+db.ec(select.to),function(data){
 			cb(data);
