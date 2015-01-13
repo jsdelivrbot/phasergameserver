@@ -116,7 +116,8 @@ db = {
 							email: data.email,
 							password: data.password,
 							name: data.name,
-							admin: data.admin
+							admin: data.admin,
+							banned: data.banned
 						},
 						position:{
 							body:{

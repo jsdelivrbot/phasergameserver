@@ -16,19 +16,24 @@ players = {
 		db.player.getFromEmail(email,function(data){
 			if(data){
 				if(password === data.id.password){
-					//see if they are loged on
-					for (var j = 0; j < players.players.length; j++) {
-						if(data.id.id == players.players[j].id){
-							cb(2);
-							return;
-						}
-					};
+					if(data.id.banned == false){
+						//see if they are loged on
+						for (var j = 0; j < players.players.length; j++) {
+							if(data.id.id == players.players[j].id){
+								cb(2);
+								return;
+							}
+						};
 
-					_player = new Player(data,socket);
-					players.players.push(_player);
+						_player = new Player(data,socket);
+						players.players.push(_player);
 
-					cb(0,_player);
-					return;
+						cb(0,_player);
+						return;
+					}
+					else{
+						cb(3);
+					}
 				}
 			}
 
