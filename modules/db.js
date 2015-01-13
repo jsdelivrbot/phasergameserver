@@ -4,8 +4,8 @@ db = {
 	db: {},
 	timeout: null,
 	connecting: false,
-	init: function(){
-		this.connect()
+	init: function(cb){
+		this.connect(cb)
 	},
 	query: function(sql,cb){
 		if(db.db.state === 'authenticated'){
@@ -85,7 +85,8 @@ db = {
 							id: data.id,
 							email: data.email,
 							password: data.pass,
-							name: data.name
+							name: data.name,
+							admin: data.admin
 						},
 						position:{
 							body:{
@@ -114,7 +115,8 @@ db = {
 							id: data.id,
 							email: data.email,
 							password: data.password,
-							name: data.name
+							name: data.name,
+							admin: data.admin
 						},
 						position:{
 							body:{

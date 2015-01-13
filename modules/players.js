@@ -4,6 +4,7 @@ Player = require('./player.js')
 
 players = {
 	players: [],
+	admins: [],
 	step: null,
 
 	//functions
@@ -18,7 +19,7 @@ players = {
 					//see if they are loged on
 					for (var j = 0; j < players.players.length; j++) {
 						if(data.id.id == players.players[j].id){
-							cb(false);
+							cb(2);
 							return;
 						}
 					};
@@ -26,12 +27,36 @@ players = {
 					_player = new Player(data,socket);
 					players.players.push(_player);
 
-					cb(_player);
+					cb(0,_player);
 					return;
 				}
 			}
 
-			cb(false);
+			cb(1);
+		})
+	},
+	adminLogin: function(email,password,socket,cb){
+		db.query("SELECT * FROM users WHERE admin=1 AND email="+db.ec(email)+' AND password='+db.ec(password),function(data){
+			if(data.length){
+				data = data[0];
+				if(password === data.password && data.admin === 1){
+					//see if they are loged on
+					for (var j = 0; j < players.admins.length; j++) {
+						if(data.id == players.admins[j].userData.id){
+							cb(2);
+							return;
+						}
+					};
+
+					_admin = Admin(data,socket);
+					players.admins.push(_admin);
+
+					cb(0,_admin);
+					return;
+				}
+			}
+
+			cb(1);
 		})
 	},
 	update: function(){

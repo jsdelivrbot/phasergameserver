@@ -5,7 +5,8 @@ fs = require('fs');
 readline = require('readline');
 _ = require('underscore');
 colors = require('colors');
-admin = require('./modules/admin.js');
+Admin = require('./modules/admin.js');
+maps = require('./modules/maps.js');
 players = require('./modules/players.js');
 chat = require('./modules/chatChanels.js');
 dataServer = require('./modules/dataServer.js');
@@ -25,36 +26,28 @@ dataFiles.load(init);
 
 function init(){
 	//start
-	db.init();
-	dataServer.init();
-	players.init()
+	db.init(function(){
+		dataServer.init();
+		players.init();
+		maps.init();
 
-	io = require('socket.io')(8181);
-	io.on('connection', function (socket) {
-		socket.on('login', function (data,callback) {
-			players.login(data.email,data.password,socket,function(_player){
-				if(_player !== false){
-					callback(true)
-
-					// join the genral chanel
-					chat.join('0',_player)
-				}
-				else{
-					callback(false)
-				}
+		io = require('socket.io')(8181);
+		io.on('connection', function (socket) {
+			socket.on('login', function (data,callback) {
+				players.login(data.email,data.password,socket,function(loginCode,_player){
+					if(loginCode == 0){
+						// join the genral chanel
+						chat.join('0',_player)
+					}
+					callback(loginCode)
+				});
 			});
-		});
-		socket.on('adminLogin', function (data,callback) {
-			//login and see if he is an admin
-			db.query("SELECT * FROM users WHERE admin=1 AND email="+db.ec(data.email)+' AND password='+db.ec(data.password),function(data){
-				if(data.length){
-					admin(socket,data[0])
-					callback(true);
-				}
-				else{
-					callback(false);
-				}
-			})
+			socket.on('adminLogin', function (data,callback) {
+				//login and see if he is an admin
+				players.adminLogin(data.email,data.password,socket,function(loginCode,_admin){
+					callback(loginCode);
+				})
+			});
 		});
 	});
 }
