@@ -1,23 +1,26 @@
 var events = require('events');
 
+function array(val,length){
+	var a = [];
+	for (var i = 0; i < length; i++) {
+		a.push(val);
+	};
+	return a;
+}
+
 maps = {
 	defaultTile: 1,
 	saveTime: 1000,
+	unloadTime: 15, //in min
 	// mapList: [], //for map ref (not sorted my id)
 	maps: [],
-	chunks: [],
 	events: new events.EventEmitter(),
 	/*
-	chunkTileChange: x,y,tile,admin/socket
-	mapsChange: mapList
-	mapSave: mapID
-	chunkSave: x,y,map
-	mapLoadFromDB: mapObj
-	chunkLoadFromDB: chunkObj
+	mapsChange: nothing
 	*/
 
 	//classes
-	Map: function(){
+	Map: function(id){
 		this.desc = '';
 		this.width = 0;
 		this.height = 0;
@@ -25,149 +28,303 @@ maps = {
 		this.island = -1;
 		this.url = '';
 		this.name = '';
-		this.id = -1;
+		this.id = id;
 
-		this.blank = true;
 		this.saved = true;
-		this.lastGet = Date();
+		this.chunks = [];
+		this.lastGet = new Date();
 
-		this.setTile = function(x,y,tile,cb,admin){ //finds the chunk and sets the tile, with an optional admin that set it
-			maps.getChunk(Math.floor(x/16),Math.floor(y/16),function(c){
-				c.setTile(x - (Math.floor(x/16)*16),y - (Math.floor(y/16)*16),tile,admin);
-				if(cb) cb();
-			})
-		}
-		this.getTile = function(x,y,tile,cb){ //finds the chunk and gets the tile
-			maps.getChunk(Math.floor(x/16),Math.floor(y/16),function(c){
-				t = c.getTile(x - (Math.floor(x/16)*16),y - (Math.floor(y/16)*16));
-				if(cb) cb(t);
-			})
-		}
-		this.loadFromDBData = function(data){ //loads from DB data
-			if(data.layers === ''){
-				data.layers = '[]';
+		this.getChunk = function(x,y,cb){ //gets chunk from array, cb is for when it loads
+			chunk = null;
+			for (var i = 0; i < this.chunks.length; i++) {
+				if(this.chunks[i].x === x && this.chunks[i].y === y){
+					chunk = this.chunks[i];
+					chunk.lastGet = new Date();
+					break;
+				}
+			};
+			if(chunk){
+				if(cb) cb(chunk);
 			}
+			else{
+				this.loadChunk(x,y,cb);
+			}
+		}
+		this.chunkLoaded = function(x,y){
+			for (var i = 0; i < this.chunks.length; i++) {
+				if(this.chunks[i].x === x && this.chunks[i].y === y){
+					return true;
+				}
+			};
+			return false;
+		}
+		this.loadChunk = function(x,y,cb){ //creates a new chunk and trys to load it from the db
+			chunk = new maps.Chunk(x,y,this);
+
+			if(x>=0&&y>=0&&x<this.width&&y<this.height){
+				this.chunks.push(chunk);
+				//load
+				db.query('SELECT * FROM chunks WHERE x='+db.ec(x)+' AND y='+db.ec(y)+' AND map='+db.ec(this.id),function(chunk,data){
+					if(data.length){
+						chunk.inportData(data[0]);
+					}
+					if(cb) cb(chunk);
+				}.bind(this,chunk));
+			}
+			else{
+				if(cb) cb(chunk);
+			}
+		}
+		this.chunkExists = function(x,y,cb){ //checks to see if the chunk is in the db
+			db.query('SELECT * FROM chunks WHERE x='+db.ec(x)+' AND y='+db.ec(y)+' AND map='+db.ec(this.id),function(data){
+				if(cb) cb(data.length > 0);
+			})
+		}
+		this.insertChunk = function(chunk,cb){ //inserts a chunk into the db
+			data = chunk.exportData();
+			db.query("INSERT INTO `chunks`(`map`, `x`, `y`, `data`) VALUES("+db.ec(data.map)+", "+db.ec(data.x)+", "+db.ec(data.y)+", "+db.ec(JSON.stringify(data.data))+")",function(){
+				//dont load it becuase this is triggered by the save loop and it is already loaded
+				if(cb) cb();
+			}.bind(this))
+		}
+		this.saveChunk = function(x,y,cb){ //saves chunk to db (chunk has to exists in db)
+			this.getChunk(x,y,function(chunk){
+				data = chunk.exportData()
+				chunk.saved = true;
+				db.query("UPDATE `chunks` SET `data`="+db.ec(JSON.stringify(data.data))+" WHERE `x`="+db.ec(data.x)+" AND `y`="+data.y+" AND `map`="+data.map,function(){
+					if(cb) cb();
+				})
+			}.bind(this))
+		}
+		this.removeChunk = function(x,y,cb){ //removes chunk from array
+			for (var i = 0; i < this.chunks.length; i++) {
+				if(this.chunks[i].x === x && this.chunks[i].y === y){
+					this.chunks.splice(i,1);
+					break;
+				}
+			};
+			if(cb) cb();
+		}
+		this.unloadChunk = function(x,y,cb){ //saves and removes chunk from array
+			this.saveChunk(x,y,function(){
+				this.removeChunk(x,y,cb);
+			}.bind(this))
+		}
+		this.deleteChunk = function(x,y,cb){ //deletes chunk from the db
+			db.query("DELETE FROM chunks WHERE x="+db.ec(x)+" AND y="+db.ec(y)+" AND map="+eb.ec(this.id),function(){
+				if(this.chunkLoaded(x,y)){
+					this.removeChunk(x,y);
+				}
+				if(cb) cb();
+			}.bind(this))
+		}
+		this.saveAllChunks = function(cb){
+			if(cb){
+				_.after(this.width * this.height,cb)
+			}
+			else{
+				_.after(this.width * this.height,function(){})
+			}
+
+			for (var x = 0; x < this.width; x++) {
+				for (var y = 0; y < this.height; y++) {
+					if(this.chunkLoaded(x,y)){
+						this.getChunk(x,y,function(chunk){
+							if(!chunk.saved){
+								this.saveChunk(chunk.x,chunk.y,cb)
+							}
+							else{
+								cb();
+							}
+						}.bind(this))
+					}
+					else{
+						cb();
+					}
+				};
+			};
+		}
+		this.unloadAllChunks = function(cb){
+			if(cb){
+				_.after(this.width * this.height,cb)
+			}
+			else{
+				_.after(this.width * this.height,function(){})
+			}
+
+			for (var x = 0; x < this.width; x++) {
+				for (var y = 0; y < this.height; y++) {
+					if(this.chunkLoaded(x,y)){
+						this.getChunk(x,y,function(chunk){
+							if(!chunk.saved){
+								this.unloadChunk(chunk.x,chunk.y,cb)
+							}
+							else{
+								this.removeChunk(chunk.x,chunk.y,cb)
+							}
+						}.bind(this))
+					}
+					else{
+						cb();
+					}
+				};
+			};
+		}
+		this.deleteAllChunks = function(cb){
+			if(cb){
+				_.after(this.width * this.height,cb)
+			}
+			else{
+				_.after(this.width * this.height,function(){})
+			}
+
+			for (var x = 0; x < this.width; x++) {
+				for (var y = 0; y < this.height; y++) {
+					if(this.chunkLoaded(x,y)){
+						this.deleteChunk(x,y,cb);
+					}
+					else{
+						cb();
+					}
+				};
+			};
+		}
+
+		this.inportData = function(data){ //loads data from db format
+			if(data.layers == ''){
+				data.layers = [];
+			}
+			else{
+				data.layers = JSON.parse(data.layers);
+			}
+			this.id = data.id;
+			this.name = data.name;
+			this.desc = data.desc;
 			this.height = data.height;
 			this.width = data.width;
-			this.desc = data.desc;
+			this.layers = data.layers;
 			this.island = data.island;
-			this.layers = JSON.parse(data.layers);
 			this.url = data.url;
-			this.name = data.name;
-			this.id = data.id;
 
 			this.blank = false;
-
-			maps.events.emit('mapLoadFromDB',this);
 		}
-		this.toData = function(){ //removes functions
-			return JSON.parse(JSON.stringify(this)); //remove all the functions from me
+		this.exportData = function(){ //exports map into db format
+			return {
+				id: this.id,
+				desc: this.desc,
+				width: this.width,
+				height: this.height,
+				layers: this.layers,
+				island: this.island,
+				url: this.url,
+				name: this.name
+			}
 		}
 	},
 	Chunk: function(x,y,map){
 		this.x = x || 0;
 		this.y = y || 0;
-		this.map = map || 0;
 		this.tiles = {};
+		this.map = map;
 
-		this.blank = true;
 		this.saved = true;
-		this.lastGet = Date();
+		this.lastGet = new Date();
 
-		this.getTile = function(x,y){
-			id = 'x:'+x+'-y:'+y;
-			if(!this.tiles[id]){
-				this.tiles[id] = 0;
-			}
-			return this.tiles[id];
-		}
-		this.setTile = function(x,y,tile,admin,dontSave){ //sets a tile the chunk, with an optional admin that set it
-			id = 'x:'+x+'-y:'+y;
-			this.getTile(x,y); //create it if is not there
-			this.tiles[id] = tile; //set it
-
-			if(!dontSave){
-				this.saved = false;
-				maps.events.emit('chunkTileChange',x,y,tile,admin);
-			}
-		}
-		this.updateTiles = function(data){ //loads tile from DB but dose not set them (dose not fire change event)
-			for(var i in data){ //data is a preset tiles array
-				//see if the tiles is already in my array
-				if(!this.tiles[i]){
-					this.tiles[i] = data[i];
+		//acts as the layers array
+		this.__defineGetter__('layers',function(){ //syncs layers with map
+			a = [];
+			for (var i = 0; i < this.map.layers.length; i++) {
+				s = false;
+				for (var k = 0; k < this._layers.length; k++) {
+					if(this._layers[k].id === this.map.layers[i].id){
+						a.push(this._layers[k]);
+						s = true;
+					}
+				};
+				if(!s){
+					a.push(new maps.Layer(this.map.layers[i].id,this));
 				}
+			};
+			this._layers = a;
+			return a;
+		})
+		this._layers = [];
+
+		this.getLayer = function(i){ //returns layer
+			if(this.layerExists(i)){
+				return this.layers[i];
+			}
+			else{
+				return new maps.Layer(i,this);
 			}
 		}
-		this.loadFromDBData = function(data){
-			if(data.data === ''){
-				data.data = '[]'; //set to an array because we still have to parse it
+		this.layerExists = function(i){ //tests to see if this layer is on the map
+			return this.layers[i] !== undefined;
+		}
+
+		this.inportData = function(data){ //loads data from db format
+			//load the layers
+			if(data.data == ''){
+				data.data = [];
 			}
+			else{
+				data.data = JSON.parse(data.data);
+			}
+
+			a = this.layers;
+			for (var i = 0; i < data.data.length; i++) {
+				a[i].inportData(data.data[i]);
+			};
+			//load data
 			this.x = data.x;
 			this.y = data.y;
-			this.map = data.map;
-			this.updateTiles(this.parseData(JSON.parse(data.data)));
-			this.blank = false;
-
-			maps.events.emit('chunkLoadFromDB',this);
+			maps.getMap(data.map,function(map){
+				this.map = map;
+			}.bind(this))
 		}
-		this.parseData = function(json){
-			if(typeof json == 'string'){
-				json = JSON.parse(json);
-			}
-			data = {};
-			s = 16;
-			for (var i = 0; i < json.length; i++) {
-				x = i-(Math.floor(i/s)*s);
-				y = Math.floor(i/s);
-				data['x:'+x+'-y:'+y] = json[i];
+		this.exportData = function(){ //exports chunk into db format
+			a = this.layers;
+			b = []
+			for (var i = 0; i < a.length; i++) {
+				b.push(a[i].exportData());
 			};
-			return data;
-		}
-		this.toData = function(){
-			a = [];
-			for(var i in this.tiles){
-				a.push(this.tiles[i]);
+			return {
+				x: this.x,
+				y: this.y,
+				map: this.map.id,
+				data: b
 			}
-			return a;
+		}
+	},
+	Layer: function(id,chunk){
+		this.id = id;
+		this.chunk = chunk;
+		this.width = 16;
+		this.height = 16;
+		this.tiles = array(maps.defaultTile,this.width*this.height);
+
+		this.getTile = function(x,y){
+			return this.tiles[y*this.width+x];
+		}
+		this.setTile = function(x,y,t){
+			this.chunk.saved = false;
+			return this.tiles[y*this.width+x] = t;
 		}
 
-		//fill the tiles
-		for (var y = 0; y < 16; y++) {
-			for (var x = 0; x < 16; x++) {
-				this.setTile(x,y,maps.defaultTile,null,true);
-			};
-		};
+		this.inportData = function(data){
+			fn.combindIn(this.tiles,data);
+		}
+		this.exportData = function(){
+			return this.tiles;
+		}
 	},
 	//functions
 	init: function(cb){
 		this.saveMapLoop(0);
+		this.unloadMapLoop(0);
 		this.saveChunkLoop(0);
+		this.unloadChunkLoop(0);
 	},
-	// updateMapList: function(cb){ // fires the mapsChange event
-	// 	//update the list and combind it with the current loaded maps just in case they did not save yet
-	// 	db.query('SELECT * FROM maps',function(data){
-	// 		//loop through the maps and see if it missing layers
-	// 		for (var i = 0; i < data.length; i++) {
-	// 			if(data[i].layers === ''){
-	// 				data[i].layers = '[]';
-	// 			}
-	// 			data[i].layers = JSON.parse(data[i].layers);
-
-	// 			//update from maps
-	// 			if(this.mapLoaded(data[i].id)){
-	// 				m = this.maps[data[i].id]
-	// 				fn.combindIn(data[i],m.toData());
-	// 				//just in case the combind messed up the layers
-	// 				data[i].layers = m.layers;
-	// 			}
-	// 		};
-	// 		this.mapList = data;
-
-	// 		this.events.emit('mapsChange',this.mapList)
-	// 		if(cb) cb();
-	// 	}.bind(this))
-	// },
 	getMapList: function(cb){ //returns a list of maps not sorted by id
 		db.query('SELECT * FROM maps',function(data){
 			for (var i = 0; i < data.length; i++) {
@@ -178,230 +335,232 @@ maps = {
 
 				//update from maps
 				if(this.mapLoaded(data[i].id)){
-					m = this.maps[data[i].id]
-					fn.combindIn(data[i],m.toData());
-					//just in case the combind messed up the layers
-					data[i].layers = m.layers;
+					for (var k = 0; k < maps.maps.length; k++) {
+						if(maps.maps[k].id === data[i].id){
+							fn.combindIn(data[i],maps.maps[k].exportData());
+							//just in case the combind messed up the layers
+							data[i].layers = maps.maps[k].layers;
+						}
+					};
 				}
 			};
 			if(cb) cb(data);
 		}.bind(this))
 	},
-	loadMap: function(mapID,cb){ //loads map into thecache
-		m = new this.Map();
+
+	getMap: function(mapID,cb){ //gets a map from the array, creates one if it dose not exists and it exists in the db. needs cb
+		for (var i = 0; i < this.maps.length; i++) {
+			if(this.maps[i].id === mapID){
+				map.lastGet = new Date();
+				if(cb) cb(this.maps[i]);
+				return;
+			}
+		};
+		this.loadMap(mapID,cb); //its not in the array, make a new one and try to load it
+	},
+	getChunk: function(x,y,m,cb){
+		this.getMap(m,function(map){
+			map.getChunk(x,y,cb);
+		}.bind(this))
+	},
+	getLayer: function(x,y,l,m,cb){
+		this.getMap(m,function(map){
+			map.getChunk(x,y,function(chunk){
+				if(cb) cb(chunk.getLayer(l));
+			}.bind(this))
+		}.bind(this))
+	},
+	getTile: function(x,y,l,m,cb){
+		this.getMap(m,function(map){
+			map.getChunk(Math.floor(x/16),Math.floor(y/16),function(chunk){
+				if(cb) cb(chunk.getLayer(l).getTile(x-Math.floor(x/16)*16,y-Math.floor(y/16)*16));
+			}.bind(this))
+		}.bind(this))
+	},
+	setTile: function(x,y,l,m,t,cb){
+		this.getMap(m,function(map){
+			map.getChunk(Math.floor(x/16),Math.floor(y/16),function(chunk){
+				if(cb) cb(chunk.getLayer(l).setTile(x-Math.floor(x/16)*16,y-Math.floor(y/16)*16,t));
+			}.bind(this))
+		}.bind(this))
+	},
+	mapLoaded: function(mapID){
+		//cant use getMap becuase it always returns
+		for (var i = 0; i < this.maps.length; i++) {
+			if(this.maps[i].id === mapID){
+				return true;
+			}
+		};
+		return false;
+	},
+	loadMap: function(mapID,cb){ //returns a new map and trys to load it from db, if it wes in the db it puts it into the array
+		map = new maps.Map(mapID);
 		//load it
-		db.query('SELECT * FROM maps WHERE id='+db.ec(mapID),function(m,data){
+		db.query('SELECT * FROM maps WHERE id='+db.ec(mapID),function(map,data){
 			if(data.length){
-				m.loadFromDBData(data[0]);
-				this.maps[m.id] = m;
+				map.inportData(data[0]);
+				this.maps.push(map);
 			}
-			if(cb) cb(m);
-		}.bind(this,m));
+			if(cb) cb(map);
+		}.bind(this,map));
+		return map;
 	},
-	loadChunk: function(x,y,map,cb){ //loads chunk into the cache
-		this.getMap(map,function(m){
-			c = new this.Chunk(x,y,map);
-			//see if the chunk is inside the map bounds, if not return a blank
-			if(x>=0&&y>=0&&x<m.width&&y<m.height){
-				//load it
-				db.query('SELECT * FROM chunks WHERE x='+db.ec(x)+' AND y='+db.ec(y)+' AND map='+db.ec(map),function(c,data){
-					//put it in the cache
-					maps.chunks['x:'+c.x+'-y:'+c.y+'-map:'+c.map] = c;
-					//if there is data load it
-					if(data.length){
-						c.loadFromDBData(data[0]);
-					}
-					else{
-						//create chunk in db
-						this.createChunk(c);
-					}
-					if(cb) cb(c);
-				}.bind(this,c));
-			}
-			else{
-				if(cb) cb(c);
-			}
-		}.bind(this));
-	},
-	getMap: function(mapID,cb){ //gets map from the cache
-		if(!this.mapLoaded(mapID)){
-			this.loadMap(mapID,function(m){
-				m.lastGet = Date();
-				if(cb) cb(m);
+	saveMap: function(mapID,cb){ //saves a map from the array to the db (it has to already exist in the db)
+		this.getMap(mapID,function(map){
+			data = map.exportData();
+			map.saved = true;
+			db.query('UPDATE `maps` SET `name`='+db.ec(data.name)+', `desc`='+db.ec(data.desc)+', `width`='+db.ec(data.width)+', `height`='+db.ec(data.height)+', `island`='+db.ec(data.island)+', `layers`='+db.ec(JSON.stringify(data.layers))+' WHERE id='+db.ec(data.id),function(data){
+				if(cb) cb();
 			})
-		}
-		else{
-			this.maps[mapID].lastGet = Date();
-			if(cb) cb(this.maps[mapID]);
-		}
+		}.bind(this))
 	},
-	getChunk: function(x,y,map,cb){ //gets chunk from the cache
-		id = 'x:'+x+'-y:'+y+'-map:'+map;
-		if(!this.chunkLoaded(x,y,map)){
-			this.loadChunk(x,y,map,function(c){
-				c.lastGet = Date();
-				if(cb) cb(c);
-			})
-		}
-		else{
-			this.chunks[id].lastGet = Date();
-			if(cb) cb(this.chunks[id]);
-		}
+	unloadMap: function(mapID,cb){ //saves and removes map from array
+		this.saveMap(mapID,function(){
+			this.removeMap(mapID,cb)
+		}.bind(this))
 	},
-	mapLoaded: function(mapID){ //checks if map is in the cache
-		return this.maps[mapID] !== undefined;
+	removeMap: function(mapID,cb){ //removes map from array
+		//cant use getMap becuase it returns the map and not the index
+		for (var i = 0; i < this.maps.length; i++) {
+			if(this.maps[i].id === mapID){
+				this.maps.splice(i,1);
+				if(cb) cb(true);
+				return;
+			}
+		};
+		if(cb) cb(false);
 	},
-	chunkLoaded: function(x,y,map){ //checks if chunk is in the cache
-		id = 'x:'+x+'-y:'+y+'-map:'+map;
-		return this.chunks[id] !== undefined;
-	},
-	createMap: function(data,cb){ //creates a new map from data passed to it, loads it and then returns in
+	//db
+	insertMap: function(map,cb){ //inserts a new map into the db based off an existing one
+		data = map.exportData();
 		db.query('INSERT INTO `maps`(`name`, `island`, `width`, `height`, `desc`) VALUES('+db.ec(data.name)+','+db.ec(data.island)+','+db.ec(data.width)+','+db.ec(data.height)+','+db.ec(data.desc)+')',function(data){
 			//load it
 			this.getMap(data.insertId,cb);
 		}.bind(this))
 	},
-	createChunk: function(chunk,cb){ //creates a chunk in the DB, for a chunk in the cache
-		chunk.blank = false;
-		chunk.saved = false;
-		db.query('INSERT INTO `chunks`(`x`, `y`, `map`) VALUES('+db.ec(chunk.x)+','+db.ec(chunk.y)+','+db.ec(chunk.map)+')',function(data){
-			// this.saveChunk(chunk.x,chunk.y,chunk.map,cb) dont save it yet leave that up to the saving loop
-		}.bind(this))
-	},
-	deleteMap: function(mapID,cb){ //removes map from cache and DB
+	deleteMap: function(mapID,cb){ //deletes map from db
 		//delete the map from the db
 		db.query('DELETE FROM `maps` WHERE id='+db.ec(mapID),function(data){
-			//if its in the cache then delete it form there
-			if(!this.mapLoaded(mapID)) return;
-			delete this.maps[mapID];
-			this.removeAllChunks(mapID,cb);
+			//if its in the array then remove it form there
+			if(this.mapLoaded(mapID)){
+				this.removeMap(mapID);
+			}
+			if(cb) cb();
 		}.bind(this));
 	},
-	deleteChunk: function(x,y,map){ //removes chunk from cache and DB
-		db.query('DELETE FROM `chunks` WHERE x='+db.ec(x)+' AND y='+db.ec(y)+' AND map='+db.ec(map),function(data){
-			//if its in the cache then delete it form there
-			if(!this.chunkLoaded(x,y,map)) return;
-			id = 'x:'+x+'-y:'+y+'-map:'+map;
-			delete this.chunks[id];
-		})
-	},
-	deleteAllChunks: function(map,cb){ //removes chunk for a map from cache and DB
-		this.getMap(mapID,function(m){
-			for (var k = 0; k < m.height; k++) {
-				for (var i = 0; i < m.width; i++) {
-					this.deleteChunk(i,k,mapID);
-				};
-			};
 
-			if(cb) cb();
-		})
-	},
-	updateMap: function(mapID,data,cb){ //updates a map with data
-		this.getMap(mapID,function(map){
-			fn.combindIn(map,data);
-			map.saved = false;
-			this.events.emit('mapsChange')
-		}.bind(this))
-	},
-	removeMap: function(mapID){ //removes a map from cache
-		delete this.maps[mapID];
-	},
-	removeChunk: function(x,y,map){ //removes a chunk from cache
-		delete this.chunks['x:'+x+'-y:'+y+'-map:'+map];
-	},
-	numberOFMaps: function(){
-		n=0;
-		for(var i in this.maps){
-			n++;
-		}
-		return n;
-	},
-	numberOFChunks: function(){
-		n=0;
-		for(var i in this.chunks){
-			n++;
-		}
-		return n;
-	},
-	saveMap: function(mapID,cb,dontFire){ //saves a map to the db
-		this.getMap(mapID,function(m){
-			db.query('UPDATE `maps` SET `name`='+db.ec(m.name)+', `desc`='+db.ec(m.desc)+', `width`='+db.ec(m.width)+', `height`='+db.ec(m.height)+', `island`='+db.ec(m.island)+', `layers`='+db.ec(JSON.stringify(m.layers))+' WHERE id='+db.ec(m.id),function(data){
-				if(!dontFire) this.events.emit('mapSave',mapID);
-				if(cb) cb();
-			}.bind(this))
-		}.bind(this))
-	},
-	saveAllMaps: function(cb){ //saves all the maps to the db
-		for(var i in this.maps){
-			this.saveMap(parseInt(i),null,true);
-		}
-		if(cb) cb();
-	},
-	saveChunk: function(x,y,map,cb,dontFire){ //saves a chunk to the db
-		this.getChunk(x,y,map,function(c){
-			db.query('UPDATE `chunks` SET `data`='+db.ec(JSON.stringify(c.toData()))+' WHERE x='+db.ec(c.x)+' AND y='+db.ec(c.y)+' AND map='+db.ec(c.map),function(data){
-				if(!dontFire) this.events.emit('chunkSave',x,y,map);
-				if(cb) cb();
-			}.bind(this))
-		}.bind(this))
-	},
-	saveAllChunks: function(cb){ //saves all the chunks to the db
-		for(var i in this.maps){
-			this.saveChunk(parseInt(i),true);
-		}
-		if(cb) cb();
-	},
-	setTile: function(x,y,map,tile,cb,admin){ //sets a tile on a map, with an optional admin that set it
-		this.getMap(map,function(m){
-			m.setTile(x,y,tile,cb,admin);
-		}.bind(this))
-	},
 	saveMapLoop: function(i){ //repeating loop that saves maps
-		j = 0;
-		for(var k in this.maps){
-			if(j++ == i){
-				//found the index
-				m = this.maps[k];
-				if(m.saved == false){
-					this.saveMap(m.id,function(){
-						m.saved = true;
-						if(++i >= this.numberOFMaps()){
-							i=0
-						}
-						setTimeout(this.saveMapLoop.bind(this,i),this.saveTime);
-					}.bind(this))
-					return;
-				}
+		if(this.maps[i]){
+			m = this.maps[i];
+			if(m.saved == false){
+				this.saveMap(m.id,function(){
+					m.saved = true;
+
+					if(++i >= this.maps.length){
+						i=0
+					}
+					setTimeout(this.saveMapLoop.bind(this,i),this.saveTime);
+				}.bind(this))
+				return;
 			}
 		}
-		if(++i >= this.numberOFMaps()){
+		if(++i >= this.maps.length){
 			i=0
 		}
 		setTimeout(this.saveMapLoop.bind(this,i),this.saveTime);
 	},
-	saveChunkLoop: function(i){ //repeating loop that saves maps
-		j = 0;
-		for(var k in this.chunks){
-			if(j++ == i){
-				//found the index
-				c = this.chunks[k];
-				if(c.saved == false){
-					this.saveChunk(c.x,c.y,c.map,function(){
-						c.saved = true;
-						console.log('saved map'.info+': '+i)
-						if(++i >= this.numberOFChunks()){
-							i=0
+	saveChunkLoop: function(mapIndex,chunkIndex){
+		//find the x,y of the chunk based off the index
+		if(this.maps[mapIndex]){
+			if(this.maps[mapIndex].chunks[chunkIndex]){
+				var map = this.maps[mapIndex];
+				var chunk = map.chunks[chunkIndex];
+				cb = function(map,chunk){
+					if(++chunkIndex < map.chunks.length){
+						//next chunk
+					}
+					else{
+						//next map
+						if(++mapIndex < maps.maps.length){
+							chunkIndex = 0;
 						}
-						setTimeout(this.saveChunkLoop.bind(this,i),this.saveTime);
-					}.bind(this))
+						else{
+							//end of maps
+							mapIndex = 0;
+							chunkIndex = 0;
+						}
+					}
+					setTimeout(this.saveChunkLoop.bind(this,mapIndex,chunkIndex),this.saveTime);
+				}.bind(this,map,chunk)
+
+				if(!chunk.saved){
+					map.chunkExists(chunk.x,chunk.y,function(map,chunk,exists){
+						if(exists){
+							map.saveChunk(chunk.x,chunk.y,cb);
+							return;
+						}
+						else{
+							map.insertChunk(chunk,cb);
+							return;
+						}
+					}.bind(this,map,chunk))
 					return;
 				}
 			}
 		}
-		if(++i >= this.numberOFMaps()){
+		setTimeout(this.saveChunkLoop.bind(this,0,0),this.saveTime);
+	},
+	unloadMapLoop: function(i){ //repeating loop that unloads maps when thet have not been gotten in 30min
+		if(this.maps[i]){
+			var m = this.maps[i];
+			var d = new Date();
+			d.setMinutes(d.getMinutes()-maps.unloadTime);
+			if(m.saved && m.lastGet < d){
+				//see if all the chunks have been saved
+				for (var i = 0; i < m.chunks.length; i++) {
+					if(m.chunks[i].saved && m.chunks[i].lastGet < d){
+						this.removeMap(m.id);
+					}
+				};
+			}
+		}
+		if(++i >= this.maps.length){
 			i=0
 		}
-		setTimeout(this.saveChunkLoop.bind(this,i),this.saveTime);
+		setTimeout(this.unloadMapLoop.bind(this,i),this.saveTime);
+	},
+	unloadChunkLoop: function(mapIndex,chunkIndex){
+		//find the x,y of the chunk based off the index
+		if(this.maps[mapIndex]){
+			if(this.maps[mapIndex].chunks[chunkIndex]){
+				var map = this.maps[mapIndex];
+				var chunk = map.chunks[chunkIndex];
+
+				var d = new Date();
+				d.setMinutes(d.getMinutes()-maps.unloadTime);
+				if(chunk.saved && chunk.lastGet < d){
+					map.removeChunk(chunk.x,chunk.y);
+				}
+
+				if(++chunkIndex < map.chunks.length){
+					//next chunk
+				}
+				else{
+					//next map
+					if(++mapIndex < maps.maps.length){
+						chunkIndex = 0;
+					}
+					else{
+						//end of maps
+						mapIndex = 0;
+						chunkIndex = 0;
+					}
+				}
+				setTimeout(this.unloadChunkLoop.bind(this,mapIndex,chunkIndex),this.saveTime);
+				return;
+			}
+		}
+		setTimeout(this.unloadChunkLoop.bind(this,0,0),this.saveTime);
 	}
 }
 

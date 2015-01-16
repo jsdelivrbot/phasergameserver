@@ -25,64 +25,42 @@ Admin = function(userData,socket){
 	}
 
 	// maps
-	socket.on('createMap',function(data,cb){ //needs a function on the map obj
-		maps.createMap(data,function(m){
-			this.updateMaps()
+	socket.on('createMap',function(data,cb){
+		map = new maps.Map(-1);
+		map.name = data.name;
+		map.desc = data.desc;
+		map.width = data.width;
+		map.height = data.height;
+		map.island = data.island;
+		maps.insertMap(map,function(m){
+			//tell every one that the maps have changed
+			maps.events.emit('mapsChange')
 			if(cb) cb(true);
 		}.bind(this))
-		// db.query("INSERT INTO `maps`(`name`, `desc`, `island`, `width`, `height`) VALUES ("+db.ec(data.name)+", "+db.ec(data.desc)+", "+db.ec(data.island)+", "+db.ec(data.width)+", "+db.ec(data.height)+")",function(data){
-		// 	db.query('SELECT * FROM maps',function(data){
-		// 		socket.emit('mapsUpdate',data)
-		// 	})
-		// 	cb(true);
-		// })
 	})
 	socket.on('deleteMap',function(mapID,cb){
 		maps.deleteMap(mapID,function(){
-			this.updateMaps();
+			//tell every one that the maps have changed
+			maps.events.emit('mapsChange')
 			if(cb) cb();
 		}.bind(this));
-		// db.query('DELETE FROM `maps` WHERE id='+db.ec(mapID),function(data){
-		// 	if(data.affectedRows !== 0){
-		// 		maps.removeMap(mapID);
-		// 	}
-		// 	cb(data.affectedRows !== 0);
-		// })
 	})
 	socket.on('editMapInfo',function(data,cb){
-		id = data.id;
-		delete data.id;
-		maps.updateMap(id,data,function(){
-			if(cb) cb();
-		});
-		// maps.getMap(data.id,function(map){
-		// 	map.desc = data.desc;
-		// 	map.island = data.island;
-		// 	map.name = data.name;
-		// 	map.saved = false;
-		// 	//fire the change event
-		// 	maps.updateMapList();
-		// 	if(cb) cb(true);
-		// }.bind(this))
-		// db.query("UPDATE `maps` SET `name`="+db.ec(data.name)+", `desc`="+db.ec(data.desc)+", `island`="+db.ec(data.island)+" WHERE id="+db.ec(data.id),function(data){
-		// 	db.query('SELECT * FROM maps',function(data){
-		// 		socket.emit('mapsUpdate',data)
-		// 	})
-		// 	cb(true);
-		// })
+		maps.getMap(data.id,function(map){
+			map.name = data.name;
+			map.desc = data.desc;
+			map.width = data.width;
+			map.height = data.height;
+			map.island = data.island;
+			map.saved = false;
+			//tell every one that the maps have changed
+			maps.events.emit('mapsChange')
+		})
 	})
 	socket.on('getChunk',function(data,cb){
 		maps.getChunk(data.x,data.y,data.map,function(chunk){
-			if(cb) cb(chunk.tiles);
+			if(cb) cb(chunk.exportData().data[0]); //-----------------remove the "[0]" when admin tool works with layers---------------------
 		})
-		// db.query('SELECT data FROM chunks WHERE map='+db.ec(data.map)+' AND x='+db.ec(data.x)+' AND y='+db.ec(data.y),function(data){
-		// 	if(data.length){
-		// 		cb(data);
-		// 	}
-		// 	else{
-		// 		cb(false);
-		// 	}
-		// })
 	})
 	socket.on('updateLayers',function(data,cb){
 		//cant combindIn because dose not take into account removed array indexes
@@ -92,13 +70,6 @@ Admin = function(userData,socket){
 			maps.events.emit('mapsChange')
 			if(cb) cb();
 		})
-		// maps.getMap(data.map,function(map){
-		// 	map.layers = data.layers;
-		// 	if(cb) cb(true);
-		// })
-		// db.query('UPDATE `maps` SET `layers`='+db.ec(JSON.stringify(data.layers))+' WHERE id='+db.ec(data.map),function(data){
-		// 	if(cb) cb(data.affectedRows !== 0);
-		// })
 	})
 
 	// users
