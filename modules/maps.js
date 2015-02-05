@@ -9,7 +9,7 @@ function array(val,length){
 }
 
 maps = {
-	defaultTile: 1,
+	defaultTile: 2,
 	saveTime: 1000,
 	unloadTime: 15, //in min
 	// mapList: [], //for map ref (not sorted my id)
@@ -250,12 +250,12 @@ maps = {
 		})
 		this._layers = [];
 
-		this.getLayer = function(i){ //returns layer
+		this.getLayer = function(i){ //returns layer by index
 			if(this.layerExists(i)){
 				return this.layers[i];
 			}
 			else{
-				return new maps.Layer(i,this);
+				return new maps.Layer(-1,this);
 			}
 		}
 		this.layerExists = function(i){ //tests to see if this layer is on the map
@@ -283,8 +283,8 @@ maps = {
 			}.bind(this))
 		}
 		this.exportData = function(){ //exports chunk into db format
-			a = this.layers;
-			b = []
+			var a = this.layers;
+			var b = []
 			for (var i = 0; i < a.length; i++) {
 				b.push(a[i].exportData());
 			};
@@ -429,6 +429,18 @@ maps = {
 			}
 		};
 		if(cb) cb(false);
+	},
+	saveAll: function(cb){
+		cb = _.after(this.maps.length+1,cb);
+		for (var i = 0; i < this.maps.length; i++) {
+			if(!this.maps[i].saved){
+				this.saveMap(this.maps[i].id,cb);
+			}
+			else{
+				cb();
+			}
+		};
+		cb();
 	},
 	//db
 	insertMap: function(map,cb){ //inserts a new map into the db based off an existing one

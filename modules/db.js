@@ -1,4 +1,4 @@
-sql = require('mysql');
+var sqlDB = require('mysql');
 
 db = {
 	db: {},
@@ -11,15 +11,13 @@ db = {
 		if(db.db.state === 'authenticated'){
 			db.db.query(sql,function(err, rows, fields){
 				if(err) throw err;
-				if(cb){
-					cb(rows);
-				}
+				if(cb) cb(rows);
 			})
 
 			//refresh the time out
 			clearTimeout(db.timeout);
 			db.timeout = setTimeout(function(){
-				console.log('no database activity, closing '.info+'connection')
+				console.timeLog('no database activity, closing '.info+'connection')
 				db.disconect()
 			},1000*60)
 		}
@@ -28,16 +26,22 @@ db = {
 			db.connect(function(){
 				db.db.query(sql,function(err, rows, fields){
 					if(err) throw err;
-					if(cb){
-						cb(rows);
-					}
+					if(cb) cb(rows);
 				})
 			})
 		}
 	},
 	ec: function(str){
 		if(this.db){
+			if(typeof str == 'object'){
+				str = JSON.stringify(str);
+			}
 			return this.db.escape(str);
+		}
+	},
+	ecID: function(str){
+		if(this.db){
+			return this.db.escapeId(str);
 		}
 	},
 	connect: function(cb){
@@ -48,7 +52,7 @@ db = {
 			return;
 		}
 
-		db.db = sql.createConnection({
+		db.db = sqlDB.createConnection({
 			host: dataFiles.config.dataBase.host,
 			user: dataFiles.config.dataBase.user,
 			password: dataFiles.config.dataBase.password,
@@ -57,16 +61,16 @@ db = {
 		db.connecting = true;
 		db.db.connect(function(err){
 			if(err){
-				console.log('failed to connect to the data base'.error);
+				console.timeLog('failed to connect to the data base'.error);
 				process.exit();
 			}
-			console.log('connected'.info+' to the data base');
+			console.timeLog('connected'.info+' to the data base');
 			db.connecting = false;
 			cb();
 		});
 
 		db.timeout = setTimeout(function(){
-			console.log('no database activity'.info+', closing connection')
+			console.timeLog('no database activity'.info+', closing connection')
 			db.disconect()
 		},1000*60)
 	},

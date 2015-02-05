@@ -1,3 +1,5 @@
+Klass = require('Klass');
+
 PlayerIn = Klass({
 	name: '',
 	callback: null,
@@ -236,7 +238,7 @@ Player = Klass({
 		this.data = new PlayerDataFull(_playerData)
 		this.data.player = this
 
-		console.log('player: '+this.data.data.id.name+' loged on')
+		console.timeLog(this.data.data.id.name.info+' loged on')
 
 		this.in = {
 			player: new PlayerInDiff('player',function(diff){
@@ -358,7 +360,7 @@ Player = Klass({
 				}
 			}),
 			disconnect: new PlayerIn('disconnect',function(data){
-				console.log('player: '+this.player.data.data.id.name+' loged off')
+				console.timeLog(this.player.data.data.id.name.info+' loged off')
 
 				this.player.exit();
 			})
@@ -481,11 +483,11 @@ Player = Klass({
 		this.saveDown();
 	},
 
-	saveDown: function(){
+	saveDown: function(cb){
 		//save to db
 		db.player.set(this.id,this.data.data);
 		db.query("UPDATE users SET inventory='"+JSON.stringify(this.inventory)+"', health="+this.health+" WHERE id="+this.id,function(data){
-			// console.log(data);
+			if(cb) cb();
 		})
 	}
 })

@@ -1,9 +1,9 @@
 Admin = function(userData,socket){
-	console.log(userData.name+' loged on as admin'.info)
+	console.timeLog(userData.name.info+' loged on as admin')
 	socket.userData = userData;
 
 	socket.on('disconnect',function(){
-		console.log(this.userData.name+' loged off as admin'.info)
+		console.timeLog(this.userData.name.info+' loged off as admin')
 		this.exit();
 	})
 
@@ -59,7 +59,7 @@ Admin = function(userData,socket){
 	})
 	socket.on('getChunk',function(data,cb){
 		maps.getChunk(data.x,data.y,data.map,function(chunk){
-			if(cb) cb(chunk.exportData().data[0]); //-----------------remove the "[0]" when admin tool works with layers---------------------
+			if(cb) cb(chunk.exportData());
 		})
 	})
 	socket.on('updateLayers',function(data,cb){
@@ -70,6 +70,54 @@ Admin = function(userData,socket){
 			maps.events.emit('mapsChange')
 			if(cb) cb();
 		})
+	})
+
+	//objects
+	socket.on('getObject',function(data,cb){
+		objectController.getObject(data.id,data.type,function(obj){
+			obj = obj.exportData();
+			if(cb) cb(obj);
+		})
+	})
+	socket.on('getObjects',function(data,cb){
+		objectController.getObjectsOnPosition(data.type,{
+			x: data.x,
+			y: data.y,
+			map: data.map
+		},{
+			x: data.x + data.width,
+			y: data.y + data.height,
+			map: data.map
+		},function(objs){
+			for (var i = 0; i < objs.length; i++) {
+				objs[i] = objs[i].exportData();
+			};
+			if(cb) cb(objs);
+		}.bind(this))
+	})
+	socket.on('objectCreate',function(data,cb){
+		objectController.createObject(data.type,data.data,function(obj){
+			obj = obj.exportData();
+			if(cb) cb(obj);
+		})
+
+		//tell all the other sockets
+		this.broadcast.emit('objectCreate',data);
+	})
+	socket.on('objectChanged',function(data,cb){ // data is a array of changed objs
+		objectController.getObject(data.id,data.type,function(obj){
+			obj.inportData(data);
+			obj.saved = false;
+		}.bind(this))
+
+		//tell all the other sockets
+		this.broadcast.emit('objectChanged',data);
+	})
+	socket.on('objectDelete',function(data,cb){
+		objectController.deleteObject(data.id,data.type,cb);
+
+		//tell all the other sockets
+		this.broadcast.emit('objectDelete',data);
 	})
 
 	// users
