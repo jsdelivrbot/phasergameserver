@@ -19,7 +19,7 @@ module.exports = function(){
 			players.saveAll(cb);
 
 			console.timeLog('saving objects...')
-			objectController.unloadAll(cb);
+			objectController.saveAll(cb);
 		}
 	}));
 

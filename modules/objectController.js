@@ -19,6 +19,8 @@ objectController = {
 				data.properties = JSON.parse(data.properties);
 			}
 
+			delete data.id; //remove id so things dont get messed up
+
 			fn.combindOver(this,data);
 		}
 		this.exportData = function(){
@@ -45,9 +47,6 @@ objectController = {
 		this.remove = function(){
 			objectController.removeObject(this.id,this.type);
 		}
-		this.unload = function(cb){
-			objectController.unloadObject(this.id,this.type,cb);
-		}
 		this.delete = function(cb){
 			objectController.deleteObject(this.id,this.type,cb);
 		}
@@ -64,6 +63,14 @@ objectController = {
 			return -1
 		}
 	}),
+
+	/*
+	events:
+	objectChange: obj export
+	objectDelete: {id: id, type: type}
+	objectCreate: obj export
+	*/
+	events: new events.EventEmitter(),
 
 	init: function(){
 		this.saveObjectLoop(0);
@@ -122,14 +129,19 @@ objectController = {
 		var sql = 'INSERT INTO `object-'+obj.type+'`(`x`, `y`, `map`, `width`, `height`, `properties`) VALUES ('+db.ec(obj.x)+','+db.ec(obj.y)+','+db.ec(obj.map)+','+db.ec(obj.width)+','+db.ec(obj.height)+','+db.ec(obj.properties)+')';
 		this.typeExists(type,function(exists){
 			if(exists){
-				db.query(sql,function(){
+				db.query(sql,function(data){
+					obj.id = data.insertId;
+
+					//fire the event
+					this.events.emit('objectCreate',obj.exportData());
+					
 					if(cb) cb(obj);
-				})
+				}.bind(this))
 			}
 			else{
 				if(cb) cb(obj);
 			}
-		})
+		}.bind(this))
 	},
 	removeObject: function(id,type){ //removes obj from array
 		i = this.objects.indexOf({id:id,type:type});
@@ -140,6 +152,9 @@ objectController = {
 	deleteObject: function(id,type,cb){ //remove obj from db
 		this.typeExists(type,function(exists){
 			if(exists){
+				//fire the event
+				this.events.emit('objectDelete',{id:id,type:type});
+
 				db.query('DELETE FROM '+db.ecID('object-'+type)+' WHERE id='+db.ec(id),function(data){
 					if(this.objectLoaded(id,type)){
 						this.removeObject(id,type);
@@ -155,6 +170,14 @@ objectController = {
 	objectLoaded: function(id,type){ //checks to see if the obj is loaded
 		return this.objects.indexOf({id:id,type:type}) !== -1;
 	},
+	updateObject: function(id,type,data){ //updates objs data and fires event
+		this.getObject(id,type,function(obj){
+			obj.inportData(data);
+			obj.saved = false;
+			//fire the event
+			this.events.emit('objectChange',obj.exportData());
+		}.bind(this))
+	},
 	typeExists: function(type,cb){ //checks to see if a type of object exists in the db
 		db.query("SHOW TABLES LIKE "+db.ec('object-'+type),function(data){
 			if(cb) cb(data.length > 0);
@@ -166,8 +189,8 @@ objectController = {
 			if(exists){
 				db.query('SELECT * FROM '+db.ecID('object-'+type)+' WHERE id='+db.ec(id),function(data){
 					if(data.length){
-						obj.inportData(data[0]);
 						obj.id = data[0].id;
+						obj.inportData(data[0]);
 						this.objects.push(obj);
 					}
 					if(cb) cb(obj);
@@ -204,46 +227,17 @@ objectController = {
 			})
 		}.bind(this))
 	},
-	unloadObject: function(id,type,cb){
-		this.getObject(id,type,function(obj){
-			if(!obj.saved){
-				obj.save(function(){
-					obj.remove();
-					if(cb) cb();
-				});
+	saveAll: function(cb){
+		cb = _.after(this.objects.length+1,cb);
+		for (var i = 0; i < this.objects.length; i++) {
+			if(!this.objects[i].saved){
+				this.objects[i].save(cb);
 			}
 			else{
-				obj.remove();
-				if(cb) cb();
+				cb();
 			}
-		}.bind(this))
-	},
-	unloadAll: function(cb){
-		if(this.objects.length){
-			cb = _.after(this.objects.length,cb || function(){});
-			for (var i = 0; i < this.objects.length; i++) {
-				this.objects[i].unload(cb);
-			};
-		}
-		else{
-			cb();
-		}
-	},
-	saveAll: function(cb){
-		if(this.objects.length){
-			cb = _.after(this.objects.length,cb || function(){});
-			for (var i = 0; i < this.objects.length; i++) {
-				if(!this.objects[i].saved){
-					this.objects[i].save(cb);
-				}
-				else{
-					cb();
-				}
-			};
-		}
-		else{
-			cb();
-		}
+		};
+		cb();
 	},
 	saveObjectLoop: function(i){
 		//find the x,y of the chunk based off the index

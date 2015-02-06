@@ -100,24 +100,12 @@ Admin = function(userData,socket){
 			obj = obj.exportData();
 			if(cb) cb(obj);
 		})
-
-		//tell all the other sockets
-		this.broadcast.emit('objectCreate',data);
 	})
-	socket.on('objectChanged',function(data,cb){ // data is a array of changed objs
-		objectController.getObject(data.id,data.type,function(obj){
-			obj.inportData(data);
-			obj.saved = false;
-		}.bind(this))
-
-		//tell all the other sockets
-		this.broadcast.emit('objectChanged',data);
+	socket.on('objectChange',function(data,cb){ // data is a array of changed objs
+		objectController.updateObject(data.id,data.type,data);
 	})
 	socket.on('objectDelete',function(data,cb){
 		objectController.deleteObject(data.id,data.type,cb);
-
-		//tell all the other sockets
-		this.broadcast.emit('objectDelete',data);
 	})
 
 	// users
@@ -159,6 +147,21 @@ Admin = function(userData,socket){
 	socket.updateMaps();
 	socket.updateUsers();
 
+	socket._objectCreate = function(data){
+		this.emit('objectCreate',data);
+	}.bind(socket);
+	objectController.events.on('objectCreate',socket._objectCreate)
+
+	socket._objectDelete = function(data){
+		this.emit('objectDelete',data);
+	}.bind(socket);
+	objectController.events.on('objectDelete',socket._objectDelete)
+
+	socket._objectChange = function(data){
+		this.emit('objectChange',data);
+	}.bind(socket);
+	objectController.events.on('objectChange',socket._objectChange)
+
 	//live events, these are not stored in the db but sent to the other admins loged in
 	socket.on('liveTileChange',function(data,cb){
 
@@ -167,6 +170,10 @@ Admin = function(userData,socket){
 	socket.exit = function(){
 		//remove event listeners
 		maps.events.removeListener('mapsChange',this.updateMaps)
+		objectController.events.removeListener('objectCreate',this._objectCreate);
+		objectController.events.removeListener('objectChange',this._objectChange);
+		objectController.events.removeListener('objectDelete',this._objectDelete);
+
 		//remove myself from admin list
 		for (var i = 0; i < players.admins.length; i++) {
 			if(players.admins[i].userData.id == this.userData.id){
