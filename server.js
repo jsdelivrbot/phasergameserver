@@ -12,6 +12,7 @@ dataFiles = require('./modules/dataFiles.js');
 resources = require('./modules/resources.js');
 commands = require('./modules/commands.js');
 objectController = require('./modules/objectController.js');
+templates = require('./modules/templates.js');
 
 //set the log colors
 colors.setTheme({
@@ -31,6 +32,7 @@ function init(){
 		maps.init();
 		commands.init();
 		objectController.init();
+		templates.init();
 
 		io = require('socket.io')(8181);
 		io.on('connection', function (socket) {

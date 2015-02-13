@@ -74,6 +74,18 @@ objectController = {
 
 	init: function(){
 		this.saveObjectLoop(0);
+
+		this.events.on('objectCreate',function(data){
+			io.emit('objectCreate',data);
+		})
+
+		this.events.on('objectChange',function(data){
+			io.emit('objectChange',data);
+		})
+
+		this.events.on('objectDelete',function(data){
+			io.emit('objectDelete',data);
+		})
 	},
 	getObject: function(id,type,cb){ //gets a obj from the array
 		if(this.objectLoaded(id,type)){

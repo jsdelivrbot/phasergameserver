@@ -1,4 +1,5 @@
-module.exports = {
+//object functions version 1.2 by robert
+fn = {
 	//cant use _.extend because it makes a shallow extend
 	combindOver: function(obj,obj2){ //obj2 gose over obj, values that are not in obj are added
 		for (var val in obj2){
@@ -15,7 +16,13 @@ module.exports = {
 					obj[val] = fn.combindOver(obj[val],obj2[val])
 				}
 				else{
-					obj[val] = fn.combindOver({},obj2[val])
+					//see if obj2[val] is an array
+					if(obj2[val].hasOwnProperty('length')){
+						obj[val] = fn.combindOver([],obj2[val])
+					}
+					else{
+						obj[val] = fn.combindOver({},obj2[val])
+					}
 				}
 			}
 		}
@@ -230,3 +237,5 @@ module.exports = {
 		return base;
 	}
 }
+
+if (typeof module === "object") module.exports = fn;

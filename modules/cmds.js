@@ -5,7 +5,7 @@ module.exports = function(){
 	commands.addCommand(new Command({
 		id: 'stop',
 		run: function(){
-			var cb = _.after(3,function(){
+			var cb = _.after(4,function(){
 				console.timeLog('saved'.info);
 				process.exit();
 			});
@@ -20,6 +20,9 @@ module.exports = function(){
 
 			console.timeLog('saving objects...')
 			objectController.saveAll(cb);
+
+			console.timeLog('saving templates...')
+			templates.saveAll(cb);
 		}
 	}));
 

@@ -8,11 +8,6 @@ Admin = function(userData,socket){
 	})
 
 	// updates
-	socket.updateMaps = function(){
-		maps.getMapList(function(maps){
-			this.emit('mapsUpdate',maps)
-		}.bind(this))
-	}
 	socket.updateIslands = function(){
 		db.query('SELECT * FROM islands',function(data){
 			this.emit('islandsUpdate',data)
@@ -33,16 +28,20 @@ Admin = function(userData,socket){
 		map.height = data.height;
 		map.island = data.island;
 		maps.insertMap(map,function(m){
-			//tell every one that the maps have changed
-			maps.events.emit('mapsChange')
 			if(cb) cb(true);
+			//tell every one that the maps have changed
+			maps.getMapList(function(maps){
+				io.emit('mapsChange',maps);
+			}.bind(this))
 		}.bind(this))
 	})
 	socket.on('deleteMap',function(mapID,cb){
 		maps.deleteMap(mapID,function(){
-			//tell every one that the maps have changed
-			maps.events.emit('mapsChange')
 			if(cb) cb();
+			//tell every one that the maps have changed
+			maps.getMapList(function(maps){
+				io.emit('mapsChange',maps);
+			}.bind(this))
 		}.bind(this));
 	})
 	socket.on('editMapInfo',function(data,cb){
@@ -54,7 +53,9 @@ Admin = function(userData,socket){
 			map.island = data.island;
 			map.saved = false;
 			//tell every one that the maps have changed
-			maps.events.emit('mapsChange')
+			maps.getMapList(function(maps){
+				io.emit('mapsChange',maps);
+			}.bind(this))
 		})
 	})
 	socket.on('getChunk',function(data,cb){
@@ -67,9 +68,18 @@ Admin = function(userData,socket){
 		maps.getMap(data.map,function(map){
 			map.layers = data.layers;
 			map.saved = false;
-			maps.events.emit('mapsChange')
 			if(cb) cb();
+			//tell every one that the maps have changed
+			maps.getMapList(function(maps){
+				io.emit('mapsChange',maps);
+			}.bind(this))
 		})
+	})
+	socket.on('tileChange',function(data,cb){
+		maps.setTile(data,cb);
+	})
+	socket.on('tilesChange',function(data,cb){
+		maps.setTiles(data,data.map,cb);
 	})
 
 	//objects
@@ -80,15 +90,7 @@ Admin = function(userData,socket){
 		})
 	})
 	socket.on('getObjects',function(data,cb){
-		objectController.getObjectsOnPosition(data.type,{
-			x: data.x,
-			y: data.y,
-			map: data.map
-		},{
-			x: data.x + data.width,
-			y: data.y + data.height,
-			map: data.map
-		},function(objs){
+		objectController.getObjectsOnPosition(data.type,data.from,data.to,function(objs){
 			for (var i = 0; i < objs.length; i++) {
 				objs[i] = objs[i].exportData();
 			};
@@ -102,10 +104,33 @@ Admin = function(userData,socket){
 		})
 	})
 	socket.on('objectChange',function(data,cb){ // data is a array of changed objs
-		objectController.updateObject(data.id,data.type,data);
+		objectController.updateObject(data.id,data.type,data,cb);
 	})
 	socket.on('objectDelete',function(data,cb){
 		objectController.deleteObject(data.id,data.type,cb);
+	})
+
+	//templates
+	socket.on('getTemplate',function(data,cb){
+		templates.getTemplate(data.id,function(template){
+			template = template.exportData();
+			if(cb) cb(template);
+		})
+	})
+	socket.on('getTemplates',function(cb){
+		templates.getTemplates(cb);
+	})
+	socket.on('TemplateCreate',function(data,cb){
+		templates.createTemplate(data.data,function(template){
+			template = template.exportData();
+			if(cb) cb(template);
+		})
+	})
+	socket.on('TemplateChange',function(data,cb){
+		templates.updateTemplate(data.id,data,cb);
+	})
+	socket.on('TemplateDelete',function(id,cb){
+		templates.deleteTemplate(id,cb);
 	})
 
 	// users
@@ -142,38 +167,13 @@ Admin = function(userData,socket){
 		})
 	})
 
-	maps.events.on('mapsChange',socket.updateMaps.bind(socket));
 	socket.updateIslands();
-	socket.updateMaps();
 	socket.updateUsers();
-
-	socket._objectCreate = function(data){
-		this.emit('objectCreate',data);
-	}.bind(socket);
-	objectController.events.on('objectCreate',socket._objectCreate)
-
-	socket._objectDelete = function(data){
-		this.emit('objectDelete',data);
-	}.bind(socket);
-	objectController.events.on('objectDelete',socket._objectDelete)
-
-	socket._objectChange = function(data){
-		this.emit('objectChange',data);
-	}.bind(socket);
-	objectController.events.on('objectChange',socket._objectChange)
-
-	//live events, these are not stored in the db but sent to the other admins loged in
-	socket.on('liveTileChange',function(data,cb){
-
-	})
+	maps.getMapList(function(maps){
+		this.emit('mapsChange',maps);
+	}.bind(socket))
 
 	socket.exit = function(){
-		//remove event listeners
-		maps.events.removeListener('mapsChange',this.updateMaps)
-		objectController.events.removeListener('objectCreate',this._objectCreate);
-		objectController.events.removeListener('objectChange',this._objectChange);
-		objectController.events.removeListener('objectDelete',this._objectDelete);
-
 		//remove myself from admin list
 		for (var i = 0; i < players.admins.length; i++) {
 			if(players.admins[i].userData.id == this.userData.id){
