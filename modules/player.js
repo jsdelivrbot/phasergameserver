@@ -420,6 +420,18 @@ Player = Klass({
 
 		//send the data position/inventory to the player
 		this.out.player.data(this.data.data);
+
+		//bind error events
+		this.socket.on('logError',function(err){
+			db.query("SELECT id, count FROM errors WHERE app='admin' AND message="+db.ec(err.message)+" AND file="+db.ec(err.file)+" AND line="+db.ec(err.line),function(data){
+				if(data.length){
+					db.query('UPDATE `errors` SET `count`='+db.ec(data[0].count+1)+' WHERE id='+db.ec(data[0].id));
+				}
+				else{
+					db.query('INSERT INTO `errors`(`message`,`app`,`file`,`line`,`stack`) VALUES('+db.ec(err.message)+','+db.ec('admin')+','+db.ec(err.file)+','+db.ec(err.line)+','+db.ec(err.stack)+')');
+				}
+			});
+		});
 	},
 
 	update: function(){
