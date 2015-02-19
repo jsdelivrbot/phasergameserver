@@ -18,6 +18,11 @@ Admin = function(userData,socket){
 			this.emit('usersUpdate',data)
 		}.bind(this))
 	}
+	socket.updateErrors = function(){
+		db.query('SELECT * FROM errors LIMIT '+db.ec(this.errorsPage*10)+', '+db.ec((this.errorsPage*10)+10),function(data){
+			this.emit('updateErrors',data)
+		}.bind(this))
+	}
 
 	// maps
 	socket.on('createMap',function(data,cb){
@@ -75,12 +80,21 @@ Admin = function(userData,socket){
 			}.bind(this))
 		})
 	})
-	socket.on('tileChange',function(data,cb){
-		maps.setTile(data,cb);
-	})
 	socket.on('tilesChange',function(data,cb){
-		maps.setTiles(data,data.map,cb);
+		maps.setTiles(data,cb);
 	})
+
+	//layers
+	socket.on('createLayer',function(data,cb){
+		maps.createLayer(data,cb);
+	})
+	socket.on('deleteLayer',function(id,cb){
+		maps.deleteLayer(id,cb);
+	})
+	socket.on('changeLayer',function(data,cb){
+		maps.changeLayer(data,cb);
+	})
+	socket.emit('updateLayers',maps.layers);
 
 	//objects
 	socket.on('getObject',function(data,cb){
@@ -118,18 +132,22 @@ Admin = function(userData,socket){
 		})
 	})
 	socket.on('getTemplates',function(cb){
-		templates.getTemplates(cb);
+		templates.getTemplates(function(data){
+			for (var i = 0; i < data.length; i++) {
+				data[i] = data[i].exportData();
+			};
+			if(cb) cb(data);
+		});
 	})
-	socket.on('TemplateCreate',function(data,cb){
-		templates.createTemplate(data.data,function(template){
-			template = template.exportData();
-			if(cb) cb(template);
+	socket.on('templateCreate',function(data,cb){
+		templates.createTemplate(data,function(){
+			if(cb) cb();
 		})
 	})
-	socket.on('TemplateChange',function(data,cb){
+	socket.on('templateChange',function(data,cb){
 		templates.updateTemplate(data.id,data,cb);
 	})
-	socket.on('TemplateDelete',function(id,cb){
+	socket.on('templateDelete',function(id,cb){
 		templates.deleteTemplate(id,cb);
 	})
 
@@ -167,6 +185,24 @@ Admin = function(userData,socket){
 		})
 	})
 
+	//errors
+	socket.errorsPage = 0;
+	socket.on('errorsChangePage',function(page){
+		this.page = page;
+		this.updateErrors();
+	})
+	socket.on('errorsDelete',function(id){
+		db.query('DELETE FROM `errors` WHERE id='+db.ec(id),function(){
+			this.updateErrors();
+		}.bind(this))
+	})
+	socket.on('errorsDeleteAll',function(id){
+		db.query('TRUNCATE TABLE `errors`',function(){
+			this.updateErrors();
+		}.bind(this))
+	})
+	socket.updateErrors();
+
 	socket.on('logError',function(err){
 		db.query("SELECT id, count FROM errors WHERE app='admin' AND message="+db.ec(err.message)+" AND file="+db.ec(err.file)+" AND line="+db.ec(err.line),function(data){
 			if(data.length){
@@ -177,6 +213,46 @@ Admin = function(userData,socket){
 			}
 		});
 	});
+
+	//cursors
+	socket.cursorVisibility = false;
+	socket.cursor = {
+		mouseX: 0,
+		mouseY: 0,
+		viewX: 0,
+		viewY: 0,
+		map: -1,
+		selectY: 0,
+		selectX: 0,
+		selectW: 0,
+		selectH: 0,
+		selected: 0,
+	}
+	socket.on('updateCursor',function(data){
+		fn.combindIn(this.cursor,data);
+	})
+	socket.on('updateCursorVisibility',function(data){
+		this.cursorVisibility = data;
+	})
+	//update loop
+	socket.updateCursorsLoop = function(){
+		if(this.cursorVisibility){
+			var cursors = [];
+			for (var i = 0; i < players.admins.length; i++) {
+				if(players.admins[i].cursor.map === this.cursor.map && players.admins[i].cursorVisibility && players.admins[i] !== this){
+					cursors.push(fn.combindOver({
+						id: players.admins[i].userData.id,
+						name: players.admins[i].userData.name
+					},players.admins[i].cursor));
+				}
+			};
+
+			this.emit('updateCursors',cursors);
+		}
+
+		setTimeout(this.updateCursorsLoop.bind(this),200);
+	}
+	socket.updateCursorsLoop();
 
 	socket.updateIslands();
 	socket.updateUsers();

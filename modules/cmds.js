@@ -5,7 +5,7 @@ module.exports = function(){
 	commands.addCommand(new Command({
 		id: 'stop',
 		run: function(){
-			var cb = _.after(4,function(){
+			var cb = _.after(5,function(){
 				console.timeLog('saved'.info);
 				process.exit();
 			});
@@ -13,7 +13,8 @@ module.exports = function(){
 			commands.readline.close();
 
 			console.timeLog('saving maps...')
-			maps.saveAll(cb);
+			maps.saveAllMaps(cb);
+			maps.saveAllChunks(cb);
 
 			console.timeLog('saving players...')
 			players.saveAll(cb);

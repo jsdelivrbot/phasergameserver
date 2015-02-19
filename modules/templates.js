@@ -2,11 +2,10 @@ var events = require('events');
 var sortedArray = require('./sortedArray.js');
 
 templates = {
-	Template: function(id,data){
+	Template: function(id){
 		this.id = id || -1;
 		this.name = '';
-		this.useWorker = true;
-		this.data = [];
+		this.data = {};
 
 		this.saved = true;
 
@@ -33,8 +32,6 @@ templates = {
 		this.remove = function(){
 			templates.removeTemplate(this.id);
 		}
-
-		this.inportData(data);
 	},
 
 	saveTime: 5000,
@@ -52,12 +49,21 @@ templates = {
 	templateChange: template
 	templateDelete: id
 	templateCreate: template
-	templatePlace: {template,position}
 	*/
 	events: new events.EventEmitter(),
 
 	init: function(){
 		this.saveTemplateLoop(0);
+
+		this.events.on('templateChange',function(data){
+			io.emit('templateChange',data);
+		});
+		this.events.on('templateCreate',function(data){
+			io.emit('templateCreate',data);
+		});
+		this.events.on('templateDelete',function(data){
+			io.emit('templateDelete',data);
+		});
 	},
 	getTemplate: function(id,cb){
 		if(this.templateLoaded(id)){

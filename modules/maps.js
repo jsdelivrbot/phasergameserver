@@ -1,4 +1,5 @@
 var events = require('events');
+var SortedArray = require('./sortedArray.js');
 
 function array(val,length){
 	var a = [];
@@ -9,17 +10,18 @@ function array(val,length){
 }
 
 maps = {
-	defaultTile: 2,
+	defaultTile: 0,
 	saveTime: 1000,
 	unloadTime: 15, //in min
+	layers: [],
 	maps: [],
 	events: new events.EventEmitter(),
 	/*
 	mapsChange: nothing
 	mapLoaded-"mapID": map
 	mapLoaded-x-y-mapID: chunk
-	tileChange: tile
 	tilesChange: array of tiles
+	layersChange: layers
 	*/
 
 	//classes
@@ -27,7 +29,7 @@ maps = {
 		this.desc = '';
 		this.width = 0;
 		this.height = 0;
-		this.layers = [];
+		// this.layers = [];
 		this.island = -1;
 		this.url = '';
 		this.name = '';
@@ -131,12 +133,7 @@ maps = {
 			}.bind(this))
 		}
 		this.saveAllChunks = function(cb){
-			if(cb){
-				_.after(this.width * this.height,cb)
-			}
-			else{
-				_.after(this.width * this.height,function(){})
-			}
+			cb = _.after(this.width * this.height,cb || function(){})
 
 			for (var x = 0; x < this.width; x++) {
 				for (var y = 0; y < this.height; y++) {
@@ -203,18 +200,11 @@ maps = {
 		}
 
 		this.inportData = function(data){ //loads data from db format
-			if(data.layers == ''){
-				data.layers = [];
-			}
-			else{
-				data.layers = JSON.parse(data.layers);
-			}
 			this.id = data.id;
 			this.name = data.name;
 			this.desc = data.desc;
 			this.height = data.height;
 			this.width = data.width;
-			this.layers = data.layers;
 			this.island = data.island;
 			this.url = data.url;
 
@@ -226,7 +216,6 @@ maps = {
 				desc: this.desc,
 				width: this.width,
 				height: this.height,
-				layers: this.layers,
 				island: this.island,
 				url: this.url,
 				name: this.name
@@ -246,16 +235,16 @@ maps = {
 		//acts as the layers array
 		this.__defineGetter__('layers',function(){ //syncs layers with map
 			a = [];
-			for (var i = 0; i < this.map.layers.length; i++) {
+			for (var i = 0; i < maps.layers.length; i++) {
 				s = false;
 				for (var k = 0; k < this._layers.length; k++) {
-					if(this._layers[k].id === this.map.layers[i].id){
+					if(this._layers[k].id === maps.layers[i].id){
 						a.push(this._layers[k]);
 						s = true;
 					}
 				};
 				if(!s){
-					a.push(new maps.Layer(this.map.layers[i].id,this));
+					a.push(new maps.Layer(maps.layers[i].id,this));
 				}
 			};
 			this._layers = a;
@@ -286,7 +275,9 @@ maps = {
 
 			a = this.layers;
 			for (var i = 0; i < data.data.length; i++) {
-				a[i].inportData(data.data[i]);
+				if(a[i]){
+					a[i].inportData(data.data[i]);
+				}
 			};
 			//load data
 			this.x = data.x;
@@ -365,32 +356,29 @@ maps = {
 		this.unloadMapLoop(0);
 		this.saveChunkLoop(0);
 		this.unloadChunkLoop(0);
+		this.updateLayers(0);
+
+		//set the max listeners
+		//mainly for the chunk/map load events
+		this.events.setMaxListeners(100);
 
 		this.events.on('mapsChange',function(data){
 			io.emit('mapsChange',data);
 		});
-		this.events.on('tileChange',function(data){
-			io.emit('tileChange',data);
-		});
 		this.events.on('tilesChange',function(data){
 			io.emit('tilesChange',data);
+		});
+		this.events.on('layersChange',function(data){
+			io.emit('updateLayers',data);
 		});
 	},
 	getMapList: function(cb){ //returns a list of maps not sorted by id
 		db.query('SELECT * FROM maps',function(data){
 			for (var i = 0; i < data.length; i++) {
-				if(data[i].layers === ''){
-					data[i].layers = '[]';
-				}
-				data[i].layers = JSON.parse(data[i].layers);
-
-				//update from maps
 				if(this.mapLoaded(data[i].id)){
 					for (var k = 0; k < maps.maps.length; k++) {
 						if(maps.maps[k].id === data[i].id){
 							fn.combindIn(data[i],maps.maps[k].exportData());
-							//just in case the combind messed up the layers
-							data[i].layers = maps.maps[k].layers;
 							break;
 						}
 					};
@@ -471,39 +459,44 @@ maps = {
 			};
 		};
 	},
-	setTile: function(data,cb,dontFire){ //fires tileChange event
-		this.getMap(data.map,function(map){
-			map.getChunk(Math.floor(data.x/16),Math.floor(data.y/16),function(chunk){
-				var layer = chunk.getLayer(data.layer);
-				data.x = data.x-Math.floor(data.x/16)*16;
-				data.y = data.y-Math.floor(data.y/16)*16
-				layer.setTile(data.x,data.y,data.tile);
-				if(!dontFire){
-					this.events.emit('tileChange',data);
-				}
-				if(cb) cb();
-			}.bind(this))
-		}.bind(this))
-	},
-	setTiles: function(data,mapID,cb,dontFire){ //set tiles in a rect
+	setTiles: function(data,cb,dontFire){ //set tiles in a rect
 		data = fn.combindOver({
 			x: 0,
 			y: 0,
 			width: 0,
 			height: 0,
-			data: []
+			data: [],
+			primaryLayer: 0,
+			map: -1,
+			activeLayer: 0
 		},data);
-		for (var l = 0; l < data.data.length; l++) {
-			for (var t = 0; t < data.data[l].length; t++) {
-				this.setTile({
-					x: data.x + (t-Math.floor(t/data.width)*data.width),
-					y: data.y + Math.floor(t/data.width),
-					layer: l,
-					map: mapID,
-					tile: data.data[l][t]
-				},null,true);
+
+		this.getMap(data.map,function(map){
+			for (var l = 0; l < data.data.length; l++) {
+				var layer = data.activeLayer + (l - data.primaryLayer);
+				for (var t = 0; t < data.data[l].length; t++) {
+					var x = data.x + (t-Math.floor(t/data.width)*data.width);
+					var y = data.y + Math.floor(t/data.width);
+
+					//see if its a -1 tile
+					if(data.data[l][t] == -1){
+						continue;
+					}
+					//set the tile to default tile if its out of the map
+					if(x < 0 || y < 0 || x >= map.width*16 || y >= map.height*16){
+						data.data[l][t] = this.defaultTile;
+					}
+
+					map.getChunk(Math.floor(x/16),Math.floor(y/16),function(x,y,layer,tile,chunk){
+						layer = chunk.getLayer(layer);
+						x = x-Math.floor(x/16)*16;
+						y = y-Math.floor(y/16)*16;
+
+						layer.setTile(x,y,tile);
+					}.bind(this,x,y,layer,data.data[l][t]))
+				};
 			};
-		};
+		}.bind(this))
 		if(!dontFire){
 			this.events.emit('tilesChange',data);
 		}
@@ -535,7 +528,7 @@ maps = {
 		this.getMap(mapID,function(map){
 			data = map.exportData();
 			map.saved = true;
-			db.query('UPDATE `maps` SET `name`='+db.ec(data.name)+', `desc`='+db.ec(data.desc)+', `width`='+db.ec(data.width)+', `height`='+db.ec(data.height)+', `island`='+db.ec(data.island)+', `layers`='+db.ec(JSON.stringify(data.layers))+' WHERE id='+db.ec(data.id),function(data){
+			db.query('UPDATE `maps` SET `name`='+db.ec(data.name)+', `desc`='+db.ec(data.desc)+', `width`='+db.ec(data.width)+', `height`='+db.ec(data.height)+', `island`='+db.ec(data.island)+' WHERE id='+db.ec(data.id),function(data){
 				if(cb) cb();
 			})
 		}.bind(this))
@@ -556,7 +549,7 @@ maps = {
 		};
 		if(cb) cb(false);
 	},
-	saveAll: function(cb){
+	saveAllMaps: function(cb){
 		cb = _.after(this.maps.length+1,cb);
 		for (var i = 0; i < this.maps.length; i++) {
 			if(!this.maps[i].saved){
@@ -565,6 +558,13 @@ maps = {
 			else{
 				cb();
 			}
+		};
+		cb();
+	},
+	saveAllChunks: function(cb){
+		cb = _.after(this.maps.length+1,cb);
+		for (var i = 0; i < this.maps.length; i++) {
+			this.maps[i].saveAllChunks(cb);
 		};
 		cb();
 	},
@@ -585,6 +585,36 @@ maps = {
 			}
 			if(cb) cb();
 		}.bind(this));
+	},
+	//layers
+	getLayer: function(id){
+		for (var i = 0; i < this.layers.length; i++) {
+			if(this.layers[i].id === id){
+				return this.layers[i];
+			}
+		};
+	},
+	createLayer: function(data,cb){
+		db.query('INSERT INTO `layers`(`title`,`description`,`level`,`abovePlayer`) VALUES('+db.ec(data.title)+','+db.ec(data.description)+','+db.ec(data.level)+','+db.ec(data.abovePlayer)+')',function(){
+			this.updateLayers(cb);
+		}.bind(this))
+	},
+	changeLayer: function(data,cb){
+		db.query('UPDATE `layers` SET `title`='+db.ec(data.title)+', `description`='+db.ec(data.description)+', `level`='+db.ec(data.level)+', `abovePlayer`='+db.ec(data.abovePlayer)+' WHERE id='+db.ec(data.id),function(){
+			this.updateLayers(cb);
+		}.bind(this))
+	},
+	deleteLayer: function(id,cb){
+		db.query('DELETE FROM `layers` WHERE id='+db.ec(id),function(){
+			this.updateLayers(cb);
+		}.bind(this))
+	},
+	updateLayers: function(cb){
+		db.query('SELECT * FROM layers',function(data){
+			this.layers = data;
+			this.events.emit('layersChange',this.layers);
+			if(cb) cb(this.layers);
+		}.bind(this))
 	},
 
 	saveMapLoop: function(i){ //repeating loop that saves maps

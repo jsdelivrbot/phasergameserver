@@ -46,7 +46,7 @@ fn = {
 	//cant use _.clone because it makes a shallow copy
 	duplicate: function(obj2,count){
 		if(typeof obj2 == 'object' && obj2 !== null){
-			count = count || 4
+			count = (count !== undefined)? count : 20;
 			if(count > 0){
 				// see if its an array
 				if(obj2.hasOwnProperty('length')){
