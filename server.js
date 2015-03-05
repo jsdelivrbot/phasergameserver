@@ -40,7 +40,7 @@ function init(){
 				players.login(data.email,data.password,socket,function(loginMessage,_player){
 					if(loginMessage.success){
 						// join the genral chanel
-						chat.join('0',_player)
+						// chat.join('0',_player)
 					}
 					callback(loginMessage)
 				});

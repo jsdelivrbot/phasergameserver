@@ -19,54 +19,6 @@ dataServer = {
 					json.players = players.players.length;
 					res.end(JSON.stringify(json))
 					break;
-				case 'map':
-					//see if the var are there
-					if(_url.query.map === undefined || _url.query.map < 0){
-						res.end(this.mapError('no map data sent'));
-						break;
-					}
-
-					id = parseInt(_url.query.map);
-
-					//get the url from the DB
-					if(this.maps[id]){
-						//its there, send it to the client
-						fs.readFile(this.maps[id].url,function(err, file){
-							if(err){
-								res.end(this.mapError('cant find map file'));
-								throw err;
-							}
-							res.end(JSON.stringify({
-								status: true,
-								data: JSON.parse(file)
-							}));
-						})
-					}
-					else{
-						//its not there, load it
-						db.query('select * from maps where id='+_url.query.map,function(mapId,data){
-							if(data.length){
-								this.maps[id] = data[0];
-
-								//send it back
-								fs.readFile(this.maps[id].url,function(err, file){
-									if(err){
-										res.end(this.mapError('cant find map file'));
-									}
-									else{
-										res.end(JSON.stringify({
-											status: true,
-											data: JSON.parse(file)
-										}));
-									}
-								}.bind(this))
-							}
-							else{
-								res.end(this.mapError('map not in server'));
-							}
-						}.bind(this,_url.query.map))
-					}
-					break;
 				case 'dataFile':
 					switch(_url.query.file){
 						case 'items':

@@ -209,6 +209,10 @@ Admin = function(userData,socket){
 				db.query('UPDATE `errors` SET `count`='+db.ec(data[0].count+1)+' WHERE id='+db.ec(data[0].id));
 			}
 			else{
+				err.message = err.message || '';
+				err.file = err.file || '';
+				err.line = err.line || -1;
+				err.stack = err.stack || '';
 				db.query('INSERT INTO `errors`(`message`,`app`,`file`,`line`,`stack`) VALUES('+db.ec(err.message)+','+db.ec('admin')+','+db.ec(err.file)+','+db.ec(err.line)+','+db.ec(err.stack)+')');
 			}
 		});
@@ -229,7 +233,8 @@ Admin = function(userData,socket){
 		selected: 0,
 	}
 	socket.on('updateCursor',function(data){
-		fn.combindIn(this.cursor,data);
+		data = data || {};
+		fn.combindOver(this.cursor,data);
 	})
 	socket.on('updateCursorVisibility',function(data){
 		this.cursorVisibility = data;

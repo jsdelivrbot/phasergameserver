@@ -1,3 +1,5 @@
+Klass = require('Klass');
+
 Chanel = Klass({
 	data: {
 		id: '',
