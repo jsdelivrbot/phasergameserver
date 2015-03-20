@@ -3,6 +3,7 @@ function Player(userData,socket){
 
 	//dont set socket.id becuase its already used
 	socket.userData = userData; //dont use this as active data
+	socket.lastPlayersArray = [];
 
 	socket.userID = userData.id;
 	socket.health = userData.health;
@@ -31,6 +32,34 @@ function Player(userData,socket){
 			if(cb) cb(chunk.exportData());
 		})
 	})
+	
+	//objects
+	socket.on('getObject',function(data,cb){
+		objectController.getObject(data.id,data.type,function(obj){
+			obj = obj.exportData();
+			if(cb) cb(obj);
+		})
+	})
+	socket.on('getObjects',function(data,cb){
+		objectController.getObjectsOnPosition(data.type,data.from,data.to,function(objs){
+			for (var i = 0; i < objs.length; i++) {
+				objs[i] = objs[i].exportData();
+			};
+			if(cb) cb(objs);
+		}.bind(this))
+	})
+	socket.on('objectCreate',function(data,cb){
+		objectController.createObject(data.type,data.data,function(obj){
+			obj = obj.exportData();
+			if(cb) cb(obj);
+		})
+	})
+	socket.on('objectChange',function(data,cb){ // data is a array of changed objs
+		objectController.updateObject(data.id,data.type,data,cb);
+	})
+	socket.on('objectDelete',function(data,cb){
+		objectController.deleteObject(data.id,data.type,cb);
+	})
 
 	socket.update = function(){ //send all the players down
 		var _players = [];
@@ -47,7 +76,13 @@ function Player(userData,socket){
 			}
 		};
 
-		this.emit('updatePlayers',_players);
+		//see if theres a diffrence
+		var diff = fn.getDiff(this.lastPlayersArray,_players);
+		if(!fn.isEmptyDiff(diff)){
+			this.lastPlayersArray = _players;
+			this.emit('updatePlayers',_players);
+		}
+
 	}
 	socket.exportData = function(){ //exports data in db format
 		return fn.combindIn(fn.duplicate(this.userData),{

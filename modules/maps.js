@@ -595,12 +595,12 @@ maps = {
 		};
 	},
 	createLayer: function(data,cb){
-		db.query('INSERT INTO `layers`(`title`,`description`,`level`,`abovePlayer`,`visibleInGame`) VALUES('+db.ec(data.title)+','+db.ec(data.description)+','+db.ec(data.level)+','+db.ec(data.abovePlayer)+','+db.ec(data.visibleInGame)+')',function(){
+		db.query('INSERT INTO `layers`(`title`,`description`,`level`,`abovePlayer`,`visibleInGame`,`collision`) VALUES('+db.ec(data.title)+','+db.ec(data.description)+','+db.ec(data.level)+','+db.ec(data.abovePlayer)+','+db.ec(data.visibleInGame)+','+db.ec(data.collision)+')',function(){
 			this.updateLayers(cb);
 		}.bind(this))
 	},
 	changeLayer: function(data,cb){
-		db.query('UPDATE `layers` SET `title`='+db.ec(data.title)+', `description`='+db.ec(data.description)+', `level`='+db.ec(data.level)+', `abovePlayer`='+db.ec(data.abovePlayer)+', `visibleInGame`='+db.ec(data.visibleInGame)+' WHERE id='+db.ec(data.id),function(){
+		db.query('UPDATE `layers` SET `title`='+db.ec(data.title)+', `description`='+db.ec(data.description)+', `level`='+db.ec(data.level)+', `abovePlayer`='+db.ec(data.abovePlayer)+', `visibleInGame`='+db.ec(data.visibleInGame)+', `collision`='+db.ec(data.collision)+' WHERE id='+db.ec(data.id),function(){
 			this.updateLayers(cb);
 		}.bind(this))
 	},

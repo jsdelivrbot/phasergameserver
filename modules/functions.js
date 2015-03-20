@@ -4,12 +4,14 @@ fn = {
 	combindOver: function(obj,obj2){ //obj2 gose over obj, values that are not in obj are added
 		for (var val in obj2){
 			if(typeof obj2[val] !== 'object'){
-				if(typeof obj[val] == "function"){
-					obj[val](obj2[val])
+				//see if we are on the client side and if theres ko
+				if(obj[val]){
+					if(obj[val].__ko_proto__){
+						obj[val](obj2[val])
+						continue;
+					}
 				}
-				else{
-					obj[val] = obj2[val]
-				}
+				obj[val] = obj2[val];
 			}
 			else{
 				if(typeof obj[val] == 'object'){
