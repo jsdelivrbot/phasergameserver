@@ -8,11 +8,6 @@ Admin = function(userData,socket){
 	})
 
 	// updates
-	socket.updateIslands = function(){
-		db.query('SELECT * FROM islands',function(data){
-			this.emit('islandsUpdate',data)
-		}.bind(this))
-	}
 	socket.updateUsers = function(){
 		db.query('SELECT * FROM users LIMIT '+db.ec(this.usersSelectLimit.min)+', '+db.ec(this.usersSelectLimit.max),function(data){
 			this.emit('usersUpdate',data)
@@ -151,6 +146,11 @@ Admin = function(userData,socket){
 		templates.deleteTemplate(id,cb);
 	})
 
+	//tileProperties
+	socket.on('tilePropertiesChange',function(data){
+		maps.tilePropertiesChange(data);
+	})
+
 	// users
 	socket.usersSelectLimit = {
 		min: 0,
@@ -259,11 +259,11 @@ Admin = function(userData,socket){
 	}
 	socket.updateCursorsLoop();
 
-	socket.updateIslands();
 	socket.updateUsers();
 	maps.getMapList(function(maps){
 		this.emit('mapsChange',maps);
 	}.bind(socket))
+	socket.emit('tilePropertiesChange',maps.tileProperties);
 
 	socket.exit = function(){
 		//remove myself from admin list

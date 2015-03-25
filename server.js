@@ -25,6 +25,7 @@ colors.setTheme({
 dataFiles.load(init);
 
 function init(){
+	console.timeLog('Server started, type '+'help'.info+' or '+'?'.info);
 	//start
 	db.init(function(){
 		dataServer.init();

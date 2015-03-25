@@ -240,16 +240,18 @@ objectController = {
 		}.bind(this))
 	},
 	saveAll: function(cb){
-		cb = _.after(this.objects.length+1,cb);
-		for (var i = 0; i < this.objects.length; i++) {
-			if(!this.objects[i].saved){
-				this.objects[i].save(cb);
-			}
-			else{
-				cb();
-			}
-		};
-		cb();
+		db.reconnect(function(){
+			cb = _.after(this.objects.length+1,cb);
+			for (var i = 0; i < this.objects.length; i++) {
+				if(!this.objects[i].saved){
+					this.objects[i].save(cb);
+				}
+				else{
+					cb();
+				}
+			};
+			cb();
+		}.bind(this))
 	},
 	saveObjectLoop: function(i){
 		//find the x,y of the chunk based off the index

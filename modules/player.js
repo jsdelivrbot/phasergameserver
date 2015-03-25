@@ -113,6 +113,7 @@ function Player(userData,socket){
 		//send userData
 		this.emit('userData',this.userData)
 	}.bind(socket))
+	socket.emit('tilePropertiesChange',maps.tileProperties);
 
 	//bind error events
 	socket.on('logError',function(err){

@@ -5,25 +5,24 @@ module.exports = function(){
 	commands.addCommand(new Command({
 		id: 'stop',
 		run: function(){
-			var cb = _.after(5,function(){
-				console.timeLog('saved'.info);
-				process.exit();
-			});
-
 			commands.readline.close();
+
+			var cb = _.after(4,function(){
+				console.timeLog('saving players...')
+				players.saveAll(function(){
+					console.timeLog('saving templates...')
+					templates.saveAll(function(){
+						console.timeLog('saved'.info);
+						process.exit();
+					});
+				});
+			});
 
 			console.timeLog('saving maps...')
 			maps.saveAllMaps(cb);
 			maps.saveAllChunks(cb);
-
-			console.timeLog('saving players...')
-			players.saveAll(cb);
-
-			console.timeLog('saving objects...')
 			objectController.saveAll(cb);
-
-			console.timeLog('saving templates...')
-			templates.saveAll(cb);
+			maps.saveAllTileProperties(cb);
 		}
 	}));
 
@@ -33,10 +32,21 @@ module.exports = function(){
 			new Command({
 				id: 'all',
 				run: function(){
-					console.timeLog('saving...');
-					players.saveAll(function(){
-						console.timeLog('saved'.info)
+					var cb = _.after(4,function(){
+						console.timeLog('saving players...')
+						players.saveAll(function(){
+							console.timeLog('saving templates...')
+							templates.saveAll(function(){
+								console.timeLog('saved'.info);
+							});
+						});
 					});
+
+					console.timeLog('saving maps...')
+					maps.saveAllMaps(cb);
+					maps.saveAllChunks(cb);
+					objectController.saveAll(cb);
+					maps.saveAllTileProperties(cb);
 				}
 			}),
 			new Command({
@@ -46,6 +56,20 @@ module.exports = function(){
 					players.saveAll(function(){
 						console.timeLog('saved players')
 					});
+				}
+			}),
+			new Command({
+				id: 'maps',
+				run: function(){
+					var cb = _.after(4,function(){
+						console.timeLog('saved maps')
+					})
+
+					console.timeLog('saving maps...')
+					maps.saveAllMaps(cb);
+					maps.saveAllChunks(cb);
+					objectController.saveAll(cb);
+					maps.saveAllTileProperties(cb);
 				}
 			})
 		]
@@ -57,8 +81,9 @@ module.exports = function(){
 			new Command({
 				id: 'list',
 				run: function(){
+					commands.printTitle('Players'.info+' Online');
 					for (var i = 0; i < players.players.length; i++) {
-						console.timeLog(players.players[i].data.data.id.name);
+						console.timeLog(players.players[i].name);
 					};
 				}
 			}),

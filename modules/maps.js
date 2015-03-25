@@ -15,6 +15,7 @@ maps = {
 	unloadTime: 15, //in min
 	layers: [],
 	maps: [],
+	tileProperties: {}, //array of tile info
 	events: new events.EventEmitter(),
 	/*
 	mapsChange: nothing
@@ -30,7 +31,6 @@ maps = {
 		this.width = 0;
 		this.height = 0;
 		// this.layers = [];
-		this.island = -1;
 		this.url = '';
 		this.name = '';
 		this.id = id;
@@ -205,7 +205,6 @@ maps = {
 			this.desc = data.desc;
 			this.height = data.height;
 			this.width = data.width;
-			this.island = data.island;
 			this.url = data.url;
 
 			this.blank = false;
@@ -216,7 +215,6 @@ maps = {
 				desc: this.desc,
 				width: this.width,
 				height: this.height,
-				island: this.island,
 				url: this.url,
 				name: this.name
 			}
@@ -358,6 +356,8 @@ maps = {
 		this.unloadChunkLoop(0);
 		this.updateLayers(0);
 
+		this.loadTileProperties(cb);
+
 		//set the max listeners
 		//mainly for the chunk/map load events
 		this.events.setMaxListeners(100);
@@ -371,6 +371,9 @@ maps = {
 		this.events.on('layersChange',function(data){
 			io.emit('updateLayers',data);
 		});
+		this.events.on('tilePropertiesChange',function(data){
+			io.emit('tilePropertiesChange',data);
+		})
 	},
 	getMapList: function(cb){ //returns a list of maps not sorted by id
 		db.query('SELECT * FROM maps',function(data){
@@ -524,14 +527,46 @@ maps = {
 		}.bind(this,map));
 		return map;
 	},
+	loadTileProperties: function(cb){
+		db.query('SELECT * FROM tiles',function(tiles){
+			for (var i = 0; i < tiles.length; i++) {
+				tiles[i].collisionInfo = JSON.parse(tiles[i].collisionInfo);
+
+				this.tileProperties[tiles[i].id] = tiles[i];
+			};
+			if(cb) cb();
+		}.bind(this));
+	},
 	saveMap: function(mapID,cb){ //saves a map from the array to the db (it has to already exist in the db)
 		this.getMap(mapID,function(map){
 			data = map.exportData();
 			map.saved = true;
-			db.query('UPDATE `maps` SET `name`='+db.ec(data.name)+', `desc`='+db.ec(data.desc)+', `width`='+db.ec(data.width)+', `height`='+db.ec(data.height)+', `island`='+db.ec(data.island)+' WHERE id='+db.ec(data.id),function(data){
+			db.query('UPDATE `maps` SET `name`='+db.ec(data.name)+', `desc`='+db.ec(data.desc)+', `width`='+db.ec(data.width)+', `height`='+db.ec(data.height)+' WHERE id='+db.ec(data.id),function(data){
 				if(cb) cb();
 			})
 		}.bind(this))
+	},
+	saveTileProperties: function(tileID,cb){
+		var tile = this.tileProperties[tileID];
+
+		if(tile){
+			db.query('SELECT * FROM tiles WHERE id='+db.ec(tile.id),function(data){
+				if(data.length){
+					db.query('UPDATE `tiles` SET `blank`='+db.ec(tile.blank)+', `collision`='+db.ec(tile.collision)+', `collisionInfo`='+db.ec(tile.collisionInfo)+' WHERE id='+db.ec(tile.id), function(){
+						if(cb) cb();
+					});
+				}
+				else{
+					db.query('INSERT INTO tiles(id,blank,collision,collisionInfo) VALUES('+db.ec(tile.id)+', '+db.ec(tile.blank)+', '+db.ec(tile.collision)+', '+db.ec(tile.collisionInfo)+')',function(){
+						if(cb) cb();
+					})
+				}
+			});
+
+			return;
+		}
+
+		if(cb) cb();
 	},
 	unloadMap: function(mapID,cb){ //saves and removes map from array
 		this.saveMap(mapID,function(){
@@ -550,28 +585,81 @@ maps = {
 		if(cb) cb(false);
 	},
 	saveAllMaps: function(cb){
-		cb = _.after(this.maps.length+1,cb);
-		for (var i = 0; i < this.maps.length; i++) {
-			if(!this.maps[i].saved){
-				this.saveMap(this.maps[i].id,cb);
-			}
-			else{
-				cb();
-			}
-		};
-		cb();
+		db.reconnect(function(){
+			cb = _.after(this.maps.length+1,cb);
+			for (var i = 0; i < this.maps.length; i++) {
+				if(!this.maps[i].saved){
+					this.saveMap(this.maps[i].id,cb);
+				}
+				else{
+					cb();
+				}
+			};
+			cb();
+		}.bind(this))
 	},
 	saveAllChunks: function(cb){
-		cb = _.after(this.maps.length+1,cb);
-		for (var i = 0; i < this.maps.length; i++) {
-			this.maps[i].saveAllChunks(cb);
-		};
-		cb();
+		db.reconnect(function(){
+			cb = _.after(this.maps.length+1,cb);
+			for (var i = 0; i < this.maps.length; i++) {
+				this.maps[i].saveAllChunks(cb);
+			};
+			cb();
+		}.bind(this))
+	},
+	saveAllTileProperties: function(cb){
+		db.reconnect(function(){
+			var k=1;
+			for(var tile in this.tileProperties){
+				k++;
+			}
+			cb = _.after(k,cb || function(){});
+			for(var tile in this.tileProperties){
+				this.saveTileProperties(this.tileProperties[tile].id,cb);
+			}
+			cb();
+		}.bind(this))
+	},
+	tilePropertiesChange: function(data){
+		if(_.isArray(data)){
+			var tiles = [];
+			for (var i = 0; i < data.length; i++) {
+				tile = fn.combindOver({
+					id: -1,
+					blank: false,
+					collision: false,
+					collisionInfo: {
+						right: 0,
+						left: 0,
+						top: 0,
+						bottom: 0
+					}
+				},data[i]);
+				this.tileProperties[tile.id] = tile;
+				tiles.push(tile);
+			}
+			this.events.emit('tilePropertiesChange',tiles);
+		}
+		else{
+			tile = fn.combindOver({
+				id: -1,
+				blank: false,
+				collision: false,
+				collisionInfo: {
+					right: 0,
+					left: 0,
+					top: 0,
+					bottom: 0
+				}
+			},data);
+			this.tileProperties[tile.id] = tile;
+			this.events.emit('tilePropertiesChange',tile);
+		}
 	},
 	//db
 	insertMap: function(map,cb){ //inserts a new map into the db based off an existing one
 		data = map.exportData();
-		db.query('INSERT INTO `maps`(`name`, `island`, `width`, `height`, `desc`) VALUES('+db.ec(data.name)+','+db.ec(data.island)+','+db.ec(data.width)+','+db.ec(data.height)+','+db.ec(data.desc)+')',function(data){
+		db.query('INSERT INTO `maps`(`name`, `width`, `height`, `desc`) VALUES('+db.ec(data.name)+','+db.ec(data.width)+','+db.ec(data.height)+','+db.ec(data.desc)+')',function(data){
 			//load it
 			this.getMap(data.insertId,cb);
 		}.bind(this))

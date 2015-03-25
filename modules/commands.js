@@ -13,23 +13,26 @@ commands = {
 		input:process.stdin,
 		output:process.stdout
 	}),
-	Command: function(id,opts,run,commands){
+	Command: function(id,opts,run,cmds){
 		var obj = {}
 		if(typeof id == 'object'){
 			obj.id = id.id || '';
 			obj.opts = id.opts || [];
 			obj.run = id.run;
 			obj.commands = id.commands || [];
+			obj.hidden = id.hidden || false;
 		}
 		else{
 			obj.id = id || '';
 			obj.opts = opts || [];
 			obj.run = run;
-			obj.commands = commands || [];
+			obj.commands = cmds || [];
+			obj.hidden = false;
 		}
 
 		this.id = obj.id;
 		this.opts = obj.opts; //array of strings that are used to build the opts objs
+		this.hidden = obj.hidden;
 		this.commands = obj.commands;
 
 		if(typeof obj.run == 'function'){
@@ -42,15 +45,20 @@ commands = {
 		}
 		else{
 			this.run = function(){
-				var str = '---------------[ '+this.id.info+' commands ]---------------'
+				commands.printTitle(this.id.info+' Commands');
+				var str = '';
 				for (var i = 0; i < this.commands.length; i++) {
-					str += '\n'+this.id+' '+this.commands[i].id
+					if(!commands.commands[i].hidden){
+						str += this.id+' '+this.commands[i].id;
 
-					if(this.commands[i].opts){
-						str += ': ';
-						for (var k = 0; k < this.commands[i].opts.length; k++) {
-							str += '<'+this.commands[i].opts[k]+'> '
-						};
+						if(this.commands[i].opts){
+							str += ': ';
+							for (var k = 0; k < this.commands[i].opts.length; k++) {
+								str += '<'+this.commands[i].opts[k]+'> '
+							};
+						}
+
+						str += '\n';
 					}
 				};
 				console.log(str);
@@ -116,7 +124,38 @@ commands = {
 		})
 		this.readline.on('SIGCONT',function(){
 			commands.run('stop');
-		})
+		}) 
+
+		//add help commands
+		this.addCommand(new this.Command({
+			id: 'help',
+			run: function(){
+				commands.printTitle('Commands');
+				var str = '';
+				for (var i = 0; i < commands.commands.length; i++) {
+					if(!commands.commands[i].hidden){
+						str += commands.commands[i].id;
+
+						if(commands.commands[i].opts){
+							str += ': ';
+							for (var k = 0; k < commands.commands[i].opts.length; k++) {
+								str += '<'+commands.commands[i].opts[k]+'> '
+							};
+						}
+
+						str += '\n';
+					}
+				};
+				console.log(str);
+			}
+		}));
+		this.addCommand(new this.Command({
+			id: '?',
+			hidden: true,
+			run: function(){
+				commands.run('help');
+			}
+		}));
 
 		initCommands();
 	},
@@ -196,6 +235,9 @@ commands = {
 			};
 		}
 		return obj;
+	},
+	printTitle: function(str){
+		console.log('---------------[ '+str+' ]---------------');
 	}
 }
 

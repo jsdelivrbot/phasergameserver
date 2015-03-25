@@ -1,10 +1,17 @@
 var sqlDB = require('mysql');
+var events = require('events');
 
 db = {
 	db: {},
 	timeout: null,
 	connecting: false,
+	events: new events.EventEmitter(),
+	/*
+	connect
+	disconnect
+	*/
 	init: function(cb){
+		this.events.setMaxListeners(1000);
 		this.connect(cb)
 	},
 	query: function(sql,cb){
@@ -18,7 +25,7 @@ db = {
 			clearTimeout(db.timeout);
 			db.timeout = setTimeout(function(){
 				console.timeLog('no database activity, closing '.info+'connection')
-				db.disconect()
+				db.disconnect()
 			},1000*60)
 		}
 		else{
@@ -47,36 +54,49 @@ db = {
 	connect: function(cb){
 		cb = cb || function(){};
 		//see if we are trying to connect, if so add the cb to the existing connection
-		if(db.connecting){
-			db.db.once('connect',cb);
+		if(this.connecting){
+			this.events.once('connect',cb);
 			return;
 		}
 
-		db.db = sqlDB.createConnection({
+		this.db = sqlDB.createConnection({
 			host: dataFiles.config.dataBase.host,
 			user: dataFiles.config.dataBase.user,
 			password: dataFiles.config.dataBase.password,
-			database: dataFiles.config.dataBase.dataBase
+			database: dataFiles.config.dataBase.dataBase,
+			insecureAuth: dataFiles.config.dataBase.insecureAuth
 		});
-		db.connecting = true;
-		db.db.connect(function(err){
+		this.connecting = true;
+		this.db.connect(function(err){
 			if(err){
 				console.timeLog('failed to connect to the data base'.error);
 				process.exit();
 			}
 			console.timeLog('connected'.info+' to the data base');
 			db.connecting = false;
+			this.events.emit('connect');
 			cb();
-		});
+		}.bind(this));
 
-		db.timeout = setTimeout(function(){
+		this.timeout = setTimeout(function(){
 			console.timeLog('no database activity'.info+', closing connection')
-			db.disconect()
-		},1000*60)
+			this.disconnect()
+		}.bind(this),1000*60)
 	},
-	disconect: function(cb){
+	disconnect: function(cb){
 		if(db.db.state === 'authenticated'){
-			db.db.end();
+			db.db.end(function(){
+				this.events.emit('disconnect');
+				if(cb) cb();
+			}.bind(this));
+		}
+	},
+	reconnect: function(cb){ //somthing for code to go through to reduce the number of connect events
+		if(this.db.state === 'authenticated'){
+			if(cb) cb();
+		}
+		else{
+			this.connect(cb || function(){});
 		}
 	},
 	player: {
