@@ -143,7 +143,7 @@ players = {
 		db.query("SELECT * FROM users WHERE email="+db.ec(email)+' AND password='+db.ec(password),function(data){
 			if(data.length){
 				data = data[0];
-				if(data.admin !== 1){
+				if(!data.admin){
 					cb(loginMessages[4])
 					return;
 				}

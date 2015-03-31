@@ -5,7 +5,7 @@ colors = require('colors');
 Admin = require('./modules/admin.js');
 maps = require('./modules/maps.js');
 players = require('./modules/players.js');
-chat = require('./modules/chatChanels.js');
+chat = require('./modules/chat.js');
 dataServer = require('./modules/dataServer.js');
 db = require('./modules/db.js');
 dataFiles = require('./modules/dataFiles.js');
@@ -16,22 +16,23 @@ templates = require('./modules/templates.js');
 
 //set the log colors
 colors.setTheme({
-	info: 'cyan',
-	warn: 'yellow',
-	error: 'red'
+	success: 'green', //[33m
+	info: 'cyan', //[36m
+	warn: 'yellow', //[33m
+	error: 'red' //[31m
 });
 
 //load the dataFiles
 dataFiles.load(init);
 
 function init(){
-	console.timeLog('Server started, type '+'help'.info+' or '+'?'.info);
 	//start
 	db.init(function(){
 		dataServer.init();
 		players.init();
 		maps.init();
 		commands.init();
+		chat.init();
 		objectController.init();
 		templates.init();
 
@@ -39,10 +40,6 @@ function init(){
 		io.on('connection', function (socket) {
 			socket.on('login', function (data,callback) {
 				players.login(data.email,data.password,socket,function(loginMessage,_player){
-					if(loginMessage.success){
-						// join the genral chanel
-						// chat.join('0',_player)
-					}
 					callback(loginMessage)
 				});
 			});
@@ -53,10 +50,17 @@ function init(){
 				})
 			});
 		});
+
+		console.timeLog('Server started, type '+'help'.info+' or '+'?'.info);
 	});
 }
 
 //log
+console._log_ = console.log;
+console.log = function(){
+	console._log_.apply(console,arguments);
+	chat.message('Server','',Array.prototype.join.call(arguments,''),true)
+}
 console.__proto__.timeLog = function(){
 	var args = Array.prototype.slice.call(arguments);
 	d = new Date();

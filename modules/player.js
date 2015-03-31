@@ -15,6 +15,7 @@ function Player(userData,socket){
 	socket.inventory = userData.inventory || []
 
 	socket.on('disconnect',function(){
+		chat.leaveAll(this);
 		console.timeLog(this.userData.name+' loged off')
 		this.exit();
 	})
@@ -59,6 +60,16 @@ function Player(userData,socket){
 	})
 	socket.on('objectDelete',function(data,cb){
 		objectController.deleteObject(data.id,data.type,cb);
+	})
+
+	//chat
+	if(socket.userData.admin) chat.join('Server',socket);
+	chat.joinDefault(socket)
+	socket.on('chatChanelMessage',function(data){
+		chat.message(data.chanel,data.message.from,data.message.message);
+	})
+	socket.on('chatChanelLeave',function(data){
+		chat.leave(data.chanel,this);
 	})
 
 	socket.update = function(){ //send all the players down

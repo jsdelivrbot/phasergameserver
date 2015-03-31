@@ -17,21 +17,35 @@ db = {
 	query: function(sql,cb){
 		if(db.db.state === 'authenticated'){
 			db.db.query(sql,function(err, rows, fields){
+				if(fields){
+					for (var i = 0; i < fields.length; i++) {
+						if(fields[i].type == 1){
+							for (var k = 0; k < rows.length; k++) {
+								rows[k][fields[i].name] = !!rows[k][fields[i].name];
+							};
+						}
+					};
+				}
 				if(err) throw err;
 				if(cb) cb(rows);
 			})
 
 			//refresh the time out
-			clearTimeout(db.timeout);
-			db.timeout = setTimeout(function(){
-				console.timeLog('no database activity, closing '.info+'connection')
-				db.disconnect()
-			},1000*60)
+			this.setDisconenctTimer();
 		}
 		else{
 			//connect and query
 			db.connect(function(){
 				db.db.query(sql,function(err, rows, fields){
+					if(fields){
+						for (var i = 0; i < fields.length; i++) {
+							if(fields[i].type == 1){
+								for (var k = 0; k < rows.length; k++) {
+									rows[k][fields[i].name] = !!rows[k][fields[i].name];
+								};
+							}
+						};
+					}
 					if(err) throw err;
 					if(cb) cb(rows);
 				})
@@ -72,16 +86,12 @@ db = {
 				console.timeLog('failed to connect to the data base'.error);
 				process.exit();
 			}
-			console.timeLog('connected'.info+' to the data base');
 			db.connecting = false;
 			this.events.emit('connect');
 			cb();
 		}.bind(this));
 
-		this.timeout = setTimeout(function(){
-			console.timeLog('no database activity'.info+', closing connection')
-			this.disconnect()
-		}.bind(this),1000*60)
+		this.setDisconenctTimer();
 	},
 	disconnect: function(cb){
 		if(db.db.state === 'authenticated'){
@@ -98,6 +108,12 @@ db = {
 		else{
 			this.connect(cb || function(){});
 		}
+	},
+	setDisconenctTimer: function(){
+		clearTimeout(this.timeout);
+		this.timeout = setTimeout(function(){
+			this.disconnect()
+		}.bind(this),1000*60)
 	},
 	player: {
 		get: function(id,cb){
