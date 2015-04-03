@@ -2,7 +2,6 @@ var http = require('http')
 var fs = require('fs')
 var Player = require('./player.js')
 var SortedArray = require('./sortedArray.js')
-var events = require('events');
 
 var loginMessages = [
 	{
@@ -51,7 +50,7 @@ players = {
 	playersPositions: {}, //an object of arrays(maps) which has players in it
 	admins: [],
 	step: null,
-	events: new events.EventEmitter(),
+	events: new process.EventEmitter(),
 
 	//functions
 	init: function(){

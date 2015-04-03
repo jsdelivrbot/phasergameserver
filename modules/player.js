@@ -66,7 +66,7 @@ function Player(userData,socket){
 	if(socket.userData.admin) chat.join('Server',socket);
 	chat.joinDefault(socket)
 	socket.on('chatChanelMessage',function(data){
-		chat.message(data.chanel,data.message.from,data.message.message);
+		chat.message(data.chanel,data.message);
 	})
 	socket.on('chatChanelLeave',function(data){
 		chat.leave(data.chanel,this);

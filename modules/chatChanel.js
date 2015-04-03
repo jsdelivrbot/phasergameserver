@@ -3,7 +3,7 @@ var events = require('events');
 function ChatChanel(data){
 	data = data || {};
 
-	this.events = new events.EventEmitter();
+	this.events = new process.EventEmitter();
 	this.players = [];
 	this.settings = fn.combindOver(fn.duplicate(this.settings),data);
 }
@@ -19,16 +19,20 @@ ChatChanel.prototype = {
 	players: [],
 	join: function(player){
 		if(this.players.indexOf(player) == -1){
+			this.players.push(player);
+
 			var players = [];
 			for (var i = 0; i < this.players.length; i++) {
 				//tell the other players that a player joined
-				this.players[i].emit('chatChanelPlayerJoin',{
-					chanel: this.exportData(),
-					player:{
-						id: player.userID,
-						name: player.userData.name
-					}
-				})
+				if(this.players[i] !== player){
+					this.players[i].emit('chatChanelPlayerJoin',{
+						chanel: this.exportData(),
+						player:{
+							id: player.userID,
+							name: player.userData.name
+						}
+					})
+				}
 
 				//buid the player list
 				players.push({
@@ -45,8 +49,6 @@ ChatChanel.prototype = {
 				chanel: this.exportData(),
 				player: player
 			})
-			
-			this.players.push(player);
 		}
 	},
 	leave: function(player){
@@ -71,22 +73,24 @@ ChatChanel.prototype = {
 			})
 		}
 	},
-	message: function(from,message,dontFire){
+	message: function(message,dontFire){
+		message = fn.combindOver({
+			to: '',
+			from: '',
+			message: ''
+		},message || {})
+
 		for (var i = 0; i < this.players.length; i++) {
-			this.players[i].emit('chatChanelMessage',{
-				chanel: this.exportData(),
-				message: {
-					from: from,
+			if(this.players[i].userData.name === message.to || message.to.length == 0){
+				this.players[i].emit('chatChanelMessage',{
+					chanel: this.exportData(),
 					message: message
-				}
-			})
+				})
+			}
 		};
 
 		if(!dontFire){
-			this.events.emit('message',{
-				from: from,
-				message: message
-			})
+			this.events.emit('message',message)
 		}
 	},
 	exportData: function(){

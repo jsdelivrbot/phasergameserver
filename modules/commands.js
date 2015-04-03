@@ -1,6 +1,4 @@
-var events = require('events');
 var readline = require('readline')
-var initCommands = require('./cmds.js')
 
 /*
 events
@@ -103,7 +101,7 @@ commands = {
 			};
 		};
 	},
-	events: new events.EventEmitter(),
+	events: new process.EventEmitter(),
 	commands: [],
 	init: function(){
 		this.readline.setPrompt('');
@@ -156,8 +154,6 @@ commands = {
 				commands.run('help');
 			}
 		}));
-
-		initCommands();
 	},
 	getCommand: function(id){
 		if(typeof id == 'string'){

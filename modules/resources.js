@@ -1,5 +1,3 @@
-var events = require('events');
-
 resources = {
 	resources: {
 		/*
@@ -29,7 +27,7 @@ resources = {
 		*/
 	},
 	loadedMaps: {},
-	events: new events.EventEmitter(),
+	events: new process.EventEmitter(),
 	loadMap: function(mapID,cb){
 		//load resources from map with id mapID
 		db.query('SELECT url FROM maps WHERE id='+mapID,function(data){

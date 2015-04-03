@@ -3,6 +3,7 @@ Admin = function(userData,socket){
 	socket.userData = userData;
 
 	socket.on('disconnect',function(){
+		chat.leaveAll(this);
 		console.timeLog(this.userData.name.info+' loged off as admin')
 		this.exit();
 	})
@@ -183,6 +184,16 @@ Admin = function(userData,socket){
 			})
 			cb(true);
 		})
+	})
+
+	//chat
+	if(socket.userData.admin) chat.join('Server',socket);
+	// chat.joinDefault(socket)
+	socket.on('chatChanelMessage',function(data){
+		chat.message(data.chanel,data.message);
+	})
+	socket.on('chatChanelLeave',function(data){
+		chat.leave(data.chanel,this);
 	})
 
 	//errors

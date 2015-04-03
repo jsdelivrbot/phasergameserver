@@ -2,6 +2,7 @@
 fn = require('./modules/functions.js');
 _ = require('underscore');
 colors = require('colors');
+
 Admin = require('./modules/admin.js');
 maps = require('./modules/maps.js');
 players = require('./modules/players.js');
@@ -13,6 +14,7 @@ resources = require('./modules/resources.js');
 commands = require('./modules/commands.js');
 objectController = require('./modules/objectController.js');
 templates = require('./modules/templates.js');
+cmds = require('./modules/cmds.js')
 
 //set the log colors
 colors.setTheme({
@@ -32,6 +34,7 @@ function init(){
 		players.init();
 		maps.init();
 		commands.init();
+		cmds.console();
 		chat.init();
 		objectController.init();
 		templates.init();
@@ -59,7 +62,9 @@ function init(){
 console._log_ = console.log;
 console.log = function(){
 	console._log_.apply(console,arguments);
-	chat.message('Server','',Array.prototype.join.call(arguments,''),true)
+	chat.message('Server',{
+		message: Array.prototype.join.call(arguments,'')
+	},true)
 }
 console.__proto__.timeLog = function(){
 	var args = Array.prototype.slice.call(arguments);

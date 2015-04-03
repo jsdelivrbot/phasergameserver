@@ -1,8 +1,7 @@
 var ChatChanel = require('./chatChanel.js');
-var events = require('events');
 
 chat = {
-	events: new events.EventEmitter(),
+	events: new process.EventEmitter(),
 	chanels: [],
 	init: function(){
 		//add genral chanel
@@ -15,13 +14,14 @@ chat = {
 		this.createChanel({
 			title: 'Server',
 			canLeave: false
-		})
-		this.getChanelByTitle('Server').events.on('message',function(data){
+		}).events.on('message',function(data){
 			commands.readline.write(data.message + ' \n');
 		})
 	},
 	createChanel: function(data){
-		this.chanels.push(new ChatChanel(data));
+		var chanel = new ChatChanel(data);
+		this.chanels.push(chanel);
+		return chanel;
 	},
 	getChanel: function(id){
 		return this.chanels[id];
@@ -69,7 +69,7 @@ chat = {
 			this.chanels[i].leave(player);
 		};
 	},
-	message: function(id,from,message,dontFire){
+	message: function(id,message,dontFire){
 		if(_.isString(id)){
 			chanel = this.getChanelByTitle(id);
 		}
@@ -78,7 +78,7 @@ chat = {
 		}
 
 		if(chanel){
-			chanel.message(from,message,dontFire);
+			chanel.message(message,dontFire);
 		}
 	}
 }

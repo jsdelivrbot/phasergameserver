@@ -1,4 +1,3 @@
-var events = require('events');
 var sortedArray = require('./sortedArray.js');
 
 objectController = {
@@ -70,7 +69,7 @@ objectController = {
 	objectDelete: {id: id, type: type}
 	objectCreate: obj export
 	*/
-	events: new events.EventEmitter(),
+	events: new process.EventEmitter(),
 
 	init: function(){
 		this.saveObjectLoop(0);
