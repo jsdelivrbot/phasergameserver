@@ -1,6 +1,4 @@
 function Player(userData,socket){
-	console.timeLog(userData.name+' loged on')
-
 	//dont set socket.id becuase its already used
 	socket.userData = userData; //dont use this as active data
 	socket.lastPlayersArray = [];
@@ -16,7 +14,6 @@ function Player(userData,socket){
 
 	socket.on('disconnect',function(){
 		chat.leaveAll(this);
-		console.timeLog(this.userData.name+' loged off')
 		this.exit();
 	})
 

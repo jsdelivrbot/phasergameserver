@@ -47,23 +47,61 @@ players = {
 			return 1;
 		}
 	}),
+	userData: new SortedArray([],function(a,b){
+		if(a.id === b.id) return 0;
+		if(a.id < b.id){
+			return -1;
+		}
+		else{
+			return 1;
+		}
+	}),
 	playersPositions: {}, //an object of arrays(maps) which has players in it
 	admins: [],
 	step: null,
+	saveTime: 1000,
 	events: new process.EventEmitter(),
 
 	//functions
 	init: function(){
 		//set up players
 		this.step = setInterval(this.updateLoop,100)
+		// this.savePlayerLoop();
+		// this.saveUserDataLoop();
 	},
 	getPlayer: function(id){ //gets player from the array
 		if(this.playerOnline(id)){
 			return this.players[this.players.indexOf({userID:id})];
 		}
 	},
+	getUserData: function(id,cb){
+		var index = this.userData.indexOf({id:id});
+		if(index !== -1){
+			var data = this.userData[index];
+			if(cb) cb();
+		}
+		else{
+			this.loadUserData(id,cb);
+		}
+	},
 	playerOnline: function(id){
 		return this.players.indexOf({userID:id}) !== -1;
+	},
+	loadUserData: function(id,cb){
+		var userData = new UserData({
+			id: id
+		});
+		userData._loading = true;
+
+		this.userData.push(userData);
+
+		db.query('SELECT * `user-data` WHERE id='+db.ec(id),function(data){
+			userData._loading = false;
+			if(data.length){
+				userData.inportData(data[0]);
+			}
+			if(cb) cb(userData);
+		}.bind(this))
 	},
 	removePlayer: function(id){ //removes player from array and closes conn
 		if(this.playerOnline(id)){
@@ -86,11 +124,49 @@ players = {
 
 			db.query(sql,cb);
 		}
+		else if(cb) cb();
+	},
+	saveUserData: function(id,cb){
+		this.getUserData(id,function(userData){
+			if(userData){
+				var data = userData.exportData();
+
+				sql = 'UPDATE `user-data` SET ';
+				//loop through the userData data and save it
+				for (var i in data) {
+					if(i == 'id') continue;
+
+					sql += '`'+i+'`='+db.ec(data[i])+', ';
+				};
+				sql = sql.substring(0,sql.length-2);
+				sql += ' WHERE id='+db.ec(player.userID);
+
+				db.query(sql,cb);
+			}
+			else if(cb) cb();
+		}.bind(this));
 	},
 	saveAll: function(cb){
-		cb = _.after(players.players.length+1,cb);
+		cb = _.after(players.players.length+1,cb || function(){});
 		for (var i = 0; i < players.players.length; i++) {
 			players.players[i].save(cb)
+		};
+		cb();
+	},
+	saveAllPlayers: function(cb){
+		cb = _.after(players.players.length+1,cb || function(){});
+		for (var i = 0; i < players.players.length; i++) {
+			players.players[i].save(cb)
+		};
+		cb();
+	},
+	saveAllUserData: function(cb){
+		cb = _.after(this.userData.length +1, cb || function(){});
+		for (var i = 0; i < this.userData.length; i++) {
+			if(!this.userData[i]._saved){
+				this.saveUserData(this.userData[i].id,cb);
+			}
+			else cb();
 		};
 		cb();
 	},
@@ -100,11 +176,25 @@ players = {
 			players.players[i].update()
 		};
 	},
-	kick: function(id){
-		var player = this.getPlayer(id);
-		if(player){
-			player.socket.conn.close();
-		}
+	savePlayerLoop: function(i){
+		i = i || 0;
+		var player = this.players[i];
+		this.savePlayer(player.id,function(){
+			if(++i >= this.players.length){
+				i = 0;
+			}
+			setTimeout(this.savePlayerLoop.bind(this,i),this.saveTime);
+		}.bind(this))
+	},
+	saveUserDataLoop: function(i){
+		i = i || 0;
+		var userData = this.userData[i];
+		this.saveUserData(userData.id,function(){
+			if(++i >= this.userData.length){
+				i = 0;
+			}
+			setTimeout(this.saveUserDataLoop.bind(this,i),this.saveTime);
+		}.bind(this))
 	},
 
 	login: function(email,password,socket,cb){
@@ -172,3 +262,90 @@ players = {
 
 //export
 module.exports = players;
+
+UserData = function(data){
+	this.data = {};
+	this.inportData(data);
+}
+UserData.prototype = {
+	_saved: true,
+	_loading: false,
+	data: {},
+	inportData: function(data){
+		for(var i in data){
+			if(this.data[i]){
+				this.data[i] = data[i];
+			}
+		}
+	},
+	exportData: function(){
+		return this.data;
+	}
+};
+UserData.prototype.constructor = UserData;
+Object.defineProperties(UserData.prototype,{
+	id: {
+		get: function(){
+			return this.data.id;
+		},
+		set: function(val){
+			return this.data.id = val;
+		}
+	},
+	name: {
+		get: function(){
+			return this.data.name;
+		},
+		set: function(val){
+			return this.data.name = val;
+		}
+	},
+	health: {
+		get: function(){
+			return this.data.health;
+		},
+		set: function(val){
+			return this.data.health = val;
+		}
+	},
+	inventory: {
+		get: function(){
+			return this.data.inventory;
+		},
+		set: function(val){
+			return this.data.inventory = val;
+		}
+	},
+	image: {
+		get: function(){
+			return this.data.image;
+		},
+		set: function(val){
+			return this.data.image = val;
+		}
+	},
+	map: {
+		get: function(){
+			return this.data.map;
+		},
+		set: function(val){
+			return this.data.map = val;
+		}
+	},
+	x: {
+		get: function(){
+			return this.data.x;
+		},
+		set: function(val){
+			return this.data.x = val;
+		}
+	},
+	y: {
+		get: function(){
+			return this.data.y;
+		},
+		set: function(val){
+			return this.data.y = val;
+		}
+	},
+})

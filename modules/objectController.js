@@ -65,6 +65,7 @@ objectController = {
 
 	/*
 	events:
+	objectLoaded: obj
 	objectChange: obj export
 	objectDelete: {id: id, type: type}
 	objectCreate: obj export
@@ -204,6 +205,9 @@ objectController = {
 						obj.inportData(data[0]);
 						this.objects.push(obj);
 					}
+
+					this.events.emit('objectLoaded',obj);
+
 					if(cb) cb(obj);
 				}.bind(this))
 			}

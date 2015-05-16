@@ -28,6 +28,22 @@ resources = {
 	},
 	loadedMaps: {},
 	events: new process.EventEmitter(),
+
+	init: function(){
+		objectController.events.on('objectLoaded',this.loaded.bind(this))
+	},
+	getResource: function(id){
+
+	},
+	resourceLoaded: function(data){ //handels events from objectControler when a obj is loaded
+
+	},
+	resourceDeleted: function(data){
+
+	},
+	resourceCreated: function(data){
+
+	},
 	loadMap: function(mapID,cb){
 		//load resources from map with id mapID
 		db.query('SELECT url FROM maps WHERE id='+mapID,function(data){

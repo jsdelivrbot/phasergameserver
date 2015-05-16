@@ -1,198 +1,223 @@
 {
+	"_extend": {
+		"img": "imgs/items.png"
+	},
 	"resource":{
-		"log":{
-			"title": "log",
-			"img": "blender/images/items/resources/log.png",
+		"_extend": {
+			"img": "resource"
+		},
+
+		"log": {
+			"name": "log",
+			"img": "log",
 			"weight": 0
 		},
-		"wood":{
-			"title": "wood",
-			"img": "blender/images/items/resources/wood.png",
+		"wood": {
+			"name": "wood",
+			"img": "wood",
 			"weight": 0
 		},
-		"stick":{
-			"title": "stick",
+		"stick": {
+			"name": "stick",
 			"img": "",
 			"weight": 0
 		},
 		"ore": {
+			"_extend": {
+				"name": "Ore",
+				"img": "ore"
+			},
+
 			"iron": {
-				"title": "Iron Ore",
-				"img": "blender/images/items/resources/ore/iron.png",
+				"name": "Iron",
+				"img": "iron",
 				"weight": 0
 			},
 			"copper": {
-				"title": "Copper Ore",
-				"img": "blender/images/items/resources/ore/copper.png",
+				"name": "Copper",
+				"img": "copper",
 				"weight": 0
 			},
 			"adamantium": {
-				"title": "Adamantium Ore",
-				"img": "blender/images/items/resources/ore/adamantium.png",
+				"name": "Adamantium",
+				"img": "adamantium",
 				"weight": 0
 			},
 			"silver": {
-				"title": "Silver Ore",
-				"img": "blender/images/items/resources/ore/silver.png",
+				"name": "Silver",
+				"img": "silver",
 				"weight": 0
 			},
 			"gold": {
-				"title": "Gold Ore",
-				"img": "blender/images/items/resources/ore/gold.png",
+				"name": "Gold",
+				"img": "gold",
 				"weight": 0
 			},
 			"sapphire": {
-				"title": "Sapphire Ore",
-				"img": "blender/images/items/resources/ore/sapphire.png",
+				"name": "Sapphire",
+				"img": "sapphire",
 				"weight": 0
 			},
 			"ruby": {
-				"title": "Ruby Ore",
-				"img": "blender/images/items/resources/ore/ruby.png",
+				"name": "Ruby",
+				"img": "ruby",
 				"weight": 0
 			}
 		},
 		"ingot":{
+			"_extend": {
+				"name": "Ingot",
+				"img": "ingot"
+			},
+
 			"iron": {
-				"title": "Iron Ingot",
-				"img": "",
+				"name": "Iron",
+				"img": "iron",
 				"weight": 0	
 			},
 			"copper": {
-				"title": "Copper Ingot",
-				"img": "",
+				"name": "Copper",
+				"img": "copper",
 				"weight": 0	
 			},
 			"adamantium": {
-				"title": "Adamantium Ingot",
-				"img": "",
+				"name": "Adamantium",
+				"img": "adamantium",
 				"weight": 0	
 			},
 			"silver": {
-				"title": "Silver Ingot",
-				"img": "",
+				"name": "Silver",
+				"img": "silver",
 				"weight": 0	
 			},
 			"gold": {
-				"title": "Gold Ingot",
-				"img": "",
+				"name": "Gold",
+				"img": "gold",
 				"weight": 0	
 			},
 			"sapphire": {
-				"title": "Sapphire Ingot",
-				"img": "",
+				"name": "Sapphire",
+				"img": "sapphire",
 				"weight": 0	
 			},
 			"ruby": {
-				"title": "Ruby Ingot",
-				"img": "",
+				"name": "Ruby",
+				"img": "ruby",
 				"weight": 0	
 			}
 		}
 	},
 	"item": {
+		"_extend": {
+			"img": "item"
+		},
+
 		"food":{
 			"wheat": {
-				"title": "wheat",
+				"name": "wheat",
 				"img": "",
 				"weight": 0
 			}
 		},
 		"shard":{
+			"_extend": {
+				"img": "shard"
+			},
+
 			"circle":{
 				"red":{
-					"title": "Eagle eye Shard",
+					"name": "Eagle eye Shard",
 					"img": "",
 					"data": 0.05,
 					"weight": 0
 				},
 				"blue":{
-					"title": "Defence Shard",
+					"name": "Defence Shard",
 					"img": "",
 					"data": 0.1,
 					"weight": 0
 				},
 				"yellow":{
-					"title": "Speed Shard",
+					"name": "Speed Shard",
 					"img": "",
 					"data": 0.5,
 					"weight": 0
 				},
 				"pruple":{
-					"title": "Regenerate Shard",
+					"name": "Regenerate Shard",
 					"img": "",
 					"data": 0.005,
 					"weight": 0
 				},
 				"green":{
-					"title": "Health Shard",
+					"name": "Health Shard",
 					"img": "",
 					"data": 0.1,
 					"weight": 0
 				},
 				"orange":{
-					"title": "Disguise Shard",
+					"name": "Disguise Shard",
 					"img": "",
 					"data": 0.05,
 					"weight": 0
 				},
 				"black":{
-					"title": "Night cloaking Shard",
+					"name": "Night cloaking Shard",
 					"img": "",
 					"data": 0.4,
 					"weight": 0
 				},
 				"white":{
-					"title": "Day cloaking Shard",
+					"name": "Day cloaking Shard",
 					"img": "",
 					"data": 0.4
 				}
 			},
 			"square":{
 				"red":{
-					"title": "Damage Shard",
+					"name": "Damage Shard",
 					"img": "",
 					"data": 0.5,
 					"weight": 0
 				},
 				"blue":{
-					"title": "Durability Shard",
+					"name": "Durability Shard",
 					"img": "",
 					"data": 0.5,
 					"weight": 0
 				},
 				"yellow":{
-					"title": "Speed Shard",
+					"name": "Speed Shard",
 					"img": "",
 					"data": 0.5,
 					"weight": 0
 				},
 				"pruple":{
-					"title": " Shard",
+					"name": " Shard",
 					"img": "",
 					"data": 0,
 					"weight": 0
 				},
 				"green":{
-					"title": " Shard",
+					"name": " Shard",
 					"img": "",
 					"data": 0,
 					"weight": 0
 				},
 				"orange":{
-					"title": " Shard",
+					"name": " Shard",
 					"img": "",
 					"data": 0,
 					"weight": 0
 				},
 				"black":{
-					"title": " Shard",
+					"name": " Shard",
 					"img": "",
 					"data": 0,
 					"weight": 0
 				},
 				"white":{
-					"title": " Shard",
+					"name": " Shard",
 					"img": "",
 					"data": 0
 				}
@@ -201,70 +226,70 @@
 		"crystal":{
 			"circle":{
 				"level1":{
-					"title": "Lvl 1",
+					"name": "Lvl 1",
 					"combined":0.10,
 					"same":0.20,
 					"img": "",
 					"weight": 0
 				},
 				"level2":{
-					"title": "Lvl 2",
+					"name": "Lvl 2",
 					"combined":0.20,
 					"same":0.40,
 					"img": "",
 					"weight": 0
 				},
 				"level3":{
-					"title": "Lvl 3",
+					"name": "Lvl 3",
 					"Combined":0.30,
 					"same":0.60,
 					"img": "",
 					"weight": 0
 				},
 				"level4":{
-					"title": "Lvl 4",
+					"name": "Lvl 4",
 					"combined":0.40,
 					"same":0.80,
 					"img": "",
 					"weight": 0
 				},
 				"level5":{
-					"title": "Lvl 5",
+					"name": "Lvl 5",
 					"combined":0.50,
 					"same":1.00,
 					"img": "",
 					"weight": 0
 				},
 				"level6":{
-					"title": "Lvl 6",
+					"name": "Lvl 6",
 					"combined":0.60,
 					"same":1.20,
 					"img": "",
 					"weight": 0
 				},
 				"level7":{
-					"title": "Lvl 7",
+					"name": "Lvl 7",
 					"combined":0.70,
 					"same":1.40,
 					"img": "",
 					"weight": 0
 				},
 				"level8":{
-					"title": "Lvl 8",
+					"name": "Lvl 8",
 					"combined":0.80,
 					"same":1.60,
 					"img": "",
 					"weight": 0
 				},
 				"level9":{
-					"title": "Lvl 9",
+					"name": "Lvl 9",
 					"combined":0.90,
 					"same":1.80,
 					"img": "",
 					"weight": 0
 				},
 				"level10":{
-					"title": "Lvl 10",
+					"name": "Lvl 10",
 					"combined":1.00,
 					"same":2.00,
 					"img": ""
@@ -272,70 +297,70 @@
 			},
 			"square":{
 				"level1":{
-					"title": "Lvl 1",
+					"name": "Lvl 1",
 					"combined":0.10,
 					"same":0.20,
 					"img": "",
 					"weight": 0
 				},
 				"level2":{
-					"title": "Lvl 2",
+					"name": "Lvl 2",
 					"combined":0.20,
 					"same":0.40,
 					"img": "",
 					"weight": 0
 				},
 				"level3":{
-					"title": "Lvl 3",
+					"name": "Lvl 3",
 					"Combined":0.30,
 					"same":0.60,
 					"img": "",
 					"weight": 0
 				},
 				"level4":{
-					"title": "Lvl 4",
+					"name": "Lvl 4",
 					"combined":0.40,
 					"same":0.80,
 					"img": "",
 					"weight": 0
 				},
 				"level5":{
-					"title": "Lvl 5",
+					"name": "Lvl 5",
 					"combined":0.50,
 					"same":1.00,
 					"img": "",
 					"weight": 0
 				},
 				"level6":{
-					"title": "Lvl 6",
+					"name": "Lvl 6",
 					"combined":0.60,
 					"same":1.20,
 					"img": "",
 					"weight": 0
 				},
 				"level7":{
-					"title": "Lvl 7",
+					"name": "Lvl 7",
 					"combined":0.70,
 					"same":1.40,
 					"img": "",
 					"weight": 0
 				},
 				"level8":{
-					"title": "Lvl 8",
+					"name": "Lvl 8",
 					"combined":0.80,
 					"same":1.60,
 					"img": "",
 					"weight": 0
 				},
 				"level9":{
-					"title": "Lvl 9",
+					"name": "Lvl 9",
 					"combined":0.90,
 					"same":1.80,
 					"img": "",
 					"weight": 0
 				},
 				"level10":{
-					"title": "Lvl 10",
+					"name": "Lvl 10",
 					"combined":1.00,
 					"same":2.00,
 					"img": ""
@@ -347,6 +372,45 @@
 
 	},
 	"weapon":{
-		
+		"_extend":{
+			"img": "weapon"
+		},
+
+		"sword": {
+			"_extend": {
+				"name": "Sword",
+				"img": "sword",
+				"weaponID": "sword"
+			},
+
+			"copper": {
+				"name": "Copper",
+				"img": "copper",
+				"weaponID": "copper"
+			},
+			"iron": {
+				"name": "Iron",
+				"img": "iron",
+				"weaponID": "iron"
+			}
+		},
+		"battleAxe": {
+			"_extend": {
+				"name": "Battle Axe",
+				"img": "battleAxe",
+				"weaponID": "battleAxe"
+			},
+
+			"copper": {
+				"name": "Copper",
+				"img": "copper",
+				"weaponID": "copper"
+			},
+			"iron": {
+				"name": "Iron",
+				"img": "iron",
+				"weaponID": "iron"
+			}
+		}
 	}
 }
