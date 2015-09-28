@@ -3,7 +3,7 @@
 		"host": "localhost",
 		"dataBase": "phasergame",
 		"user": "root",
-		"password": "phasergame",
+		"password": "",
 		"insecureAuth": false
 	},
 	"serverInfo": {
