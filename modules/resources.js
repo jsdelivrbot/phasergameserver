@@ -37,7 +37,7 @@ resources = {
 	getResource: function(id){
 
 	},
-	resourceLoaded: function(data){ //handels events from objectControler when a obj is loaded
+	resourceLoaded: function(data){ //handles events from objectController when a obj is loaded
 
 	},
 	resourceDeleted: function(data){
@@ -108,7 +108,7 @@ resources = {
 	find: function(str){
 		a = [];
 		for(var i in this.resources){
-			s = i.indexOf(str)
+			s = i.indexOf(str);
 			if(s !== -1){
 				a.push(this.resources[i]);
 			}
@@ -117,7 +117,7 @@ resources = {
 	},
 	resource: { //a obj for handling resources
 		add: function(json,map){ //take a json obj from a map file and turns it into a resource obj
-			a = []
+			a = [];
 			map = (map == undefined)? -1 : map;
 			ids = json.properties.resources.trim().split(' ');
 			amounts = json.properties.amount.trim().split(' ');
@@ -168,7 +168,7 @@ resources = {
 				chance = dataFiles.resources[_resource.id].spawnChance || 0;
 				//see if it spawned
 				if(Math.random()*100 <= chance){
-					obj.mined = false
+					obj.mined = false;
 					obj.currentResource = _resource.id;
 					obj.currentAmount = parseInt(_resource.amount);
 			
@@ -190,13 +190,13 @@ resources = {
 			player.addItem(item,obj.currentAmount);
 
 			//set the refresh timer
-			obj.timer = setTimeout(_.partial(resources.resource.refresh, obj), 1000 * 60 * obj.refresh)
+			obj.timer = setTimeout(_.partial(resources.resource.refresh, obj), 1000 * 60 * obj.refresh);
 			
 			//send an event
 			resources.events.emit('change',obj);
 		}
 	}
-}
+};
 
 //export
 module.exports = resources;

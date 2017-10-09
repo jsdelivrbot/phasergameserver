@@ -1,5 +1,5 @@
 var EventEmitter = require('events');
-var readline = require('readline')
+var readline = require('readline');
 
 /*
 events
@@ -13,7 +13,7 @@ commands = {
 		output:process.stdout
 	}),
 	Command: function(id,opts,run,cmds){
-		var obj = {}
+		var obj = {};
 		if(typeof id == 'object'){
 			obj.id = id.id || '';
 			obj.opts = id.opts || [];
@@ -114,16 +114,16 @@ commands = {
 				}
 			}
 			this.readline.prompt();
-		}.bind(this))
+		}.bind(this));
 		this.readline.on('SIGINT',function(){
 			commands.run('stop');
-		})
+		});
 		this.readline.on('SIGTSTP',function(){
 			commands.run('stop');
-		})
+		});
 		this.readline.on('SIGCONT',function(){
 			commands.run('stop');
-		}) 
+		});
 
 		//add help commands
 		this.addCommand(new this.Command({
@@ -206,7 +206,7 @@ commands = {
 	},
 	parseCommandString: function(commandString){ //returns a command id and a opts array
 		a = commandString.split(":");
-		var commandID = ''
+		var commandID = '';
 		var opts = [];
 		if(a[0]){
 			commandID = a[0].trim().replace(/ +/g,' ').replace(/ /g,'.');
@@ -236,6 +236,6 @@ commands = {
 	printTitle: function(str){
 		console.log('---------------[ '+str+' ]---------------');
 	}
-}
+};
 
 module.exports = commands;

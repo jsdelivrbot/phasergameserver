@@ -61,7 +61,7 @@ maps = {
 			else{
 				this.loadChunk(x,y,cb);
 			}
-		}
+		};
 		this.chunkLoaded = function(x,y){
 			for (var i = 0; i < this.chunks.length; i++) {
 				if(this.chunks[i].x === x && this.chunks[i].y === y){
@@ -69,7 +69,7 @@ maps = {
 				}
 			};
 			return false;
-		}
+		};
 		this.loadChunk = function(x,y,cb){ //creates a new chunk and trys to load it from the db
 			chunk = new maps.Chunk(x,y,this);
 
@@ -79,7 +79,7 @@ maps = {
 				db.query('SELECT * FROM chunks WHERE x='+db.ec(x)+' AND y='+db.ec(y)+' AND map='+db.ec(this.id),function(chunk,data){
 					chunk.loaded = true;
 					if(data.length){
-						chunk.inportData(data[0]);
+						chunk.importData(data[0]);
 					}
 					maps.events.emit('chunkLoaded-'+chunk.x+'-'+chunk.y+'-'+chunk.map.id,chunk);
 					if(cb) cb(chunk);
@@ -88,28 +88,28 @@ maps = {
 			else{
 				if(cb) cb(chunk);
 			}
-		}
+		};
 		this.chunkExists = function(x,y,cb){ //checks to see if the chunk is in the db
 			db.query('SELECT * FROM chunks WHERE x='+db.ec(x)+' AND y='+db.ec(y)+' AND map='+db.ec(this.id),function(data){
 				if(cb) cb(data.length > 0);
 			})
-		}
+		};
 		this.insertChunk = function(chunk,cb){ //inserts a chunk into the db
 			data = chunk.exportData();
 			db.query("INSERT INTO `chunks`(`map`, `x`, `y`, `data`) VALUES("+db.ec(data.map)+", "+db.ec(data.x)+", "+db.ec(data.y)+", "+db.ec(JSON.stringify(data.data))+")",function(){
 				//dont load it becuase this is triggered by the save loop and it is already loaded
 				if(cb) cb();
 			}.bind(this))
-		}
+		};
 		this.saveChunk = function(x,y,cb){ //saves chunk to db (chunk has to exists in db)
 			this.getChunk(x,y,function(chunk){
-				data = chunk.exportData()
+				data = chunk.exportData();
 				chunk.saved = true;
 				db.query("UPDATE `chunks` SET `data`="+db.ec(JSON.stringify(data.data))+" WHERE `x`="+db.ec(data.x)+" AND `y`="+data.y+" AND `map`="+data.map,function(){
 					if(cb) cb();
 				})
 			}.bind(this))
-		}
+		};
 		this.removeChunk = function(x,y,cb){ //removes chunk from array
 			for (var i = 0; i < this.chunks.length; i++) {
 				if(this.chunks[i].x === x && this.chunks[i].y === y){
@@ -118,12 +118,12 @@ maps = {
 				}
 			};
 			if(cb) cb();
-		}
+		};
 		this.unloadChunk = function(x,y,cb){ //saves and removes chunk from array
 			this.saveChunk(x,y,function(){
 				this.removeChunk(x,y,cb);
 			}.bind(this))
-		}
+		};
 		this.deleteChunk = function(x,y,cb){ //deletes chunk from the db
 			db.query("DELETE FROM chunks WHERE x="+db.ec(x)+" AND y="+db.ec(y)+" AND map="+eb.ec(this.id),function(){
 				if(this.chunkLoaded(x,y)){
@@ -131,9 +131,9 @@ maps = {
 				}
 				if(cb) cb();
 			}.bind(this))
-		}
+		};
 		this.saveAllChunks = function(cb){
-			cb = _.after(this.width * this.height,cb || function(){})
+			cb = _.after(this.width * this.height,cb || function(){});
 
 			for (var x = 0; x < this.width; x++) {
 				for (var y = 0; y < this.height; y++) {
@@ -152,7 +152,7 @@ maps = {
 					}
 				};
 			};
-		}
+		};
 		this.unloadAllChunks = function(cb){
 			if(cb){
 				_.after(this.width * this.height,cb)
@@ -178,7 +178,7 @@ maps = {
 					}
 				};
 			};
-		}
+		};
 		this.deleteAllChunks = function(cb){
 			if(cb){
 				_.after(this.width * this.height,cb)
@@ -197,9 +197,9 @@ maps = {
 					}
 				};
 			};
-		}
+		};
 
-		this.inportData = function(data){ //loads data from db format
+		this.importData = function(data){ //loads data from db format
 			this.id = data.id;
 			this.name = data.name;
 			this.desc = data.desc;
@@ -208,7 +208,7 @@ maps = {
 			this.url = data.url;
 
 			this.blank = false;
-		}
+		};
 		this.exportData = function(){ //exports map into db format
 			return {
 				id: this.id,
@@ -247,7 +247,7 @@ maps = {
 			};
 			this._layers = a;
 			return a;
-		})
+		});
 		this._layers = [];
 
 		this.getLayer = function(i){ //returns layer by index
@@ -257,12 +257,12 @@ maps = {
 			else{
 				return new maps.Layer(-1,this);
 			}
-		}
+		};
 		this.layerExists = function(i){ //tests to see if this layer is on the map
 			return this.layers[i] !== undefined;
-		}
+		};
 
-		this.inportData = function(data){ //loads data from db format
+		this.importData = function(data){ //loads data from db format
 			//load the layers
 			if(data.data == ''){
 				data.data = [];
@@ -274,7 +274,7 @@ maps = {
 			a = this.layers;
 			for (var i = 0; i < data.data.length; i++) {
 				if(a[i]){
-					a[i].inportData(data.data[i]);
+					a[i].importData(data.data[i]);
 				}
 			};
 			//load data
@@ -283,10 +283,10 @@ maps = {
 			maps.getMap(data.map,function(map){
 				this.map = map;
 			}.bind(this))
-		}
+		};
 		this.exportData = function(){ //exports chunk into db format
 			var a = this.layers;
-			var b = []
+			var b = [];
 			for (var i = 0; i < a.length; i++) {
 				b.push(a[i].exportData());
 			};
@@ -307,25 +307,25 @@ maps = {
 
 		this.getTile = function(x,y){
 			return this.tiles[y*this.width+x];
-		}
+		};
 		this.setTile = function(x,y,t){
 			this.chunk.saved = false;
 			this.tiles[y*this.width+x].tile = t;
-		}
+		};
 
-		this.inportData = function(data){ //inports a tiles array
+		this.importData = function(data){ //imports a tiles array
 			//loop through it and set the tiles
 			for (var i = 0; i < data.length; i++) {
 				this.tiles[i].tile = data[i];
 			};
-		}
+		};
 		this.exportData = function(){
 			var tiles = [];
 			for (var i = 0; i < this.tiles.length; i++) {
 				tiles.push(this.tiles[i].tile);
 			};
 			return tiles;
-		}
+		};
 
 		for (var i = 0; i < this.tiles.length; i++) {
 			this.tiles[i] = new maps.Tile(
@@ -343,7 +343,7 @@ maps = {
 		this.layer = layer;
 		this.__defineGetter__('mapX',function(){
 			return (this.layer.chunk.x*16)+this.x;
-		})
+		});
 		this.__defineGetter__('mapY',function(){
 			return (this.layer.chunk.y*16)+this.y;
 		})
@@ -431,7 +431,7 @@ maps = {
 			x: 0,
 			y: 0,
 			l: 0
-		},from || {})
+		},from || {});
 		to = fn.combindIn(fn.duplicate(from),to || {});
 		to.x = (to.x < from.x)? from.x : to.x;
 		to.y = (to.y < from.y)? from.y : to.y;
@@ -444,7 +444,7 @@ maps = {
 			width: (to.x - from.x)+1,
 			height: (to.y - from.y)+1,
 			data: []
-		}
+		};
 
 		for (var l = from.l; l <= to.l; l++) {
 			for (var x = from.x; x <= to.x; x++) {
@@ -454,7 +454,7 @@ maps = {
 							data.data[l] = [];
 						}
 
-						data.data[l].push(tile)
+						data.data[l].push(tile);
 
 						cb(data);
 					}.bind(this,x,y,l,m))
@@ -499,7 +499,7 @@ maps = {
 					}.bind(this,x,y,layer,data.data[l][t]))
 				};
 			};
-		}.bind(this))
+		}.bind(this));
 		if(!dontFire){
 			this.events.emit('tilesChange',data);
 		}
@@ -520,7 +520,7 @@ maps = {
 		db.query('SELECT * FROM maps WHERE id='+db.ec(mapID),function(map,data){
 			map.loaded = true;
 			if(data.length){
-				map.inportData(data[0]);
+				map.importData(data[0]);
 			}
 			this.events.emit('mapLoaded-'+map.id,map);
 			if(cb) cb(map);
@@ -716,7 +716,7 @@ maps = {
 						i=0
 					}
 					setTimeout(this.saveMapLoop.bind(this,i),this.saveTime);
-				}.bind(this))
+				}.bind(this));
 				return;
 			}
 		}
@@ -747,20 +747,20 @@ maps = {
 						}
 					}
 					setTimeout(this.saveChunkLoop.bind(this,mapIndex,chunkIndex),this.saveTime);
-				}.bind(this,map,chunk)
+				}.bind(this,map,chunk);
 
 				if(!chunk.saved){
 					chunk.saved = true;
 					map.chunkExists(chunk.x,chunk.y,function(map,chunk,exists){
 						if(exists){
 							map.saveChunk(chunk.x,chunk.y,cb);
-							return;
+
 						}
 						else{
 							map.insertChunk(chunk,cb);
-							return;
+
 						}
-					}.bind(this,map,chunk))
+					}.bind(this,map,chunk));
 					return;
 				}
 				else{
@@ -823,6 +823,6 @@ maps = {
 		}
 		setTimeout(this.unloadChunkLoop.bind(this,0,0),this.saveTime);
 	}
-}
+};
 
 module.exports = maps;

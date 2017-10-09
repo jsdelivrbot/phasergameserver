@@ -14,7 +14,7 @@ dataFiles = require('./modules/dataFiles.js');
 commands = require('./modules/commands.js');
 objectController = require('./modules/objectController.js');
 templates = require('./modules/templates.js');
-cmds = require('./modules/cmds.js')
+cmds = require('./modules/cmds.js');
 
 //set the log colors
 colors.setTheme({
@@ -65,10 +65,10 @@ console.log = function(){
 	chat.message('Server',{
 		message: Array.prototype.join.call(arguments,'')
 	},true)
-}
+};
 console.__proto__.timeLog = function(){
 	var args = Array.prototype.slice.call(arguments);
 	d = new Date();
 	args.splice(0,0,'['+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()+']');
 	console.log.apply(console,args);
-}
+};

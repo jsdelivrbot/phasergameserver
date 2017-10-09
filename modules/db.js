@@ -28,7 +28,7 @@ db = {
 				}
 				if(err) throw err;
 				if(cb) cb(rows);
-			})
+			});
 
 			//refresh the time out
 			this.setDisconenctTimer();
@@ -181,7 +181,7 @@ db = {
 			db.query("UPDATE users SET email='"+data.id.email+"', password='"+data.id.password+"', name='"+data.id.name+"', x="+Math.round(data.position.body.x)+", y="+Math.round(data.position.body.y)+", map="+data.position.map+", image='"+data.sprite.image+"' WHERE id="+id)
 		}
 	}
-}
+};
 
 //export
 module.exports = db;

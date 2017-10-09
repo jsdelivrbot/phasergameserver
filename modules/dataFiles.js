@@ -48,7 +48,7 @@ dataFiles = {
 			}
 		};
 	}
-}
+};
 
 //export
 module.exports = dataFiles;

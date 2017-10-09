@@ -1,13 +1,13 @@
 //object functions version 1.2 by robert
 fn = {
 	//cant use _.extend because it makes a shallow extend
-	combindOver: function(obj,obj2){ //obj2 gose over obj, values that are not in obj are added
+	combindOver: function(obj,obj2){ //obj2 goes over obj, values that are not in obj are added
 		for (var val in obj2){
 			if(typeof obj2[val] !== 'object'){
-				//see if we are on the client side and if theres ko
+				//see if we are on the client side and if there is ko
 				if(obj[val]){
 					if(obj[val].__ko_proto__){
-						obj[val](obj2[val])
+						obj[val](obj2[val]);
 						continue;
 					}
 				}
@@ -52,7 +52,7 @@ fn = {
 			if(count > 0){
 				// see if its an array
 				if(obj2.hasOwnProperty('length')){
-					var obj = []
+					var obj = [];
 					for (var i = 0; i < obj2.length; i++) {
 						if(typeof obj2[i] !== 'object'){
 							obj[i] = obj2[i]
@@ -63,7 +63,7 @@ fn = {
 					};
 				}
 				else{
-					var obj = {}
+					var obj = {};
 					for (var i in obj2){
 						if(typeof obj2[i] !== 'object'){
 							obj[i] = obj2[i]
@@ -149,12 +149,12 @@ fn = {
 
 		return diff;
 	},
-	applyDiff: function(obj, diff){ //applys the diff obj created by fn.getDiff
+	applyDiff: function(obj, diff){ //applies the diff obj created by fn.getDiff
 		diff = diff || {
 			added: {},
 			changed: {},
 			removed: {}
-		}
+		};
 
 		//add
 		for(var i in diff.added){
@@ -238,6 +238,6 @@ fn = {
 		}
 		return base;
 	}
-}
+};
 
 if (typeof module === "object") module.exports = fn;

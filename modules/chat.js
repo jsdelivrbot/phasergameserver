@@ -10,7 +10,7 @@ chat = {
 			title: 'Genral',
 			default: true,
 			canLeave: false
-		})
+		});
 		//create server chanel
 		this.createChanel({
 			title: 'Server',
@@ -32,7 +32,7 @@ chat = {
 			if(this.chanels[i].settings.title == title){
 				return this.chanels[i];
 			}
-		};
+		}
 	},
 	join: function(id,player){
 		if(_.isString(id)){
@@ -51,7 +51,7 @@ chat = {
 			if(this.chanels[i].settings.default){
 				this.chanels[i].join(player);
 			}
-		};
+		}
 	},
 	leave: function(id){
 		if(_.isString(id)){
@@ -68,7 +68,7 @@ chat = {
 	leaveAll: function(player){
 		for (var i = 0; i < this.chanels.length; i++) {
 			this.chanels[i].leave(player);
-		};
+		}
 	},
 	message: function(id,message,dontFire){
 		if(_.isString(id)){
@@ -82,6 +82,6 @@ chat = {
 			chanel.message(message,dontFire);
 		}
 	}
-}
+};
 
 module.exports = chat;

@@ -1,14 +1,15 @@
+var _ = require('underscore');
 var EventEmitter = require('events');
-var http = require('http')
-var fs = require('fs')
-var Player = require('./player.js')
-var SortedArray = require('./sortedArray.js')
+var Player = require('./player.js');
+var SortedArray = require('./sortedArray.js');
+var db = require('./db');
+var players = require('./players');
 
 var loginMessages = [
 	{
 		message: 'success',
 		class: 'success',
-		success: true, //wether they login or not
+		success: true, //whether they login or not
 	},
 	{
 		message: 'Wrong Email or Password',
@@ -16,7 +17,7 @@ var loginMessages = [
 		success: false
 	},
 	{
-		message: 'User Already Loged on',
+		message: 'User Already Logged on',
 		class: 'info',
 		success: false
 	},
@@ -99,7 +100,7 @@ players = {
 		db.query('SELECT * `user-data` WHERE id='+db.ec(id),function(data){
 			userData._loading = false;
 			if(data.length){
-				userData.inportData(data[0]);
+				userData.importData(data[0]);
 			}
 			if(cb) cb(userData);
 		}.bind(this))
@@ -115,12 +116,13 @@ players = {
 		if(player){
 			var data = player.exportData();
 			sql = 'UPDATE `users` SET ';
+			var properties = [];
 			//loop through the players exported data and save it
 			for (var i in data) {
-				if(i == 'id') continue;
-				sql += '`'+i+'`='+db.ec(data[i])+', ';
-			};
-			sql = sql.substring(0,sql.length-2);
+				if(i === 'id') continue;
+				properties.push('`'+i+'`='+db.ec(data[i])+'`');
+			}
+			sql += properties.join(', ');
 			sql += ' WHERE id='+db.ec(player.userID);
 
 			db.query(sql,cb);
@@ -133,13 +135,13 @@ players = {
 				var data = userData.exportData();
 
 				sql = 'UPDATE `user-data` SET ';
+				var properties = [];
 				//loop through the userData data and save it
 				for (var i in data) {
-					if(i == 'id') continue;
-
-					sql += '`'+i+'`='+db.ec(data[i])+', ';
-				};
-				sql = sql.substring(0,sql.length-2);
+					if(i === 'id') continue;
+					properties.push('`'+i+'`='+db.ec(data[i])+'`');
+				}
+				sql += properties.join(', ');
 				sql += ' WHERE id='+db.ec(player.userID);
 
 				db.query(sql,cb);
@@ -151,14 +153,14 @@ players = {
 		cb = _.after(players.players.length+1,cb || function(){});
 		for (var i = 0; i < players.players.length; i++) {
 			players.players[i].save(cb)
-		};
+		}
 		cb();
 	},
 	saveAllPlayers: function(cb){
 		cb = _.after(players.players.length+1,cb || function(){});
 		for (var i = 0; i < players.players.length; i++) {
 			players.players[i].save(cb)
-		};
+		}
 		cb();
 	},
 	saveAllUserData: function(cb){
@@ -168,14 +170,14 @@ players = {
 				this.saveUserData(this.userData[i].id,cb);
 			}
 			else cb();
-		};
+		}
 		cb();
 	},
 	updateLoop: function(){
 		// send down the data
 		for (var i = 0; i < players.players.length; i++) {
 			players.players[i].update()
-		};
+		}
 	},
 	savePlayerLoop: function(i){
 		i = i || 0;
@@ -205,7 +207,7 @@ players = {
 				data = data[0];
 
 				if(!data.banned){
-					//see if they are loged on
+					//see if they are logged on
 					if(this.players.indexOf({id: data.id}) !== -1){
 						cb(loginMessages[2]);
 						return;
@@ -224,7 +226,7 @@ players = {
 					cb(loginMessages[3]);
 					return;
 				}
-			};
+			}
 
 			cb(loginMessages[1]);
 		}.bind(this))
@@ -234,17 +236,17 @@ players = {
 			if(data.length){
 				data = data[0];
 				if(!data.admin){
-					cb(loginMessages[4])
+					cb(loginMessages[4]);
 					return;
 				}
 				if(password === data.password){
-					//see if they are loged on
+					//see if they are logged on
 					for (var j = 0; j < players.admins.length; j++) {
 						if(data.id == players.admins[j].userData.id){
 							cb(loginMessages[2]);
 							return;
 						}
-					};
+					}
 
 					_admin = Admin(data,socket);
 					players.admins.push(_admin);
@@ -259,20 +261,20 @@ players = {
 			cb(loginMessages[1]);
 		}.bind(this))
 	},
-}
+};
 
 //export
 module.exports = players;
 
 UserData = function(data){
 	this.data = {};
-	this.inportData(data);
-}
+	this.importData(data);
+};
 UserData.prototype = {
 	_saved: true,
 	_loading: false,
 	data: {},
-	inportData: function(data){
+	importData: function(data){
 		for(var i in data){
 			if(this.data[i]){
 				this.data[i] = data[i];
@@ -349,4 +351,4 @@ Object.defineProperties(UserData.prototype,{
 			return this.data.y = val;
 		}
 	},
-})
+});

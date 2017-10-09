@@ -1,5 +1,8 @@
 var EventEmitter = require('events');
 var sortedArray = require('./sortedArray.js');
+var fn = require('./functions');
+var io = require('socket.io');
+var db = require('./db');
 
 templates = {
 	Template: function(id){
@@ -9,7 +12,7 @@ templates = {
 
 		this.saved = true;
 
-		this.inportData = function(data){
+		this.importData = function(data){
 			if(typeof data.data == 'string'){
 				data.data = JSON.parse(data.data);
 			}
@@ -17,18 +20,18 @@ templates = {
 			delete data.id; //remove id so things dont get messed up
 
 			fn.combindOver(this,data);
-		}
+		};
 		this.exportData = function(){
 			return {
 				id: this.id,
 				name: this.name,
 				data: this.data
 			}
-		}
+		};
 
 		this.save = function(cb){
 			templates.saveTemplate(this.id,cb);
-		}
+		};
 		this.remove = function(){
 			templates.removeTemplate(this.id);
 		}
@@ -96,7 +99,7 @@ templates = {
 		db.query('SELECT * FROM templates WHERE id='+db.ec(id),function(data){
 			if(data.length){
 				template.id = data[0].id;
-				template.inportData(data[0]);
+				template.importData(data[0]);
 				this.templates.push(template);
 			}
 			if(cb) cb(template);
@@ -142,7 +145,7 @@ templates = {
 	},
 	updateTemplate: function(id,data){
 		this.getTemplate(id,function(template){
-			template.inportData(data);
+			template.importData(data);
 			template.saved = false;
 			//fire the event
 			this.events.emit('templateChange',template.exportData());
@@ -181,10 +184,10 @@ templates = {
 			else{
 				cb();
 			}
-		};
+		}
 		cb();
 	},
-	remvoeAll: function(cb){
+	removeAll: function(cb){
 		cb = _.after(this.templates.length+1,cb || function(){});
 		for (var i = 0; i < this.templates.length; i++) {
 			if(!this.templates[i].saved){
@@ -211,6 +214,6 @@ templates = {
 		}
 		setTimeout(this.saveTemplateLoop.bind(this,0),this.saveTime);
 	}
-}
+};
 
 module.exports = templates;

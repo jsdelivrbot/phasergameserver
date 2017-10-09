@@ -9,9 +9,9 @@ module.exports = {
 				commands.readline.close();
 
 				var cb = _.after(4,function(){
-					console.timeLog('saving players...')
+					console.timeLog('saving players...');
 					players.saveAll(function(){
-						console.timeLog('saving templates...')
+						console.timeLog('saving templates...');
 						templates.saveAll(function(){
 							console.timeLog('saved'.success);
 							process.exit();
@@ -19,10 +19,10 @@ module.exports = {
 					});
 				});
 
-				console.timeLog('saving maps...')
+				console.timeLog('saving maps...');
 				maps.saveAllMaps(cb);
 				maps.saveAllChunks(cb);
-				console.timeLog('saving objects...')
+				console.timeLog('saving objects...');
 				objectController.saveAll(cb);
 				maps.saveAllTileProperties(cb);
 			}
@@ -53,7 +53,7 @@ module.exports = {
 					}
 				})
 			]
-		}))
+		}));
 
 		commands.addCommand(new Command({
 			id: 'save',
@@ -62,19 +62,19 @@ module.exports = {
 					id: 'all',
 					run: function(){
 						var cb = _.after(4,function(){
-							console.timeLog('saving players...')
+							console.timeLog('saving players...');
 							players.saveAll(function(){
-								console.timeLog('saving templates...')
+								console.timeLog('saving templates...');
 								templates.saveAll(function(){
 									console.timeLog('saved'.success);
 								});
 							});
 						});
 
-						console.timeLog('saving maps...')
+						console.timeLog('saving maps...');
 						maps.saveAllMaps(cb);
 						maps.saveAllChunks(cb);
-						console.timeLog('saving objects...')
+						console.timeLog('saving objects...');
 						objectController.saveAll(cb);
 						maps.saveAllTileProperties(cb);
 					}
@@ -93,18 +93,18 @@ module.exports = {
 					run: function(){
 						var cb = _.after(4,function(){
 							console.timeLog('saved maps')
-						})
+						});
 
-						console.timeLog('saving maps...')
+						console.timeLog('saving maps...');
 						maps.saveAllMaps(cb);
 						maps.saveAllChunks(cb);
-						console.timeLog('saving objects...')
+						console.timeLog('saving objects...');
 						objectController.saveAll(cb);
 						maps.saveAllTileProperties(cb);
 					}
 				})
 			]
-		}))
+		}));
 
 		commands.addCommand(new Command({
 			id: 'players',
@@ -115,7 +115,7 @@ module.exports = {
 						commands.printTitle('Players'.info+' Online');
 						for (var i = 0; i < players.players.length; i++) {
 							console.timeLog(players.players[i].userData.name);
-						};
+						}
 					}
 				}),
 				new Command({
@@ -129,7 +129,7 @@ module.exports = {
 									players.players[i].socket.conn.close();
 									return;
 								}
-							};
+							}
 						}
 						console.timeLog('cant find player'.warn)
 					}
@@ -137,4 +137,4 @@ module.exports = {
 			]
 		}))
 	}
-}
+};

@@ -12,12 +12,12 @@ dataServer = {
 			res.setHeader('Access-Control-Allow-Origin', '*');
 			res.setHeader('Content-Type', 'application/json');
 
-			_url = url.parse(req.url, true)
+			_url = url.parse(req.url, true);
 			switch(_url.query.type){
 				case 'info':
-					json = fn.duplicate(dataFiles.config.serverInfo)
+					json = fn.duplicate(dataFiles.config.serverInfo);
 					json.players = players.players.length;
-					res.end(JSON.stringify(json))
+					res.end(JSON.stringify(json));
 					break;
 				case 'dataFile':
 					switch(_url.query.file){
@@ -48,6 +48,6 @@ dataServer = {
 	mapError: function(message){
 		return JSON.stringify({status: false, message: message || 'no message'});
 	}
-}
+};
 
 module.exports = dataServer;

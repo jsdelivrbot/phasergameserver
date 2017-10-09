@@ -14,7 +14,7 @@ objectController = {
 
 		this.saved = true;
 
-		this.inportData = function(data){
+		this.importData = function(data){
 			if(typeof data.properties == 'string'){
 				data.properties = JSON.parse(data.properties);
 			}
@@ -22,7 +22,7 @@ objectController = {
 			delete data.id; //remove id so things dont get messed up
 
 			fn.combindOver(this,data);
-		}
+		};
 		this.exportData = function(){
 			return {
 				id: this.id,
@@ -34,19 +34,19 @@ objectController = {
 				height: this.height,
 				properties: this.properties
 			}
-		}
+		};
 
 		if(data){
-			this.inportData(data);
+			this.importData(data);
 		}
 
 		//short hands
 		this.save = function(cb){
 			objectController.saveObject(this.id,this.type,cb);
-		}
+		};
 		this.remove = function(){
 			objectController.removeObject(this.id,this.type);
-		}
+		};
 		this.delete = function(cb){
 			objectController.deleteObject(this.id,this.type,cb);
 		}
@@ -78,11 +78,11 @@ objectController = {
 
 		this.events.on('objectCreate',function(data){
 			io.emit('objectCreate',data);
-		})
+		});
 
 		this.events.on('objectChange',function(data){
 			io.emit('objectChange',data);
-		})
+		});
 
 		this.events.on('objectDelete',function(data){
 			io.emit('objectDelete',data);
@@ -185,7 +185,7 @@ objectController = {
 	},
 	updateObject: function(id,type,data){ //updates objs data and fires event
 		this.getObject(id,type,function(obj){
-			obj.inportData(data);
+			obj.importData(data);
 			obj.saved = false;
 			//fire the event
 			this.events.emit('objectChange',obj.exportData());
@@ -203,7 +203,7 @@ objectController = {
 				db.query('SELECT * FROM '+db.ecID('object-'+type)+' WHERE id='+db.ec(id),function(data){
 					if(data.length){
 						obj.id = data[0].id;
-						obj.inportData(data[0]);
+						obj.importData(data[0]);
 						this.objects.push(obj);
 					}
 
@@ -273,6 +273,6 @@ objectController = {
 		}
 		setTimeout(this.saveObjectLoop.bind(this,0),this.saveTime);
 	}
-}
+};
 
 module.exports = objectController;

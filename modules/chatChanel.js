@@ -1,4 +1,6 @@
 var EventEmitter = require('events');
+var fn = require('./functions');
+var chat = require('./chat');
 
 function ChatChanel(data){
 	data = data || {};
@@ -43,7 +45,7 @@ ChatChanel.prototype = {
 			player.emit('chatChanelJoin',{
 				chanel: this.exportData(),
 				players: players
-			})
+			});
 
 			this.events.emit('playerJoined',{
 				chanel: this.exportData(),
@@ -63,7 +65,7 @@ ChatChanel.prototype = {
 						name: player.userData.name
 					}
 				})
-			};
+			}
 
 			player.emit('chatChanelLeave',this.exportData());
 
@@ -78,7 +80,7 @@ ChatChanel.prototype = {
 			to: '',
 			from: '',
 			message: ''
-		},message || {})
+		},message || {});
 
 		for (var i = 0; i < this.players.length; i++) {
 			if(this.players[i].userData.name === message.to || message.to.length == 0){
@@ -87,7 +89,7 @@ ChatChanel.prototype = {
 					message: message
 				})
 			}
-		};
+		}
 
 		if(!dontFire){
 			this.events.emit('message',message)
@@ -99,9 +101,9 @@ ChatChanel.prototype = {
 			settings: this.settings
 		};
 	}
-}
+};
 ChatChanel.prototype.__defineGetter__('id',function(){
 	return chat.chanels.indexOf(this);
-})
+});
 
 module.exports = ChatChanel;
