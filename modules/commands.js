@@ -1,3 +1,4 @@
+var EventEmitter = require('events');
 var readline = require('readline')
 
 /*
@@ -101,7 +102,7 @@ commands = {
 			};
 		};
 	},
-	events: new process.EventEmitter(),
+	events: new EventEmitter(),
 	commands: [],
 	init: function(){
 		this.readline.setPrompt('');

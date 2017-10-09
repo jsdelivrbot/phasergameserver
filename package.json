@@ -2,10 +2,10 @@
     "name": "phasergameserver",
     "version": "0.1.4",
     "dependencies": {
-        "socket.io": "latest",
-        "underscore": "latest",
-        "mysql": "latest",
-        "colors": "latest"
+        "socket.io": "1.3.7",
+        "underscore": "1.8.3",
+        "mysql": "2.9.0",
+        "colors": "1.1.2"
     },
     "scripts": {
         "start": "node server.js"

@@ -1,3 +1,4 @@
+var EventEmitter = require('events');
 var sortedArray = require('./sortedArray.js');
 
 templates = {
@@ -49,7 +50,7 @@ templates = {
 	templateDelete: id
 	templateCreate: template
 	*/
-	events: new process.EventEmitter(),
+	events: new EventEmitter(),
 
 	init: function(){
 		this.saveTemplateLoop(0);

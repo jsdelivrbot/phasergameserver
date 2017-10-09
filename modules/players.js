@@ -1,3 +1,4 @@
+var EventEmitter = require('events');
 var http = require('http')
 var fs = require('fs')
 var Player = require('./player.js')
@@ -60,7 +61,7 @@ players = {
 	admins: [],
 	step: null,
 	saveTime: 1000,
-	events: new process.EventEmitter(),
+	events: new EventEmitter(),
 
 	//functions
 	init: function(){

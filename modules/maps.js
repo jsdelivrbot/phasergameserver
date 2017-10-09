@@ -1,3 +1,4 @@
+var EventEmitter = require('events');
 var SortedArray = require('./sortedArray.js');
 
 function array(val,length){
@@ -15,7 +16,7 @@ maps = {
 	layers: [],
 	maps: [],
 	tileProperties: {}, //array of tile info
-	events: new process.EventEmitter(),
+	events: new EventEmitter(),
 	/*
 	mapsChange: nothing
 	mapLoaded-"mapID": map

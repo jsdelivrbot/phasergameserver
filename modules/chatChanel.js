@@ -1,9 +1,9 @@
-var events = require('events');
+var EventEmitter = require('events');
 
 function ChatChanel(data){
 	data = data || {};
 
-	this.events = new process.EventEmitter();
+	this.events = new EventEmitter();
 	this.players = [];
 	this.settings = fn.combindOver(fn.duplicate(this.settings),data);
 }

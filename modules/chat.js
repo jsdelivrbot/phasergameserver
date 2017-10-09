@@ -1,7 +1,8 @@
+var EventEmitter = require('events');
 var ChatChanel = require('./chatChanel.js');
 
 chat = {
-	events: new process.EventEmitter(),
+	events: new EventEmitter(),
 	chanels: [],
 	init: function(){
 		//add genral chanel

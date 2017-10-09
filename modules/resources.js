@@ -1,3 +1,5 @@
+var EventEmitter = require('events');
+
 resources = {
 	resources: {
 		/*
@@ -27,7 +29,7 @@ resources = {
 		*/
 	},
 	loadedMaps: {},
-	events: new process.EventEmitter(),
+	events: new EventEmitter(),
 
 	init: function(){
 		objectController.events.on('objectLoaded',this.loaded.bind(this))
