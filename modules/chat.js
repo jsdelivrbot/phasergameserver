@@ -1,7 +1,8 @@
 var EventEmitter = require('events');
 var ChatChanel = require('./chatChanel.js');
+var _ = require('underscore');
 
-chat = {
+var chat = {
 	events: new EventEmitter(),
 	chanels: [],
 	init: function(){

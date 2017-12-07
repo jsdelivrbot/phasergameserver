@@ -1,7 +1,7 @@
 var EventEmitter = require('events');
 var sortedArray = require('./sortedArray.js');
 
-objectController = {
+var objectController = {
 	Object: function(id,type,data){
 		this.id = id || -1;
 		this.type = type || '';

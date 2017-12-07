@@ -39,7 +39,7 @@ playerLogin: player,
 adminLogin: admin,
 */
 
-players = {
+var players = {
 	players: new SortedArray([],function(a,b){
 		if(a.userID === b.userID) return 0;
 		if(a.userID < b.userID){

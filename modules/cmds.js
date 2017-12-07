@@ -1,3 +1,11 @@
+var _ = require('underscore');
+var db = require('./db');
+var templates = require('./templates');
+var commands = require('./commands');
+var players = require('./players');
+var maps = require('./maps');
+var objectController = require('./objectController');
+
 //this file creates all the command line commands
 module.exports = {
 	console: function(){

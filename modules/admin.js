@@ -1,4 +1,4 @@
-Admin = function(userData,socket){
+function Admin(userData,socket){
 	console.timeLog(userData.name.info+' loged on as admin');
 	socket.userData = userData;
 

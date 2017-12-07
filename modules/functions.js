@@ -1,5 +1,7 @@
+var _ = require('underscore');
+
 //object functions version 1.2 by robert
-fn = {
+var fn = {
 	//cant use _.extend because it makes a shallow extend
 	combindOver: function(obj,obj2){ //obj2 goes over obj, values that are not in obj are added
 		for (var val in obj2){

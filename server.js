@@ -1,20 +1,19 @@
 // libraries
-fn = require('./modules/functions.js');
-_ = require('underscore');
-colors = require('colors');
+require('./modules/functions.js');
+var colors = require('colors');
 
-Admin = require('./modules/admin.js');
-maps = require('./modules/maps.js');
-players = require('./modules/players.js');
-chat = require('./modules/chat.js');
-dataServer = require('./modules/dataServer.js');
-db = require('./modules/db.js');
-dataFiles = require('./modules/dataFiles.js');
-// resources = require('./modules/resources.js');
-commands = require('./modules/commands.js');
-objectController = require('./modules/objectController.js');
-templates = require('./modules/templates.js');
-cmds = require('./modules/cmds.js');
+var Admin = require('./modules/admin.js');
+var maps = require('./modules/maps.js');
+var players = require('./modules/players.js');
+var chat = require('./modules/chat.js');
+var dataServer = require('./modules/dataServer.js');
+var db = require('./modules/db.js');
+var dataFiles = require('./modules/dataFiles.js');
+// var resources = require('./modules/resources.js');
+var commands = require('./modules/commands.js');
+var objectController = require('./modules/objectController.js');
+var templates = require('./modules/templates.js');
+var cmds = require('./modules/cmds.js');
 
 //set the log colors
 colors.setTheme({
@@ -28,34 +27,31 @@ colors.setTheme({
 dataFiles.load(init);
 
 function init(){
-	//start
-	db.init(function(){
-		dataServer.init();
-		players.init();
-		maps.init();
-		commands.init();
-		cmds.console();
-		chat.init();
-		objectController.init();
-		templates.init();
+	dataServer.init();
+	players.init();
+	maps.init();
+	commands.init();
+	cmds.console();
+	chat.init();
+	objectController.init();
+	templates.init();
 
-		io = require('socket.io')(8181);
-		io.on('connection', function (socket) {
-			socket.on('login', function (data,callback) {
-				players.login(data.email,data.password,socket,function(loginMessage,_player){
-					callback(loginMessage)
-				});
-			});
-			socket.on('adminLogin', function (data,callback) {
-				//login and see if he is an admin
-				players.adminLogin(data.email,data.password,socket,function(loginMessage,_admin){
-					callback(loginMessage);
-				})
+	io = require('socket.io')(8181);
+	io.on('connection', function (socket) {
+		socket.on('login', function (data,callback) {
+			players.login(data.email,data.password,socket,function(loginMessage,_player){
+				callback(loginMessage)
 			});
 		});
-
-		console.timeLog('Server started, type '+'help'.info+' or '+'?'.info);
+		socket.on('adminLogin', function (data,callback) {
+			//login and see if he is an admin
+			players.adminLogin(data.email,data.password,socket,function(loginMessage,_admin){
+				callback(loginMessage);
+			})
+		});
 	});
+
+	console.timeLog('Server started, type '+'help'.info+' or '+'?'.info);
 }
 
 //log

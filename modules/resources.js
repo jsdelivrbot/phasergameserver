@@ -1,6 +1,7 @@
 var EventEmitter = require('events');
+var _ = require('underscore');
 
-resources = {
+var resources = {
 	resources: {
 		/*
 		{

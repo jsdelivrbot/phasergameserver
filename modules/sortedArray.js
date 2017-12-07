@@ -1,3 +1,5 @@
+var fn = require('./functions');
+
 var SortedArray = function(array,compare){
     //test if a > b or =
 	this.compare = compare || function(a, b) {

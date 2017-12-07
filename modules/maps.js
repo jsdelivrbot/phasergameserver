@@ -1,5 +1,6 @@
 var EventEmitter = require('events');
 var SortedArray = require('./sortedArray.js');
+var db = require('./db');
 
 function array(val,length){
 	var a = [];
@@ -9,7 +10,7 @@ function array(val,length){
 	return a;
 }
 
-maps = {
+var maps = {
 	defaultTile: 0,
 	saveTime: 1000,
 	unloadTime: 15, //in min
@@ -70,7 +71,7 @@ maps = {
 			};
 			return false;
 		};
-		this.loadChunk = function(x,y,cb){ //creates a new chunk and trys to load it from the db
+		this.loadChunk = function(x,y,cb){ //creates a new chunk and tries to load it from the db
 			chunk = new maps.Chunk(x,y,this);
 
 			if(x>=0&&y>=0&&x<this.width&&y<this.height){
@@ -826,3 +827,5 @@ maps = {
 };
 
 module.exports = maps;
+
+var io = require('../server');

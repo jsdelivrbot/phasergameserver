@@ -1,6 +1,8 @@
-fs = require('fs');
+var fs = require('fs');
+var _ = require('underscore');
+var fn = require('./functions');
 
-dataFiles = {
+var dataFiles = {
 	files: [
 		{
 			id: 'config',

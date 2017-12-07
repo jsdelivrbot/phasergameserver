@@ -1,10 +1,11 @@
 var EventEmitter = require('events');
 var sortedArray = require('./sortedArray.js');
+var _ = require('underscore');
 var fn = require('./functions');
 var io = require('socket.io');
 var db = require('./db');
 
-templates = {
+var templates = {
 	Template: function(id){
 		this.id = id || -1;
 		this.name = '';
