@@ -1,54 +1,58 @@
-var fs = require('fs');
-var _ = require('underscore');
-var fn = require('./functions');
+var fs = require("fs");
+var _ = require("underscore");
+var fn = require("./functions");
 
 var dataFiles = {
 	files: [
 		{
-			id: 'config',
-			url: 'config.json'
+			id: "config",
+			url: "config.json"
 		},
 		{
-			id: 'itemProfiles',
-			url: 'data/shared/itemProfiles.json',
-			onload: function(json){
+			id: "itemProfiles",
+			url: "data/shared/itemProfiles.json",
+			onload: function(json) {
 				//parse the json
-				dataFiles.items = fn.idArray(json,'title');
+				dataFiles.items = fn.idArray(json, "title");
 			}
 		},
 		{
-			id: 'damageProfiles',
-			url: 'data/shared/damageProfiles.json'
+			id: "damageProfiles",
+			url: "data/shared/damageProfiles.json"
 		},
 		{
-			id: 'resourceProfiles',
-			url: 'data/shared/resourceProfiles.json',
-			onload: function(json){
+			id: "resourceProfiles",
+			url: "data/shared/resourceProfiles.json",
+			onload: function(json) {
 				//parse the json
-				dataFiles.resources = fn.idArray(json,'time');
+				dataFiles.resources = fn.idArray(json, "time");
 			}
 		},
 		{
-			id: 'miningProfiles',
-			url: 'data/shared/miningProfiles.json'
+			id: "miningProfiles",
+			url: "data/shared/miningProfiles.json"
 		}
 	],
-	load: function(cb){
-		cb = _.after(this.files.length,cb);
+	load: function(cb) {
+		cb = _.after(this.files.length, cb);
 
 		for (var i = 0; i < this.files.length; i++) {
-			if(this[this.files[i].id] == undefined){
-				fs.readFile(this.files[i].url,{encoding: 'UTF-8'},function(id, i, err, data){
-					this[id] = JSON.parse(data);
+			if (this[this.files[i].id] == undefined) {
+				fs.readFile(
+					this.files[i].url,
+					{ encoding: "UTF-8" },
+					function(id, i, err, data) {
+						this[id] = JSON.parse(data);
 
-					if(this.files[i].onload !== undefined){
-						this.files[i].onload(this[id]);
-					}
+						if (this.files[i].onload !== undefined) {
+							this.files[i].onload(this[id]);
+						}
 
-					cb();
-				}.bind(this,this.files[i].id,i))
+						cb();
+					}.bind(this, this.files[i].id, i)
+				);
 			}
-		};
+		}
 	}
 };
 

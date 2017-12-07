@@ -1,18 +1,18 @@
-var path = require('path');
-var db = require('diskdb');
-var config = require('../config.json');
+var path = require("path");
+var db = require("diskdb");
+var config = require("../config.json");
 
 var database = db.connect(path.resolve(config.dataBase.path), [
-	'players',
-	'chunks',
-	'maps',
-	'tiles',
-	'layers',
-	'users',
-	'user-data',
-	'errors',
-	'objects',
-	'templates'
+	"players",
+	"chunks",
+	"maps",
+	"tiles",
+	"layers",
+	"users",
+	"user-data",
+	"errors",
+	"objects",
+	"templates"
 ]);
 
 database.query = () => {};

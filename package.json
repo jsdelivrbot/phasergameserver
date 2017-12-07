@@ -9,11 +9,14 @@
     },
     "scripts": {
         "start": "node server.js",
-        "dev": "nodemon server.js"
+        "dev": "nodemon server.js",
+        "format": "prettier --use-tabs --write ./modules/**/*.js ./server.js "
     },
     "description": "server for phasergame",
     "main": "server.js",
-    "devDependencies": {},
+    "devDependencies": {
+        "prettier": "^1.9.1"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/rdfriedl/phasergameserver.git"
