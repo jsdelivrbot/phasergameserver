@@ -1,62 +1,53 @@
-var EventEmitter = require("events");
-var sortedArray = require("./sortedArray.js");
-var _ = require("underscore");
-var fn = require("./functions");
-var io = require("socket.io");
-var db = require("./db");
+const EventEmitter = require("events");
+const db = require("./db");
 
-var templates = {
-	Template: function(id) {
+class Template {
+	constructor(id, data) {
 		this.id = id || -1;
 		this.name = "";
 		this.data = {};
+		this.manager = null;
 
-		this.saved = true;
-
-		this.importData = function(data) {
-			if (typeof data.data == "string") {
-				data.data = JSON.parse(data.data);
-			}
-
-			delete data.id; //remove id so things dont get messed up
-
-			fn.combindOver(this, data);
-		};
-		this.exportData = function() {
-			return {
-				id: this.id,
-				name: this.name,
-				data: this.data
-			};
-		};
-
-		this.save = function(cb) {
-			templates.saveTemplate(this.id, cb);
-		};
-		this.remove = function() {
-			templates.removeTemplate(this.id);
-		};
-	},
-
-	saveTime: 5000,
-	templates: new sortedArray([], function(a, b) {
-		if (a.id === b.id) return 0;
-		if (a.id > b.id) {
-			return 1;
-		} else {
-			return -1;
+		if (data) {
+			this.importData(data);
 		}
-	}),
-	/*
-	events:
-	templateChange: template
-	templateDelete: id
-	templateCreate: template
-	*/
-	events: new EventEmitter(),
+	}
 
-	init: function() {
-		this.saveTemplateLoop(0);
+	importData(data = {}) {
+		this.name = data.name;
+		this.data = Object.assign({}, this.data, data.data);
+		return this;
+	}
+
+	exportData() {
+		return {
+			id: this.id,
+			name: this.name,
+			data: this.data
+		};
+	}
+
+	save() {
+		if (this.manager) {
+			this.manager.saveTemplate(this.id);
+		}
+	}
+	remove() {
+		if (this.manager) {
+			this.manager.removeTemplate(this.id);
+		}
+	}
+}
+
+class TemplateManager {
+	constructor() {
+		/* events:
+			templateChange: template
+			templateDelete: id
+			templateCreate: template
+		*/
+		this.events = new EventEmitter();
+		this.templates = [];
 
 		this.events.on("templateChange", function(data) {
 			io.emit("templateChange", data);
@@ -67,168 +58,86 @@ var templates = {
 		this.events.on("templateDelete", function(data) {
 			io.emit("templateDelete", data);
 		});
-	},
-	getTemplate: function(id, cb) {
+	}
+
+	getTemplate(id) {
 		if (this.templateLoaded(id)) {
-			if (cb) cb(this.templates[this.templates.indexOf({ id: id })]);
+			return this.templates.find(t => t.id === id);
 		} else {
-			this.loadTemplate(id, cb);
+			return this.loadTemplate(id);
 		}
-	},
-	getTemplates: function(cb) {
-		db.query(
-			"SELECT id FROM `templates`",
-			function(data) {
-				//get templates
-				if (data.length) {
-					var templates = [];
-					cb = _.after(data.length, cb || function() {});
-					for (var i = 0; i < data.length; i++) {
-						this.getTemplate(data[i].id, function(obj) {
-							templates.push(obj);
-							cb(templates);
-						});
-					}
-				} else {
-					if (cb) cb([]);
-				}
-			}.bind(this)
-		);
-	},
-	loadTemplate: function(id, cb) {
-		var template = new this.Template();
-		db.query(
-			"SELECT * FROM templates WHERE id=" + db.ec(id),
-			function(data) {
-				if (data.length) {
-					template.id = data[0].id;
-					template.importData(data[0]);
-					this.templates.push(template);
-				}
-				if (cb) cb(template);
-			}.bind(this)
-		);
-	},
-	createTemplate: function(data, cb) {
-		var template = new this.Template(-1, data);
+	}
+	getTemplates() {
+		let templates = db.templates.find();
+		return templates.map(data => this.getTemplate(data.id));
+	}
+	loadTemplate(id) {
+		let template = new Template();
+		template.manager = this;
 
-		data = template.exportData();
-		db.query(
-			"INSERT INTO `templates`() VALUES()",
-			function(data) {
-				template.id = data.insertId;
+		let data = db.templates.find({ id });
+		if (data.length) {
+			template.id = data[0].id;
+			template.importData(data[0]);
+			this.templates.push(template);
+		}
 
-				this.templates.push(template); //push it after it gets an id
+		return template;
+	}
+	createTemplate(data) {
+		let template = new Template(Math.round(Math.random() * 1000000), data);
+		template.manager = this;
 
-				this.events.emit("templateCreate", template.exportData());
+		db.templates.save(template.exportData());
 
-				template.save(function() {
-					if (cb) cb(template);
-				});
-			}.bind(this)
-		);
-	},
-	deleteTemplate: function(id, cb) {
+		this.templates.push(template); //push it after it gets an id
+
+		this.events.emit("templateCreate", template.exportData());
+
+		template.save();
+
+		return template;
+	}
+	deleteTemplate(id) {
 		//fire the event
 		this.events.emit("templateDelete", id);
 
-		db.query(
-			"DELETE FROM `templates` WHERE id=" + db.ec(id),
-			function(data) {
-				if (this.templateLoaded(id)) {
-					this.removeObject(id);
-				}
-				if (cb) cb();
-			}.bind(this)
-		);
-	},
-	placeTemplate: function(id, position, cb) {
-		//places a template on the map
-		position = fn.combindIn(
-			{
-				x: 0,
-				y: 0,
-				map: 0,
-				layer: 0
-			},
-			position
-		);
-	},
-	templateLoaded: function(id, cb) {
-		return this.templates.indexOf({ id: id }) !== -1;
-	},
-	updateTemplate: function(id, data) {
-		this.getTemplate(
-			id,
-			function(template) {
-				template.importData(data);
-				template.saved = false;
-				//fire the event
-				this.events.emit("templateChange", template.exportData());
-			}.bind(this)
-		);
-	},
-	removeTemplate: function(id) {
-		i = this.templates.indexOf({ id: id });
-		if (i !== -1) {
-			this.templates.splice(i, 1);
-		}
-	},
-	saveTemplate: function(id, cb) {
-		this.getTemplate(id, function(template) {
-			template.saved = true;
-			data = template.exportData();
-			var str = "UPDATE `templates` SET ";
+		db.templates.remove({ id: id });
 
-			for (var i in data) {
-				if (i == "id") continue;
-				str += "`" + i + "`=" + db.ec(data[i]) + ", ";
-			}
-			str = str.substring(0, str.length - 2);
-			str += " WHERE id=" + db.ec(data.id);
-
-			db.query(str, function() {
-				if (cb) cb();
-			});
-		});
-	},
-	saveAll: function(cb) {
-		cb = _.after(this.templates.length + 1, cb || function() {});
-		for (var i = 0; i < this.templates.length; i++) {
-			if (!this.templates[i].saved) {
-				this.templates[i].save(cb);
-			} else {
-				cb();
-			}
-		}
-		cb();
-	},
-	removeAll: function(cb) {
-		cb = _.after(this.templates.length + 1, cb || function() {});
-		for (var i = 0; i < this.templates.length; i++) {
-			if (!this.templates[i].saved) {
-				this.templates[i].remove();
-			} else {
-				cb();
-			}
-		}
-		cb();
-	},
-	saveTemplateLoop: function(i) {
-		if (this.templates[i]) {
-			if (!this.templates[i].saved) {
-				this.templates[i].save();
-			}
-
-			if (++i >= this.templates.length) {
-				i = 0;
-			}
-
-			setTimeout(this.saveTemplateLoop.bind(this, i), this.saveTime);
-			return;
-		}
-		setTimeout(this.saveTemplateLoop.bind(this, 0), this.saveTime);
+		this.removeTemplate(id);
 	}
-};
+	templateLoaded(id) {
+		return !!this.templates.find(t => t.id === id);
+	}
+	updateTemplate(id, data) {
+		let template = this.getTemplate(id);
+		template.importData(data);
+		template.save();
 
-module.exports = templates;
+		//fire the event
+		this.events.emit("templateChange", template.exportData());
+	}
+	removeTemplate(id) {
+		this.templates = this.templates.filter(template => template.id !== id);
+	}
+	saveTemplate(id) {
+		let template = this.getTemplate(id);
+
+		db.templates.update({ id }, template.exportData(), { upsert: true });
+	}
+	saveAll() {
+		this.templates.forEach(t => t.save());
+	}
+}
+
+let inst;
+Object.defineProperty(TemplateManager, "inst", {
+	get() {
+		return inst || (inst = new TemplateManager());
+	}
+});
+TemplateManager.inst.Template = Template;
+
+module.exports = TemplateManager.inst;
+
+const io = require("../server");

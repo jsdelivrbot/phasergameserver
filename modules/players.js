@@ -3,7 +3,6 @@ var EventEmitter = require("events");
 var Player = require("./player.js");
 var SortedArray = require("./sortedArray.js");
 var db = require("./db");
-var players = require("./players");
 
 var loginMessages = [
 	{
