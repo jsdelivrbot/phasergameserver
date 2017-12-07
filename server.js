@@ -1,6 +1,5 @@
 // libraries
 require("./modules/functions.js");
-var colors = require("colors");
 
 var Admin = require("./modules/admin.js");
 var maps = require("./modules/maps.js");
@@ -15,14 +14,6 @@ var objectController = require("./modules/objectController.js");
 var templates = require("./modules/templates.js");
 var cmds = require("./modules/cmds.js");
 
-//set the log colors
-colors.setTheme({
-	success: "green", //[33m
-	info: "cyan", //[36m
-	warn: "yellow", //[33m
-	error: "red" //[31m
-});
-
 //load the dataFiles
 dataFiles.load(init);
 
@@ -32,9 +23,7 @@ function init() {
 	maps.init();
 	commands.init();
 	cmds.console();
-	chat.init();
 	objectController.init();
-	templates.init();
 
 	io = require("socket.io")(8181);
 	io.on("connection", function(socket) {
@@ -59,26 +48,3 @@ function init() {
 
 	console.timeLog("Server started, type " + "help".info + " or " + "?".info);
 }
-
-//log
-console._log_ = console.log;
-console.log = function() {
-	console._log_.apply(console, arguments);
-	chat.message(
-		"Server",
-		{
-			message: Array.prototype.join.call(arguments, "")
-		},
-		true
-	);
-};
-console.__proto__.timeLog = function() {
-	var args = Array.prototype.slice.call(arguments);
-	d = new Date();
-	args.splice(
-		0,
-		0,
-		"[" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "]"
-	);
-	console.log.apply(console, args);
-};

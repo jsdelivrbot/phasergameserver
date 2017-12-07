@@ -1,115 +1,109 @@
-var EventEmitter = require("events");
-var fn = require("./functions");
-var chat = require("./chat");
+const EventEmitter = require("events");
 
-function ChatChanel(data) {
-	data = data || {};
+class ChatChanel {
+	constructor(settings = {}) {
+		this.events = new EventEmitter();
+		this.players = [];
+		this.manager = null;
+		this.settings = Object.assign(
+			{
+				title: "",
+				owner: -1,
+				default: false,
+				canLeave: true,
+				canSendMessage: true
+			},
+			settings
+		);
+	}
 
-	this.events = new EventEmitter();
-	this.players = [];
-	this.settings = fn.combindOver(fn.duplicate(this.settings), data);
-}
-ChatChanel.prototype = {
-	events: undefined,
-	settings: {
-		title: "",
-		owner: -1,
-		default: false,
-		canLeave: true,
-		canSendMessage: true
-	},
-	players: [],
-	join: function(player) {
-		if (this.players.indexOf(player) == -1) {
-			this.players.push(player);
+	get id() {
+		return this.manager ? this.manager.chanels.indexOf(this) : -1;
+	}
 
-			var players = [];
-			for (var i = 0; i < this.players.length; i++) {
-				//tell the other players that a player joined
-				if (this.players[i] !== player) {
-					this.players[i].emit("chatChanelPlayerJoin", {
-						chanel: this.exportData(),
-						player: {
-							id: player.userID,
-							name: player.userData.name
-						}
-					});
+	join(player) {
+		if (this.players.includes(player)) return;
+
+		// tell the other players the player is joining
+		this.players.forEach(otherPlayer => {
+			otherPlayer.emit("chatChanelPlayerJoin", {
+				chanel: this.exportData(),
+				player: {
+					id: player.userID,
+					name: player.userData.name
 				}
-
-				//buid the player list
-				players.push({
-					id: this.players[i].userID,
-					name: this.players[i].userData.name
-				});
-			}
-			player.emit("chatChanelJoin", {
-				chanel: this.exportData(),
-				players: players
 			});
+		});
 
-			this.events.emit("playerJoined", {
+		// send the channel data to the joining player
+		player.emit("chatChanelJoin", {
+			chanel: this.exportData(),
+			players: this.players.map(p => ({
+				id: p.userId,
+				name: p.userData.name
+			}))
+		});
+
+		//add the player to the channel
+		this.players.push(player);
+
+		this.events.emit("playerJoined", {
+			chanel: this.exportData(),
+			player: player
+		});
+	}
+	leave(player) {
+		if (!this.players.includes(player)) return;
+
+		this.players.splice(this.players.indexOf(player), 1);
+
+		// notify the other players
+		this.players.forEach(otherPlayer => {
+			otherPlayer.emit("chatChanelPlayerLeave", {
 				chanel: this.exportData(),
-				player: player
+				player: {
+					id: player.userId,
+					name: player.userData.name
+				}
 			});
-		}
-	},
-	leave: function(player) {
-		if (this.players.indexOf(player) !== -1) {
-			this.players.splice(this.players.indexOf(player), 1);
+		});
 
-			for (var i = 0; i < this.players.length; i++) {
-				this.players[i].emit("chatChanelPlayerLeave", {
-					chanel: this.exportData(),
-					player: {
-						id: player.userID,
-						name: player.userData.name
-					}
-				});
-			}
+		player.emit("chatChanelLeave", this.exportData());
 
-			player.emit("chatChanelLeave", this.exportData());
-
-			this.events.emit("playerLeave", {
-				chanel: this.exportData(),
-				player: player
-			});
-		}
-	},
-	message: function(message, dontFire) {
-		message = fn.combindOver(
+		this.events.emit("playerLeave", {
+			chanel: this.exportData(),
+			player: player
+		});
+	}
+	message(message = {}, dontFire) {
+		message = Object.assign(
 			{
 				to: "",
 				from: "",
 				message: ""
 			},
-			message || {}
+			message
 		);
 
-		for (var i = 0; i < this.players.length; i++) {
-			if (
-				this.players[i].userData.name === message.to ||
-				message.to.length == 0
-			) {
-				this.players[i].emit("chatChanelMessage", {
+		this.players.forEach(player => {
+			if (message.to === player.userData.name || !message.to) {
+				player.emit("chatChanelMessage", {
 					chanel: this.exportData(),
 					message: message
 				});
 			}
-		}
+		});
 
 		if (!dontFire) {
 			this.events.emit("message", message);
 		}
-	},
-	exportData: function() {
+	}
+	exportData() {
 		return {
 			id: this.id,
 			settings: this.settings
 		};
 	}
-};
-ChatChanel.prototype.__defineGetter__("id", function() {
-	return chat.chanels.indexOf(this);
-});
+}
 
 module.exports = ChatChanel;

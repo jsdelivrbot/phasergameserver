@@ -1,85 +1,59 @@
-var EventEmitter = require("events");
-var ChatChanel = require("./chatChanel.js");
-var _ = require("underscore");
+const EventEmitter = require("events");
+const ChatChanel = require("./chatChanel");
 
-var chat = {
-	events: new EventEmitter(),
-	chanels: [],
-	init: function() {
-		//add genral chanel
-		this.createChanel({
-			title: "Genral",
-			default: true,
-			canLeave: false
-		});
-		//create server chanel
-		this.createChanel({
-			title: "Server",
-			canLeave: false
-		}).events.on("message", function(data) {
-			commands.readline.write(data.message + " \n");
-		});
-	},
-	createChanel: function(data) {
-		var chanel = new ChatChanel(data);
+class ChatManager {
+	constructor() {
+		this.events = new EventEmitter();
+		this.chanels = [];
+	}
+	createChanel(settings) {
+		let chanel = new ChatChanel(settings);
+		chanel.manager = this;
 		this.chanels.push(chanel);
 		return chanel;
-	},
-	getChanel: function(id) {
-		return this.chanels[id];
-	},
-	getChanelByTitle: function(title) {
-		for (var i = 0; i < this.chanels.length; i++) {
-			if (this.chanels[i].settings.title == title) {
-				return this.chanels[i];
-			}
-		}
-	},
-	join: function(id, player) {
-		if (_.isString(id)) {
-			var chanel = this.getChanelByTitle(id);
-		} else {
-			var chanel = this.getChanel(id);
-		}
-
-		if (chanel) {
-			chanel.join(player);
-		}
-	},
-	joinDefault: function(player) {
-		for (var i = 0; i < this.chanels.length; i++) {
-			if (this.chanels[i].settings.default) {
-				this.chanels[i].join(player);
-			}
-		}
-	},
-	leave: function(id) {
-		if (_.isString(id)) {
-			var chanel = this.getChanelByTitle(id);
-		} else {
-			var chanel = this.getChanel(id);
-		}
-
-		if (chanel) {
-			chanel.leave(player);
-		}
-	},
-	leaveAll: function(player) {
-		for (var i = 0; i < this.chanels.length; i++) {
-			this.chanels[i].leave(player);
-		}
-	},
-	message: function(id, message, dontFire) {
-		if (_.isString(id)) {
-			chanel = this.getChanelByTitle(id);
-		} else {
-			chanel = this.getChanel(id);
-		}
-
-		if (chanel) {
-			chanel.message(message, dontFire);
-		}
 	}
-};
+	getChanel(id) {
+		return this.chanels[id];
+	}
+	getChanelByTitle(title) {
+		return this.chanels.find(chanel => chanel.settings.title === title);
+	}
+	join(id, player) {
+		let chanel;
+		if (typeof id === "string") chanel = this.getChanelByTitle(id);
+		else chanel = this.getChanel(id);
 
-module.exports = chat;
+		if (chanel) chanel.join(player);
+	}
+	joinDefault(player) {
+		this.chanels
+			.filter(ch => ch.settings.default)
+			.forEach(ch => ch.join(player));
+	}
+	leave(id) {
+		let chanel;
+		if (typeof id === "string") chanel = this.getChanelByTitle(id);
+		else chanel = this.getChanel(id);
+
+		if (chanel) chanel.leave(player);
+	}
+	leaveAll(player) {
+		this.chanels.forEach(ch => ch.leave(player));
+	}
+	message(id, message, dontFire) {
+		let chanel;
+		if (typeof id === "string") chanel = this.getChanelByTitle(id);
+		else chanel = this.getChanel(id);
+
+		if (chanel) chanel.message(message, dontFire);
+	}
+}
+
+let inst;
+Object.defineProperty(ChatManager, "inst", {
+	get() {
+		return inst || (inst = new ChatManager());
+	}
+});
+
+module.exports = ChatManager.inst;

@@ -72,7 +72,7 @@ class TemplateManager {
 		return templates.map(data => this.getTemplate(data.id));
 	}
 	loadTemplate(id) {
-		let template = new Template();
+		let template = new Template(id);
 		template.manager = this;
 
 		let data = db.templates.find({ id });

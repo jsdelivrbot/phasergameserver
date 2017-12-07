@@ -8,9 +8,9 @@
         "underscore": "1.8.3"
     },
     "scripts": {
-        "start": "node server.js",
+        "start": "node index.js",
         "dev": "nodemon server.js",
-        "format": "prettier --use-tabs --write ./modules/**/*.js ./server.js "
+        "format": "prettier --use-tabs --write ./modules/**/*.js ./apps/**/*.js ./server.js ./index.js"
     },
     "description": "server for phasergame",
     "main": "server.js",
