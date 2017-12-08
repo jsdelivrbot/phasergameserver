@@ -1,4 +1,4 @@
-const players = require('../modules/players');
+const players = require("../modules/players");
 const io = require("socket.io")(8181);
 
 io.on("connection", function(socket) {
@@ -22,13 +22,13 @@ io.on("connection", function(socket) {
 });
 
 // map objects
-const mapObjects = require('../modules/objectController');
+const mapObjects = require("../modules/objectController");
 mapObjects.events.on("objectCreate", data => io.emit("objectCreate", data));
 mapObjects.events.on("objectChange", data => io.emit("objectChange", data));
 mapObjects.events.on("objectDelete", data => io.emit("objectDelete", data));
 
 // template events
-const templates = require('../modules/templates');
+const templates = require("../modules/templates");
 templates.events.on("templateChange", data => io.emit("templateChange", data));
 templates.events.on("templateCreate", data => io.emit("templateCreate", data));
 templates.events.on("templateDelete", data => io.emit("templateDelete", data));

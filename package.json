@@ -10,7 +10,7 @@
     "scripts": {
         "start": "node index.js",
         "dev": "nodemon server.js",
-        "format": "prettier --use-tabs --write ./modules/**/*.js ./apps/**/*.js ./server.js ./index.js"
+        "format": "prettier --use-tabs --write ./modules/**/*.js ./app/**/*.js ./server.js ./index.js"
     },
     "description": "server for phasergame",
     "main": "server.js",

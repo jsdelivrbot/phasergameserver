@@ -12,7 +12,6 @@ var dataFiles = require("./modules/dataFiles.js");
 var commands = require("./modules/commands.js");
 var objectController = require("./modules/objectController.js");
 var templates = require("./modules/templates.js");
-var cmds = require("./modules/cmds.js");
 
 //load the dataFiles
 dataFiles.load(init);
@@ -21,6 +20,4 @@ function init() {
 	dataServer.init();
 	players.init();
 	maps.init();
-	commands.init();
-	cmds.console();
 }

@@ -1,5 +1,5 @@
 const EventEmitter = require("events");
-const db = require('./db');
+const db = require("./db");
 
 class MapObject {
 	constructor(id = -1, type = "", data) {
@@ -52,7 +52,7 @@ class MapObject {
 	objectCreate: obj export
 */
 class MapObjectManager {
-	constructor(){
+	constructor() {
 		this.events = new EventEmitter();
 		this.objects = [];
 	}
@@ -62,23 +62,24 @@ class MapObjectManager {
 	getObject(id, type) {
 		if (this.objectLoaded(id, type)) {
 			return this.objects.find(obj => obj.id === id && obj.type === type);
-		}
-		else {
+		} else {
 			return this.loadObject(id, type);
 		}
 	}
 	getObjectsOnPosition(type, from = {}, to = {}) {
-		let objects = db.objects.find({type});
+		let objects = db.objects.find({ type });
 
-		return objects.map(object => {
-			for (let i in from){
-				if(Object.hasOwnProperty(from, i) && Object.hasOwnProperty(to, i)){
-					if(object[i] < from[i] || object[i] > to[i]){
-						return this.getObject(object.id, type);
+		return objects
+			.map(object => {
+				for (let i in from) {
+					if (Object.hasOwnProperty(from, i) && Object.hasOwnProperty(to, i)) {
+						if (object[i] < from[i] || object[i] > to[i]) {
+							return this.getObject(object.id, type);
+						}
 					}
 				}
-			}
-		}).filter(obj => !!obj);
+			})
+			.filter(obj => !!obj);
 	}
 	createObject(type, data) {
 		let id = Math.round(Math.random() * 100000);
@@ -94,24 +95,26 @@ class MapObjectManager {
 		return obj;
 	}
 	removeObject(id, type) {
-		this.objects = this.objects.filter(obj => obj.id !== id && obj.type !== type);
+		this.objects = this.objects.filter(
+			obj => obj.id !== id && obj.type !== type
+		);
 	}
 	deleteObject(id, type) {
-		this.events.emit("objectDelete", {id, type});
+		this.events.emit("objectDelete", { id, type });
 
-		db.objects.remove({id, type});
+		db.objects.remove({ id, type });
 		this.removeObject(id, type);
 	}
-	updateObject(id, type, data){
+	updateObject(id, type, data) {
 		let obj = this.getObject(id, type);
 		obj.importData(data);
-		db.objects.update({id, type}, obj.exportData(), {upsert: true});
+		db.objects.update({ id, type }, obj.exportData(), { upsert: true });
 
 		//fire the event
 		this.events.emit("objectChange", obj.exportData());
 	}
-	loadObject(id, type){
-		let [data] = db.objects.get({id, type});
+	loadObject(id, type) {
+		let [data] = db.objects.get({ id, type });
 		let obj = new MapObject(id, type, data);
 		obj.manager = this;
 		this.objects.push(obj);
@@ -120,11 +123,11 @@ class MapObjectManager {
 
 		return obj;
 	}
-	saveObject(id, type){
+	saveObject(id, type) {
 		let obj = this.getObject(id, type);
-		db.objects.update({id, type}, obj.exportData(), {upsert: true});
+		db.objects.update({ id, type }, obj.exportData(), { upsert: true });
 
-		this.events.emit('objectSaved', obj);
+		this.events.emit("objectSaved", obj);
 	}
 	saveAll() {
 		this.objects.forEach(obj => obj.save());
