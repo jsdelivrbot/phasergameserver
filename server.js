@@ -23,28 +23,4 @@ function init() {
 	maps.init();
 	commands.init();
 	cmds.console();
-	objectController.init();
-
-	io = require("socket.io")(8181);
-	io.on("connection", function(socket) {
-		socket.on("login", function(data, callback) {
-			players.login(data.email, data.password, socket, function(
-				loginMessage,
-				_player
-			) {
-				callback(loginMessage);
-			});
-		});
-		socket.on("adminLogin", function(data, callback) {
-			//login and see if he is an admin
-			players.adminLogin(data.email, data.password, socket, function(
-				loginMessage,
-				_admin
-			) {
-				callback(loginMessage);
-			});
-		});
-	});
-
-	console.timeLog("Server started, type " + "help".info + " or " + "?".info);
 }

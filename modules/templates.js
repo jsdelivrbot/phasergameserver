@@ -48,16 +48,6 @@ class TemplateManager {
 		*/
 		this.events = new EventEmitter();
 		this.templates = [];
-
-		this.events.on("templateChange", function(data) {
-			io.emit("templateChange", data);
-		});
-		this.events.on("templateCreate", function(data) {
-			io.emit("templateCreate", data);
-		});
-		this.events.on("templateDelete", function(data) {
-			io.emit("templateDelete", data);
-		});
 	}
 
 	getTemplate(id) {
@@ -139,5 +129,3 @@ Object.defineProperty(TemplateManager, "inst", {
 TemplateManager.inst.Template = Template;
 
 module.exports = TemplateManager.inst;
-
-const io = require("../server");
