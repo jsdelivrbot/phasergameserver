@@ -2,7 +2,7 @@
 	"_extend": {
 		"img": "imgs/items.png"
 	},
-	"resource":{
+	"resource": {
 		"_extend": {
 			"img": "resource"
 		},
@@ -64,7 +64,7 @@
 				"weight": 0
 			}
 		},
-		"ingot":{
+		"ingot": {
 			"_extend": {
 				"name": "Ingot",
 				"img": "ingot"
@@ -73,37 +73,37 @@
 			"iron": {
 				"name": "Iron",
 				"img": "iron",
-				"weight": 0	
+				"weight": 0
 			},
 			"copper": {
 				"name": "Copper",
 				"img": "copper",
-				"weight": 0	
+				"weight": 0
 			},
 			"adamantium": {
 				"name": "Adamantium",
 				"img": "adamantium",
-				"weight": 0	
+				"weight": 0
 			},
 			"silver": {
 				"name": "Silver",
 				"img": "silver",
-				"weight": 0	
+				"weight": 0
 			},
 			"gold": {
 				"name": "Gold",
 				"img": "gold",
-				"weight": 0	
+				"weight": 0
 			},
 			"sapphire": {
 				"name": "Sapphire",
 				"img": "sapphire",
-				"weight": 0	
+				"weight": 0
 			},
 			"ruby": {
 				"name": "Ruby",
 				"img": "ruby",
-				"weight": 0	
+				"weight": 0
 			}
 		}
 	},
@@ -112,267 +112,265 @@
 			"img": "item"
 		},
 
-		"food":{
+		"food": {
 			"wheat": {
 				"name": "wheat",
 				"img": "",
 				"weight": 0
 			}
 		},
-		"shard":{
+		"shard": {
 			"_extend": {
 				"img": "shard"
 			},
 
-			"circle":{
-				"red":{
+			"circle": {
+				"red": {
 					"name": "Eagle eye Shard",
 					"img": "",
 					"data": 0.05,
 					"weight": 0
 				},
-				"blue":{
+				"blue": {
 					"name": "Defence Shard",
 					"img": "",
 					"data": 0.1,
 					"weight": 0
 				},
-				"yellow":{
+				"yellow": {
 					"name": "Speed Shard",
 					"img": "",
 					"data": 0.5,
 					"weight": 0
 				},
-				"pruple":{
+				"pruple": {
 					"name": "Regenerate Shard",
 					"img": "",
 					"data": 0.005,
 					"weight": 0
 				},
-				"green":{
+				"green": {
 					"name": "Health Shard",
 					"img": "",
 					"data": 0.1,
 					"weight": 0
 				},
-				"orange":{
+				"orange": {
 					"name": "Disguise Shard",
 					"img": "",
 					"data": 0.05,
 					"weight": 0
 				},
-				"black":{
+				"black": {
 					"name": "Night cloaking Shard",
 					"img": "",
 					"data": 0.4,
 					"weight": 0
 				},
-				"white":{
+				"white": {
 					"name": "Day cloaking Shard",
 					"img": "",
 					"data": 0.4
 				}
 			},
-			"square":{
-				"red":{
+			"square": {
+				"red": {
 					"name": "Damage Shard",
 					"img": "",
 					"data": 0.5,
 					"weight": 0
 				},
-				"blue":{
+				"blue": {
 					"name": "Durability Shard",
 					"img": "",
 					"data": 0.5,
 					"weight": 0
 				},
-				"yellow":{
+				"yellow": {
 					"name": "Speed Shard",
 					"img": "",
 					"data": 0.5,
 					"weight": 0
 				},
-				"pruple":{
+				"pruple": {
 					"name": " Shard",
 					"img": "",
 					"data": 0,
 					"weight": 0
 				},
-				"green":{
+				"green": {
 					"name": " Shard",
 					"img": "",
 					"data": 0,
 					"weight": 0
 				},
-				"orange":{
+				"orange": {
 					"name": " Shard",
 					"img": "",
 					"data": 0,
 					"weight": 0
 				},
-				"black":{
+				"black": {
 					"name": " Shard",
 					"img": "",
 					"data": 0,
 					"weight": 0
 				},
-				"white":{
+				"white": {
 					"name": " Shard",
 					"img": "",
 					"data": 0
 				}
 			}
 		},
-		"crystal":{
-			"circle":{
-				"level1":{
+		"crystal": {
+			"circle": {
+				"level1": {
 					"name": "Lvl 1",
-					"combined":0.10,
-					"same":0.20,
+					"combined": 0.1,
+					"same": 0.2,
 					"img": "",
 					"weight": 0
 				},
-				"level2":{
+				"level2": {
 					"name": "Lvl 2",
-					"combined":0.20,
-					"same":0.40,
+					"combined": 0.2,
+					"same": 0.4,
 					"img": "",
 					"weight": 0
 				},
-				"level3":{
+				"level3": {
 					"name": "Lvl 3",
-					"Combined":0.30,
-					"same":0.60,
+					"Combined": 0.3,
+					"same": 0.6,
 					"img": "",
 					"weight": 0
 				},
-				"level4":{
+				"level4": {
 					"name": "Lvl 4",
-					"combined":0.40,
-					"same":0.80,
+					"combined": 0.4,
+					"same": 0.8,
 					"img": "",
 					"weight": 0
 				},
-				"level5":{
+				"level5": {
 					"name": "Lvl 5",
-					"combined":0.50,
-					"same":1.00,
+					"combined": 0.5,
+					"same": 1.0,
 					"img": "",
 					"weight": 0
 				},
-				"level6":{
+				"level6": {
 					"name": "Lvl 6",
-					"combined":0.60,
-					"same":1.20,
+					"combined": 0.6,
+					"same": 1.2,
 					"img": "",
 					"weight": 0
 				},
-				"level7":{
+				"level7": {
 					"name": "Lvl 7",
-					"combined":0.70,
-					"same":1.40,
+					"combined": 0.7,
+					"same": 1.4,
 					"img": "",
 					"weight": 0
 				},
-				"level8":{
+				"level8": {
 					"name": "Lvl 8",
-					"combined":0.80,
-					"same":1.60,
+					"combined": 0.8,
+					"same": 1.6,
 					"img": "",
 					"weight": 0
 				},
-				"level9":{
+				"level9": {
 					"name": "Lvl 9",
-					"combined":0.90,
-					"same":1.80,
+					"combined": 0.9,
+					"same": 1.8,
 					"img": "",
 					"weight": 0
 				},
-				"level10":{
+				"level10": {
 					"name": "Lvl 10",
-					"combined":1.00,
-					"same":2.00,
+					"combined": 1.0,
+					"same": 2.0,
 					"img": ""
 				}
 			},
-			"square":{
-				"level1":{
+			"square": {
+				"level1": {
 					"name": "Lvl 1",
-					"combined":0.10,
-					"same":0.20,
+					"combined": 0.1,
+					"same": 0.2,
 					"img": "",
 					"weight": 0
 				},
-				"level2":{
+				"level2": {
 					"name": "Lvl 2",
-					"combined":0.20,
-					"same":0.40,
+					"combined": 0.2,
+					"same": 0.4,
 					"img": "",
 					"weight": 0
 				},
-				"level3":{
+				"level3": {
 					"name": "Lvl 3",
-					"Combined":0.30,
-					"same":0.60,
+					"Combined": 0.3,
+					"same": 0.6,
 					"img": "",
 					"weight": 0
 				},
-				"level4":{
+				"level4": {
 					"name": "Lvl 4",
-					"combined":0.40,
-					"same":0.80,
+					"combined": 0.4,
+					"same": 0.8,
 					"img": "",
 					"weight": 0
 				},
-				"level5":{
+				"level5": {
 					"name": "Lvl 5",
-					"combined":0.50,
-					"same":1.00,
+					"combined": 0.5,
+					"same": 1.0,
 					"img": "",
 					"weight": 0
 				},
-				"level6":{
+				"level6": {
 					"name": "Lvl 6",
-					"combined":0.60,
-					"same":1.20,
+					"combined": 0.6,
+					"same": 1.2,
 					"img": "",
 					"weight": 0
 				},
-				"level7":{
+				"level7": {
 					"name": "Lvl 7",
-					"combined":0.70,
-					"same":1.40,
+					"combined": 0.7,
+					"same": 1.4,
 					"img": "",
 					"weight": 0
 				},
-				"level8":{
+				"level8": {
 					"name": "Lvl 8",
-					"combined":0.80,
-					"same":1.60,
+					"combined": 0.8,
+					"same": 1.6,
 					"img": "",
 					"weight": 0
 				},
-				"level9":{
+				"level9": {
 					"name": "Lvl 9",
-					"combined":0.90,
-					"same":1.80,
+					"combined": 0.9,
+					"same": 1.8,
 					"img": "",
 					"weight": 0
 				},
-				"level10":{
+				"level10": {
 					"name": "Lvl 10",
-					"combined":1.00,
-					"same":2.00,
+					"combined": 1.0,
+					"same": 2.0,
 					"img": ""
 				}
 			}
 		}
 	},
-	"tool": {
-
-	},
-	"weapon":{
-		"_extend":{
+	"tool": {},
+	"weapon": {
+		"_extend": {
 			"img": "weapon"
 		},
 

@@ -45,13 +45,13 @@ dataServer = {
 							res.statusCode = 400;
 							res.end(this.mapError("no query"));
 					}
-				}.bind(this)
+				}.bind(this),
 			)
 			.listen(8282);
 	},
 	mapError: function(message) {
 		return JSON.stringify({ status: false, message: message || "no message" });
-	}
+	},
 };
 
 module.exports = dataServer;

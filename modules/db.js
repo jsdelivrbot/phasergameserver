@@ -12,7 +12,7 @@ const database = db.connect(path.resolve(config.dataBase.path), [
 	"user-data",
 	"errors",
 	"objects",
-	"templates"
+	"templates",
 ]);
 
 database.query = () => {};

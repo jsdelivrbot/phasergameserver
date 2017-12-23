@@ -26,9 +26,7 @@ class ChatManager {
 		if (chanel) chanel.join(player);
 	}
 	joinDefault(player) {
-		this.chanels
-			.filter(ch => ch.settings.default)
-			.forEach(ch => ch.join(player));
+		this.chanels.filter(ch => ch.settings.default).forEach(ch => ch.join(player));
 	}
 	leave(id) {
 		let chanel;
@@ -53,7 +51,7 @@ let inst;
 Object.defineProperty(ChatManager, "inst", {
 	get() {
 		return inst || (inst = new ChatManager());
-	}
+	},
 });
 
 module.exports = ChatManager.inst;

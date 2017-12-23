@@ -11,24 +11,18 @@ function Admin(userData, socket) {
 	// updates
 	socket.updateUsers = function() {
 		db.query(
-			"SELECT * FROM users LIMIT " +
-				db.ec(this.usersSelectLimit.min) +
-				", " +
-				db.ec(this.usersSelectLimit.max),
+			"SELECT * FROM users LIMIT " + db.ec(this.usersSelectLimit.min) + ", " + db.ec(this.usersSelectLimit.max),
 			function(data) {
 				this.emit("usersUpdate", data);
-			}.bind(this)
+			}.bind(this),
 		);
 	};
 	socket.updateErrors = function() {
 		db.query(
-			"SELECT * FROM errors LIMIT " +
-				db.ec(this.errorsPage * 10) +
-				", " +
-				db.ec(this.errorsPage * 10 + 10),
+			"SELECT * FROM errors LIMIT " + db.ec(this.errorsPage * 10) + ", " + db.ec(this.errorsPage * 10 + 10),
 			function(data) {
 				this.emit("updateErrors", data);
-			}.bind(this)
+			}.bind(this),
 		);
 	};
 
@@ -48,9 +42,9 @@ function Admin(userData, socket) {
 				maps.getMapList(
 					function(maps) {
 						io.emit("mapsChange", maps);
-					}.bind(this)
+					}.bind(this),
 				);
-			}.bind(this)
+			}.bind(this),
 		);
 	});
 	socket.on("deleteMap", function(mapID, cb) {
@@ -62,9 +56,9 @@ function Admin(userData, socket) {
 				maps.getMapList(
 					function(maps) {
 						io.emit("mapsChange", maps);
-					}.bind(this)
+					}.bind(this),
 				);
-			}.bind(this)
+			}.bind(this),
 		);
 	});
 	socket.on("editMapInfo", function(data, cb) {
@@ -79,7 +73,7 @@ function Admin(userData, socket) {
 			maps.getMapList(
 				function(maps) {
 					io.emit("mapsChange", maps);
-				}.bind(this)
+				}.bind(this),
 			);
 		});
 	});
@@ -98,7 +92,7 @@ function Admin(userData, socket) {
 			maps.getMapList(
 				function(maps) {
 					io.emit("mapsChange", maps);
-				}.bind(this)
+				}.bind(this),
 			);
 		});
 	});
@@ -135,7 +129,7 @@ function Admin(userData, socket) {
 					objs[i] = objs[i].exportData();
 				}
 				if (cb) cb(objs);
-			}.bind(this)
+			}.bind(this),
 		);
 	});
 	socket.on("objectCreate", function(data, cb) {
@@ -187,7 +181,7 @@ function Admin(userData, socket) {
 	// users
 	socket.usersSelectLimit = {
 		min: 0,
-		max: 10
+		max: 10,
 	};
 	socket.on("usersChangeLimit", function(limit, cb) {
 		this.usersSelectLimit.min = limit.from;
@@ -200,43 +194,25 @@ function Admin(userData, socket) {
 		});
 	});
 	socket.on("usersAdmin", function(data, cb) {
-		db.query(
-			"UPDATE `users` SET `admin`=" +
-				db.ec(data.admin) +
-				" WHERE id=" +
-				db.ec(data.id),
-			function(data) {
-				cb(data.affectedRows !== 0);
-			}
-		);
+		db.query("UPDATE `users` SET `admin`=" + db.ec(data.admin) + " WHERE id=" + db.ec(data.id), function(data) {
+			cb(data.affectedRows !== 0);
+		});
 	});
 	socket.on("usersBanned", function(data, cb) {
-		db.query(
-			"UPDATE `users` SET `banned`=" +
-				db.ec(data.banned) +
-				" WHERE id=" +
-				db.ec(data.id),
-			function(data) {
-				cb(data.affectedRows !== 0);
-			}
-		);
+		db.query("UPDATE `users` SET `banned`=" + db.ec(data.banned) + " WHERE id=" + db.ec(data.id), function(data) {
+			cb(data.affectedRows !== 0);
+		});
 	});
 	socket.on("createUser", function(userData, cb) {
 		db.query(
-			"INSERT INTO `users`(`name`, `email`, `password`) VALUES (" +
-				db.ec(userData.name) +
-				", " +
-				db.ec(userData.email) +
-				", " +
-				db.ec(userData.password) +
-				")",
+			"INSERT INTO `users`(`name`, `email`, `password`) VALUES (" + db.ec(userData.name) + ", " + db.ec(userData.email) + ", " + db.ec(userData.password) + ")",
 			function(data) {
 				db.query("SELECT * FROM users LIMIT 0, 10", function(data) {
 					//might run into problems, need to send back the page, or sync what page im on with the client
 					socket.emit("usersUpdate", data);
 				});
 				cb(true);
-			}
+			},
 		);
 	});
 
@@ -261,7 +237,7 @@ function Admin(userData, socket) {
 			"DELETE FROM `errors` WHERE id=" + db.ec(id),
 			function() {
 				this.updateErrors();
-			}.bind(this)
+			}.bind(this),
 		);
 	});
 	socket.on("errorsDeleteAll", function(id) {
@@ -269,27 +245,17 @@ function Admin(userData, socket) {
 			"TRUNCATE TABLE `errors`",
 			function() {
 				this.updateErrors();
-			}.bind(this)
+			}.bind(this),
 		);
 	});
 	socket.updateErrors();
 
 	socket.on("logError", function(err) {
 		db.query(
-			"SELECT id, count FROM errors WHERE app='admin' AND message=" +
-				db.ec(err.message) +
-				" AND file=" +
-				db.ec(err.file) +
-				" AND line=" +
-				db.ec(err.line),
+			"SELECT id, count FROM errors WHERE app='admin' AND message=" + db.ec(err.message) + " AND file=" + db.ec(err.file) + " AND line=" + db.ec(err.line),
 			function(data) {
 				if (data.length) {
-					db.query(
-						"UPDATE `errors` SET `count`=" +
-							db.ec(data[0].count + 1) +
-							" WHERE id=" +
-							db.ec(data[0].id)
-					);
+					db.query("UPDATE `errors` SET `count`=" + db.ec(data[0].count + 1) + " WHERE id=" + db.ec(data[0].id));
 				} else {
 					err.message = err.message || "";
 					err.file = err.file || "";
@@ -306,10 +272,10 @@ function Admin(userData, socket) {
 							db.ec(err.line) +
 							"," +
 							db.ec(err.stack) +
-							")"
+							")",
 					);
 				}
-			}
+			},
 		);
 	});
 
@@ -325,7 +291,7 @@ function Admin(userData, socket) {
 		selectX: 0,
 		selectW: 0,
 		selectH: 0,
-		selected: 0
+		selected: 0,
 	};
 	socket.on("updateCursor", function(data) {
 		data = data || {};
@@ -339,19 +305,15 @@ function Admin(userData, socket) {
 		if (this.cursorVisibility) {
 			var cursors = [];
 			for (var i = 0; i < players.admins.length; i++) {
-				if (
-					players.admins[i].cursor.map === this.cursor.map &&
-					players.admins[i].cursorVisibility &&
-					players.admins[i] !== this
-				) {
+				if (players.admins[i].cursor.map === this.cursor.map && players.admins[i].cursorVisibility && players.admins[i] !== this) {
 					cursors.push(
 						fn.combindOver(
 							{
 								id: players.admins[i].userData.id,
-								name: players.admins[i].userData.name
+								name: players.admins[i].userData.name,
 							},
-							players.admins[i].cursor
-						)
+							players.admins[i].cursor,
+						),
 					);
 				}
 			}
@@ -367,7 +329,7 @@ function Admin(userData, socket) {
 	maps.getMapList(
 		function(maps) {
 			this.emit("mapsChange", maps);
-		}.bind(socket)
+		}.bind(socket),
 	);
 	socket.emit("tilePropertiesChange", maps.tileProperties);
 

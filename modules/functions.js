@@ -98,24 +98,19 @@ var fn = {
 			pathname: parser.pathname,
 			search: parser.search,
 			searchObject: searchObject,
-			hash: parser.hash
+			hash: parser.hash,
 		};
 	},
 	isEmptyDiff: function(diff) {
 		//need to build real diff function first, because this dose not take into account remove indexes in arrays
-		return (
-			!_.isEmpty(diff.added) +
-				!_.isEmpty(diff.changed) +
-				!_.isEmpty(diff.removed) ==
-			0
-		);
+		return !_.isEmpty(diff.added) + !_.isEmpty(diff.changed) + !_.isEmpty(diff.removed) == 0;
 	},
 	getDiff: function(prev, now, str, diff) {
 		//create a diff obj, that contains an array of values that changed and values that have been added/removed
 		diff = diff || {
 			changed: {},
 			added: {},
-			removed: {}
+			removed: {},
 		};
 		str = str || "";
 		combindObj = fn.combindOver(fn.duplicate(prev), now);
@@ -155,7 +150,7 @@ var fn = {
 		diff = diff || {
 			added: {},
 			changed: {},
-			removed: {}
+			removed: {},
 		};
 
 		//add
@@ -178,7 +173,7 @@ var fn = {
 		diff = diff || {
 			added: {},
 			changed: {},
-			removed: {}
+			removed: {},
 		};
 
 		//figure out if its an array
@@ -237,7 +232,7 @@ var fn = {
 			}
 		}
 		return base;
-	}
+	},
 };
 
 if (typeof module === "object") module.exports = fn;

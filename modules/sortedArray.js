@@ -34,13 +34,13 @@ SortedArray.prototype._find = function(item) {
 		else
 			return {
 				index: index,
-				item: this[index]
+				item: this[index],
 			};
 	}
 	index = ((high + low) / 2) >>> 0;
 
 	return {
-		index: index
+		index: index,
 	};
 };
 SortedArray.prototype.insert = function(item) {

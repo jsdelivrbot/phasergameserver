@@ -66,12 +66,12 @@ var resources = {
 							this.loadedMaps[mapID] = true;
 
 							if (cb) cb(true);
-						}.bind(this)
+						}.bind(this),
 					);
 				} else {
 					if (cb) cb(false);
 				}
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	getForMap: function(mapID, cb) {
@@ -87,7 +87,7 @@ var resources = {
 						return;
 					}
 					if (cb) cb(this.find("m(" + mapID + ")"));
-				}.bind(this)
+				}.bind(this),
 			);
 		}
 	},
@@ -104,7 +104,7 @@ var resources = {
 						return;
 					}
 					if (cb) cb(this.find("m(" + id + ")x(" + x + ")y(" + y + ")"));
-				}.bind(this)
+				}.bind(this),
 			);
 		}
 	},
@@ -131,7 +131,7 @@ var resources = {
 				if (dataFiles.resources[ids[i]] !== undefined) {
 					a.push({
 						id: ids[i],
-						amount: amounts[i] || amounts[0] || 0
+						amount: amounts[i] || amounts[0] || 0,
 					});
 				}
 			}
@@ -146,28 +146,20 @@ var resources = {
 				position: {
 					map: map,
 					x: json.x,
-					y: json.y
+					y: json.y,
 				},
 				size: {
 					width: json.width,
-					height: json.height
+					height: json.height,
 				},
 				mined: false,
 				refresh: parseFloat(json.properties.refresh) || 1,
 				timer: null,
 				currentResource: "",
-				currentAmount: 0
+				currentAmount: 0,
 			};
 
-			resources.resources[
-				"m(" +
-					_resource.position.map +
-					")x(" +
-					_resource.position.x +
-					")y(" +
-					_resource.position.y +
-					")"
-			] = _resource;
+			resources.resources["m(" + _resource.position.map + ")x(" + _resource.position.x + ")y(" + _resource.position.y + ")"] = _resource;
 
 			resources.resource.refresh(_resource, true);
 		},
@@ -195,10 +187,7 @@ var resources = {
 			}
 
 			//if it has made it this far then it has not spawned
-			obj.timer = setTimeout(
-				_.partial(resources.resource.refresh, obj),
-				1000 * 60 * obj.refresh
-			);
+			obj.timer = setTimeout(_.partial(resources.resource.refresh, obj), 1000 * 60 * obj.refresh);
 		},
 		mine: function(obj, player) {
 			//mine the resource and give it to the player and then set the timer
@@ -207,15 +196,12 @@ var resources = {
 			player.addItem(item, obj.currentAmount);
 
 			//set the refresh timer
-			obj.timer = setTimeout(
-				_.partial(resources.resource.refresh, obj),
-				1000 * 60 * obj.refresh
-			);
+			obj.timer = setTimeout(_.partial(resources.resource.refresh, obj), 1000 * 60 * obj.refresh);
 
 			//send an event
 			resources.events.emit("change", obj);
-		}
-	}
+		},
+	},
 };
 
 //export

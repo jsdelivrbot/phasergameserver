@@ -8,15 +8,19 @@
 		"underscore": "1.8.3"
 	},
 	"scripts": {
+		"precommit": "lint-staged",
 		"start": "node index.js",
 		"dev": "nodemon server.js",
-		"format": "prettier --use-tabs --write ./modules/**/*.js ./app/**/*.js ./server.js ./index.js",
-		"precommit": "npm run format"
+		"format": "prettier --write ./**/*.{js,json,css,md}"
+	},
+	"lint-staged": {
+		"*.{js,json,css,md}": ["prettier --write", "git add"]
 	},
 	"description": "server for phasergame",
 	"main": "server.js",
 	"devDependencies": {
 		"husky": "^0.14.3",
+		"lint-staged": "^6.0.0",
 		"prettier": "^1.9.1"
 	},
 	"repository": {
@@ -28,5 +32,11 @@
 	"bugs": {
 		"url": "https://github.com/rdfriedl/phasergameserver/issues"
 	},
-	"homepage": "https://github.com/rdfriedl/phasergameserver#readme"
+	"homepage": "https://github.com/rdfriedl/phasergameserver#readme",
+	"prettier": {
+		"useTabs": true,
+		"semi": true,
+		"trailingComma": "all",
+		"printWidth": 160
+	}
 }

@@ -4,13 +4,13 @@ const chat = require("../modules/chat");
 chat.createChanel({
 	title: "Genral",
 	default: true,
-	canLeave: false
+	canLeave: false,
 });
 //create server chanel
 chat
 	.createChanel({
 		title: "Server",
-		canLeave: false
+		canLeave: false,
 	})
 	.events.on("message", data => {
 		commands.readline.write(data.message + " \n");

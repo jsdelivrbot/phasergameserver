@@ -56,10 +56,7 @@ var maps = {
 					if (cb) cb(chunk);
 				} else {
 					//its loading
-					maps.events.once(
-						"chunkLoaded-" + chunk.x + "-" + chunk.y + "-" + chunk.map.id,
-						cb
-					);
+					maps.events.once("chunkLoaded-" + chunk.x + "-" + chunk.y + "-" + chunk.map.id, cb);
 				}
 			} else {
 				this.loadChunk(x, y, cb);
@@ -81,23 +78,15 @@ var maps = {
 				this.chunks.push(chunk);
 				//load
 				db.query(
-					"SELECT * FROM chunks WHERE x=" +
-						db.ec(x) +
-						" AND y=" +
-						db.ec(y) +
-						" AND map=" +
-						db.ec(this.id),
+					"SELECT * FROM chunks WHERE x=" + db.ec(x) + " AND y=" + db.ec(y) + " AND map=" + db.ec(this.id),
 					function(chunk, data) {
 						chunk.loaded = true;
 						if (data.length) {
 							chunk.importData(data[0]);
 						}
-						maps.events.emit(
-							"chunkLoaded-" + chunk.x + "-" + chunk.y + "-" + chunk.map.id,
-							chunk
-						);
+						maps.events.emit("chunkLoaded-" + chunk.x + "-" + chunk.y + "-" + chunk.map.id, chunk);
 						if (cb) cb(chunk);
-					}.bind(this, chunk)
+					}.bind(this, chunk),
 				);
 			} else {
 				if (cb) cb(chunk);
@@ -105,17 +94,9 @@ var maps = {
 		};
 		this.chunkExists = function(x, y, cb) {
 			//checks to see if the chunk is in the db
-			db.query(
-				"SELECT * FROM chunks WHERE x=" +
-					db.ec(x) +
-					" AND y=" +
-					db.ec(y) +
-					" AND map=" +
-					db.ec(this.id),
-				function(data) {
-					if (cb) cb(data.length > 0);
-				}
-			);
+			db.query("SELECT * FROM chunks WHERE x=" + db.ec(x) + " AND y=" + db.ec(y) + " AND map=" + db.ec(this.id), function(data) {
+				if (cb) cb(data.length > 0);
+			});
 		};
 		this.insertChunk = function(chunk, cb) {
 			//inserts a chunk into the db
@@ -133,7 +114,7 @@ var maps = {
 				function() {
 					//dont load it becuase this is triggered by the save loop and it is already loaded
 					if (cb) cb();
-				}.bind(this)
+				}.bind(this),
 			);
 		};
 		this.saveChunk = function(x, y, cb) {
@@ -145,19 +126,12 @@ var maps = {
 					data = chunk.exportData();
 					chunk.saved = true;
 					db.query(
-						"UPDATE `chunks` SET `data`=" +
-							db.ec(JSON.stringify(data.data)) +
-							" WHERE `x`=" +
-							db.ec(data.x) +
-							" AND `y`=" +
-							data.y +
-							" AND `map`=" +
-							data.map,
+						"UPDATE `chunks` SET `data`=" + db.ec(JSON.stringify(data.data)) + " WHERE `x`=" + db.ec(data.x) + " AND `y`=" + data.y + " AND `map`=" + data.map,
 						function() {
 							if (cb) cb();
-						}
+						},
 					);
-				}.bind(this)
+				}.bind(this),
 			);
 		};
 		this.removeChunk = function(x, y, cb) {
@@ -177,24 +151,19 @@ var maps = {
 				y,
 				function() {
 					this.removeChunk(x, y, cb);
-				}.bind(this)
+				}.bind(this),
 			);
 		};
 		this.deleteChunk = function(x, y, cb) {
 			//deletes chunk from the db
 			db.query(
-				"DELETE FROM chunks WHERE x=" +
-					db.ec(x) +
-					" AND y=" +
-					db.ec(y) +
-					" AND map=" +
-					eb.ec(this.id),
+				"DELETE FROM chunks WHERE x=" + db.ec(x) + " AND y=" + db.ec(y) + " AND map=" + eb.ec(this.id),
 				function() {
 					if (this.chunkLoaded(x, y)) {
 						this.removeChunk(x, y);
 					}
 					if (cb) cb();
-				}.bind(this)
+				}.bind(this),
 			);
 		};
 		this.saveAllChunks = function(cb) {
@@ -212,7 +181,7 @@ var maps = {
 								} else {
 									cb();
 								}
-							}.bind(this)
+							}.bind(this),
 						);
 					} else {
 						cb();
@@ -239,7 +208,7 @@ var maps = {
 								} else {
 									this.removeChunk(chunk.x, chunk.y, cb);
 								}
-							}.bind(this)
+							}.bind(this),
 						);
 					} else {
 						cb();
@@ -284,7 +253,7 @@ var maps = {
 				width: this.width,
 				height: this.height,
 				url: this.url,
-				name: this.name
+				name: this.name,
 			};
 		};
 	},
@@ -354,7 +323,7 @@ var maps = {
 				data.map,
 				function(map) {
 					this.map = map;
-				}.bind(this)
+				}.bind(this),
 			);
 		};
 		this.exportData = function() {
@@ -368,7 +337,7 @@ var maps = {
 				x: this.x,
 				y: this.y,
 				map: this.map.id,
-				data: b
+				data: b,
 			};
 		};
 	},
@@ -403,12 +372,7 @@ var maps = {
 		};
 
 		for (var i = 0; i < this.tiles.length; i++) {
-			this.tiles[i] = new maps.Tile(
-				i - Math.floor(i / this.width) * this.width,
-				Math.floor(i / this.width),
-				maps.defaultTile,
-				this
-			);
+			this.tiles[i] = new maps.Tile(i - Math.floor(i / this.width) * this.width, Math.floor(i / this.width), maps.defaultTile, this);
 		}
 	},
 	Tile: function(x, y, tile, layer) {
@@ -466,7 +430,7 @@ var maps = {
 					}
 				}
 				if (cb) cb(data);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 
@@ -491,7 +455,7 @@ var maps = {
 			m,
 			function(map) {
 				map.getChunk(x, y, cb);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	getLayer: function(x, y, l, m, cb) {
@@ -503,9 +467,9 @@ var maps = {
 					y,
 					function(chunk) {
 						if (cb) cb(chunk.getLayer(l));
-					}.bind(this)
+					}.bind(this),
 				);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	getTile: function(x, y, l, m, cb) {
@@ -516,18 +480,10 @@ var maps = {
 					Math.floor(x / 16),
 					Math.floor(y / 16),
 					function(chunk) {
-						if (cb)
-							cb(
-								chunk
-									.getLayer(l)
-									.getTile(
-										x - Math.floor(x / 16) * 16,
-										y - Math.floor(y / 16) * 16
-									)
-							);
-					}.bind(this)
+						if (cb) cb(chunk.getLayer(l).getTile(x - Math.floor(x / 16) * 16, y - Math.floor(y / 16) * 16));
+					}.bind(this),
 				);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	getTiles: function(from, to, m, cb) {
@@ -536,25 +492,22 @@ var maps = {
 			{
 				x: 0,
 				y: 0,
-				l: 0
+				l: 0,
 			},
-			from || {}
+			from || {},
 		);
 		to = fn.combindIn(fn.duplicate(from), to || {});
 		to.x = to.x < from.x ? from.x : to.x;
 		to.y = to.y < from.y ? from.y : to.y;
 		to.l = to.l < from.l ? from.l : to.l;
-		cb = _.after(
-			(to.l - from.l + 1) * (to.x - from.x + 1) * (to.y - from.y + 1),
-			cb || function() {}
-		);
+		cb = _.after((to.l - from.l + 1) * (to.x - from.x + 1) * (to.y - from.y + 1), cb || function() {});
 
 		var data = {
 			x: from.x,
 			y: from.y,
 			width: to.x - from.x + 1,
 			height: to.y - from.y + 1,
-			data: []
+			data: [],
 		};
 
 		for (var l = from.l; l <= to.l; l++) {
@@ -573,7 +526,7 @@ var maps = {
 							data.data[l].push(tile);
 
 							cb(data);
-						}.bind(this, x, y, l, m)
+						}.bind(this, x, y, l, m),
 					);
 				}
 			}
@@ -590,9 +543,9 @@ var maps = {
 				data: [],
 				primaryLayer: 0,
 				map: -1,
-				activeLayer: 0
+				activeLayer: 0,
 			},
-			data
+			data,
 		);
 
 		this.getMap(
@@ -622,11 +575,11 @@ var maps = {
 								y = y - Math.floor(y / 16) * 16;
 
 								layer.setTile(x, y, tile);
-							}.bind(this, x, y, layer, data.data[l][t])
+							}.bind(this, x, y, layer, data.data[l][t]),
 						);
 					}
 				}
-			}.bind(this)
+			}.bind(this),
 		);
 		if (!dontFire) {
 			this.events.emit("tilesChange", data);
@@ -655,7 +608,7 @@ var maps = {
 				}
 				this.events.emit("mapLoaded-" + map.id, map);
 				if (cb) cb(map);
-			}.bind(this, map)
+			}.bind(this, map),
 		);
 		return map;
 	},
@@ -669,7 +622,7 @@ var maps = {
 					this.tileProperties[tiles[i].id] = tiles[i];
 				}
 				if (cb) cb();
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	saveMap: function(mapID, cb) {
@@ -692,18 +645,16 @@ var maps = {
 						db.ec(data.id),
 					function(data) {
 						if (cb) cb();
-					}
+					},
 				);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	saveTileProperties: function(tileID, cb) {
 		var tile = this.tileProperties[tileID];
 
 		if (tile) {
-			db.query("SELECT * FROM tiles WHERE id=" + db.ec(tile.id), function(
-				data
-			) {
+			db.query("SELECT * FROM tiles WHERE id=" + db.ec(tile.id), function(data) {
 				if (data.length) {
 					db.query(
 						"UPDATE `tiles` SET `blank`=" +
@@ -716,7 +667,7 @@ var maps = {
 							db.ec(tile.id),
 						function() {
 							if (cb) cb();
-						}
+						},
 					);
 				} else {
 					db.query(
@@ -731,7 +682,7 @@ var maps = {
 							")",
 						function() {
 							if (cb) cb();
-						}
+						},
 					);
 				}
 			});
@@ -747,7 +698,7 @@ var maps = {
 			mapID,
 			function() {
 				this.removeMap(mapID, cb);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	removeMap: function(mapID, cb) {
@@ -774,7 +725,7 @@ var maps = {
 					}
 				}
 				cb();
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	saveAllChunks: function(cb) {
@@ -785,7 +736,7 @@ var maps = {
 					this.maps[i].saveAllChunks(cb);
 				}
 				cb();
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	saveAllTileProperties: function(cb) {
@@ -800,7 +751,7 @@ var maps = {
 					this.saveTileProperties(this.tileProperties[tile].id, cb);
 				}
 				cb();
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	tilePropertiesChange: function(data) {
@@ -816,10 +767,10 @@ var maps = {
 							right: 0,
 							left: 0,
 							top: 0,
-							bottom: 0
-						}
+							bottom: 0,
+						},
 					},
-					data[i]
+					data[i],
 				);
 				this.tileProperties[tile.id] = tile;
 				tiles.push(tile);
@@ -835,10 +786,10 @@ var maps = {
 						right: 0,
 						left: 0,
 						top: 0,
-						bottom: 0
-					}
+						bottom: 0,
+					},
 				},
-				data
+				data,
 			);
 			this.tileProperties[tile.id] = tile;
 			this.events.emit("tilePropertiesChange", tile);
@@ -861,7 +812,7 @@ var maps = {
 			function(data) {
 				//load it
 				this.getMap(data.insertId, cb);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	deleteMap: function(mapID, cb) {
@@ -875,7 +826,7 @@ var maps = {
 					this.removeMap(mapID);
 				}
 				if (cb) cb();
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	//layers
@@ -903,7 +854,7 @@ var maps = {
 				")",
 			function() {
 				this.updateLayers(cb);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	changeLayer: function(data, cb) {
@@ -924,7 +875,7 @@ var maps = {
 				db.ec(data.id),
 			function() {
 				this.updateLayers(cb);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	deleteLayer: function(id, cb) {
@@ -932,7 +883,7 @@ var maps = {
 			"DELETE FROM `layers` WHERE id=" + db.ec(id),
 			function() {
 				this.updateLayers(cb);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	updateLayers: function(cb) {
@@ -942,7 +893,7 @@ var maps = {
 				this.layers = data;
 				this.events.emit("layersChange", this.layers);
 				if (cb) cb(this.layers);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 
@@ -960,7 +911,7 @@ var maps = {
 							i = 0;
 						}
 						setTimeout(this.saveMapLoop.bind(this, i), this.saveTime);
-					}.bind(this)
+					}.bind(this),
 				);
 				return;
 			}
@@ -989,10 +940,7 @@ var maps = {
 							chunkIndex = 0;
 						}
 					}
-					setTimeout(
-						this.saveChunkLoop.bind(this, mapIndex, chunkIndex),
-						this.saveTime
-					);
+					setTimeout(this.saveChunkLoop.bind(this, mapIndex, chunkIndex), this.saveTime);
 				}.bind(this, map, chunk);
 
 				if (!chunk.saved) {
@@ -1006,7 +954,7 @@ var maps = {
 							} else {
 								map.insertChunk(chunk, cb);
 							}
-						}.bind(this, map, chunk)
+						}.bind(this, map, chunk),
 					);
 					return;
 				} else {
@@ -1062,15 +1010,12 @@ var maps = {
 						chunkIndex = 0;
 					}
 				}
-				setTimeout(
-					this.unloadChunkLoop.bind(this, mapIndex, chunkIndex),
-					this.saveTime
-				);
+				setTimeout(this.unloadChunkLoop.bind(this, mapIndex, chunkIndex), this.saveTime);
 				return;
 			}
 		}
 		setTimeout(this.unloadChunkLoop.bind(this, 0, 0), this.saveTime);
-	}
+	},
 };
 
 module.exports = maps;

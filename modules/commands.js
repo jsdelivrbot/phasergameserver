@@ -97,7 +97,7 @@ class CommandManager {
 	constructor() {
 		this.readline = readline.createInterface({
 			input: process.stdin,
-			output: process.stdout
+			output: process.stdout,
 		});
 		this.events = new EventEmitter();
 		this.commands = [];
@@ -137,15 +137,15 @@ class CommandManager {
 					});
 
 					console.log(output);
-				}
-			})
+				},
+			}),
 		);
 		this.addCommand(
 			new Command({
 				id: "?",
 				hidden: true,
-				run: () => this.run("help")
-			})
+				run: () => this.run("help"),
+			}),
 		);
 	}
 	getCommand(id) {
@@ -213,7 +213,7 @@ class CommandManager {
 
 		return {
 			id: commandID,
-			opts: opts
+			opts: opts,
 		};
 	}
 	formatOpts(command, opts = []) {
@@ -239,7 +239,7 @@ let inst;
 Object.defineProperty(CommandManager, "inst", {
 	get() {
 		return inst || (inst = new CommandManager());
-	}
+	},
 });
 CommandManager.inst.Command = Command;
 

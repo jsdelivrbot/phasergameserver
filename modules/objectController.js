@@ -30,7 +30,7 @@ class MapObject {
 			map: this.map,
 			width: this.width,
 			height: this.height,
-			properties: this.properties
+			properties: this.properties,
 		};
 	}
 
@@ -95,9 +95,7 @@ class MapObjectManager {
 		return obj;
 	}
 	removeObject(id, type) {
-		this.objects = this.objects.filter(
-			obj => obj.id !== id && obj.type !== type
-		);
+		this.objects = this.objects.filter(obj => obj.id !== id && obj.type !== type);
 	}
 	deleteObject(id, type) {
 		this.events.emit("objectDelete", { id, type });
@@ -138,7 +136,7 @@ let inst;
 Object.defineProperty(MapObjectManager, "inst", {
 	get() {
 		return inst || (inst = new MapObjectManager());
-	}
+	},
 });
 
 module.exports = MapObjectManager.inst;

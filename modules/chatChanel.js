@@ -11,9 +11,9 @@ class ChatChanel {
 				owner: -1,
 				default: false,
 				canLeave: true,
-				canSendMessage: true
+				canSendMessage: true,
 			},
-			settings
+			settings,
 		);
 	}
 
@@ -30,8 +30,8 @@ class ChatChanel {
 				chanel: this.exportData(),
 				player: {
 					id: player.userID,
-					name: player.userData.name
-				}
+					name: player.userData.name,
+				},
 			});
 		});
 
@@ -40,8 +40,8 @@ class ChatChanel {
 			chanel: this.exportData(),
 			players: this.players.map(p => ({
 				id: p.userId,
-				name: p.userData.name
-			}))
+				name: p.userData.name,
+			})),
 		});
 
 		//add the player to the channel
@@ -49,7 +49,7 @@ class ChatChanel {
 
 		this.events.emit("playerJoined", {
 			chanel: this.exportData(),
-			player: player
+			player: player,
 		});
 	}
 	leave(player) {
@@ -63,8 +63,8 @@ class ChatChanel {
 				chanel: this.exportData(),
 				player: {
 					id: player.userId,
-					name: player.userData.name
-				}
+					name: player.userData.name,
+				},
 			});
 		});
 
@@ -72,7 +72,7 @@ class ChatChanel {
 
 		this.events.emit("playerLeave", {
 			chanel: this.exportData(),
-			player: player
+			player: player,
 		});
 	}
 	message(message = {}, dontFire) {
@@ -80,16 +80,16 @@ class ChatChanel {
 			{
 				to: "",
 				from: "",
-				message: ""
+				message: "",
 			},
-			message
+			message,
 		);
 
 		this.players.forEach(player => {
 			if (message.to === player.userData.name || !message.to) {
 				player.emit("chatChanelMessage", {
 					chanel: this.exportData(),
-					message: message
+					message: message,
 				});
 			}
 		});
@@ -101,7 +101,7 @@ class ChatChanel {
 	exportData() {
 		return {
 			id: this.id,
-			settings: this.settings
+			settings: this.settings,
 		};
 	}
 }

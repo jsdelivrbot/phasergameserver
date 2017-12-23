@@ -27,8 +27,8 @@ commands.addCommand(
 			console.timeLog("saved templates");
 
 			process.exit();
-		}
-	})
+		},
+	}),
 );
 
 commands.addCommand(
@@ -51,14 +51,14 @@ commands.addCommand(
 
 					templates.saveAll();
 					console.timeLog("saved templates");
-				}
+				},
 			}),
 			new Command({
 				id: "players",
 				run: () => {
 					players.saveAll();
 					console.timeLog("saved players");
-				}
+				},
 			}),
 			new Command({
 				id: "maps",
@@ -70,10 +70,10 @@ commands.addCommand(
 					maps.saveAllChunks();
 					maps.saveAllMaps();
 					console.timeLog("saved maps");
-				}
-			})
-		]
-	})
+				},
+			}),
+		],
+	}),
 );
 
 commands.addCommand(
@@ -85,8 +85,8 @@ commands.addCommand(
 				run: () => {
 					commands.printTitle("Players".info + " Online");
 					players.players.forEach(player => console.log(player.userDate.name));
-				}
-			})
-		]
-	})
+				},
+			}),
+		],
+	}),
 );

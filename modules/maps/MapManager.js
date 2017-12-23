@@ -37,12 +37,12 @@ class MapManager {
 							right: 0,
 							left: 0,
 							top: 0,
-							bottom: 0
+							bottom: 0,
 						},
-						tile.collisionInfo || {}
-					)
+						tile.collisionInfo || {},
+					),
 				},
-				tile || {}
+				tile || {},
 			);
 
 		if (Array.isArray(data)) {
@@ -98,10 +98,7 @@ class MapManager {
 		let chunk = map && map.getChunk(Math.floor(x / 16), Math.floor(y / 16));
 		let layer = chunk && chunk.getLayer(layerId);
 
-		return (
-			layer &&
-			layer.getTile(x - Math.floor(x / 16) * 16, y - Math.floor(y / 16) * 16)
-		);
+		return layer && layer.getTile(x - Math.floor(x / 16) * 16, y - Math.floor(y / 16) * 16);
 	}
 	getTiles(from = {}, to = {}, mapId) {
 		//get tiles in a rect from a map
@@ -116,7 +113,7 @@ class MapManager {
 			y: from.y,
 			width: to.x - from.x + 1,
 			height: to.y - from.y + 1,
-			data: []
+			data: [],
 		};
 
 		for (let l = from.l; l <= to.l; l++) {
@@ -147,9 +144,9 @@ class MapManager {
 				data: [],
 				primaryLayer: 0,
 				map: -1,
-				activeLayer: 0
+				activeLayer: 0,
 			},
-			data
+			data,
 		);
 
 		let map = this.getMap(data.map);
@@ -176,11 +173,7 @@ class MapManager {
 					data.data[l][i] = this.defaultTile;
 				}
 
-				layer.setTile(
-					x - Math.floor(x / 16) * 16,
-					y - Math.floor(y / 16) * 16,
-					data[l][i]
-				);
+				layer.setTile(x - Math.floor(x / 16) * 16, y - Math.floor(y / 16) * 16, data[l][i]);
 			}
 		}
 
@@ -244,7 +237,7 @@ let inst;
 Object.defineProperty(MapManager, "inst", {
 	get() {
 		return inst || (inst = new MapManager());
-	}
+	},
 });
 
 module.exports = MapManager.inst;

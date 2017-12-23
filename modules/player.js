@@ -10,7 +10,7 @@ function Player(userData, socket) {
 	socket.position = {
 		x: userData.x || -1, //a position of -1 is interpreted as maps spawn
 		y: userData.y || -1,
-		map: userData.map || 0
+		map: userData.map || 0,
 	};
 	socket.inventory = userData.inventory || [];
 
@@ -23,14 +23,14 @@ function Player(userData, socket) {
 		"updatePosition",
 		function(data) {
 			this.move(data.x, data.y, data.map);
-		}.bind(socket)
+		}.bind(socket),
 	);
 
 	socket.on(
 		"getLayers",
 		function(cb) {
 			cb(maps.layers);
-		}.bind(socket)
+		}.bind(socket),
 	);
 
 	socket.on("getChunk", function(data, cb) {
@@ -56,7 +56,7 @@ function Player(userData, socket) {
 					objs[i] = objs[i].exportData();
 				}
 				if (cb) cb(objs);
-			}.bind(this)
+			}.bind(this),
 		);
 	});
 	socket.on("objectCreate", function(data, cb) {
@@ -94,7 +94,7 @@ function Player(userData, socket) {
 					name: player.userData.name,
 					x: player.position.x,
 					y: player.position.y,
-					health: this.health
+					health: this.health,
 				});
 			}
 		}
@@ -112,7 +112,7 @@ function Player(userData, socket) {
 			x: this.position.x,
 			y: this.position.y,
 			map: this.position.map,
-			inventory: this.inventory
+			inventory: this.inventory,
 		});
 	};
 	socket.move = function(x, y, map) {
@@ -128,7 +128,7 @@ function Player(userData, socket) {
 		this.save(
 			function() {
 				players.removePlayer(this.userID);
-			}.bind(this)
+			}.bind(this),
 		);
 	};
 
@@ -139,27 +139,17 @@ function Player(userData, socket) {
 
 			//send userData
 			this.emit("userData", this.userData);
-		}.bind(socket)
+		}.bind(socket),
 	);
 	socket.emit("tilePropertiesChange", maps.tileProperties);
 
 	//bind error events
 	socket.on("logError", function(err) {
 		db.query(
-			"SELECT id, count FROM errors WHERE app='game' AND message=" +
-				db.ec(err.message) +
-				" AND file=" +
-				db.ec(err.file) +
-				" AND line=" +
-				db.ec(err.line),
+			"SELECT id, count FROM errors WHERE app='game' AND message=" + db.ec(err.message) + " AND file=" + db.ec(err.file) + " AND line=" + db.ec(err.line),
 			function(data) {
 				if (data.length) {
-					db.query(
-						"UPDATE `errors` SET `count`=" +
-							db.ec(data[0].count + 1) +
-							" WHERE id=" +
-							db.ec(data[0].id)
-					);
+					db.query("UPDATE `errors` SET `count`=" + db.ec(data[0].count + 1) + " WHERE id=" + db.ec(data[0].id));
 				} else {
 					db.query(
 						"INSERT INTO `errors`(`message`,`app`,`file`,`line`,`stack`) VALUES(" +
@@ -172,10 +162,10 @@ function Player(userData, socket) {
 							db.ec(err.line) +
 							"," +
 							db.ec(err.stack) +
-							")"
+							")",
 					);
 				}
-			}
+			},
 		);
 	});
 

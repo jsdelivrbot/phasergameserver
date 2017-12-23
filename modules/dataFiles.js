@@ -6,7 +6,7 @@ var dataFiles = {
 	files: [
 		{
 			id: "config",
-			url: "config.json"
+			url: "config.json",
 		},
 		{
 			id: "itemProfiles",
@@ -14,11 +14,11 @@ var dataFiles = {
 			onload: function(json) {
 				//parse the json
 				dataFiles.items = fn.idArray(json, "title");
-			}
+			},
 		},
 		{
 			id: "damageProfiles",
-			url: "data/shared/damageProfiles.json"
+			url: "data/shared/damageProfiles.json",
 		},
 		{
 			id: "resourceProfiles",
@@ -26,12 +26,12 @@ var dataFiles = {
 			onload: function(json) {
 				//parse the json
 				dataFiles.resources = fn.idArray(json, "time");
-			}
+			},
 		},
 		{
 			id: "miningProfiles",
-			url: "data/shared/miningProfiles.json"
-		}
+			url: "data/shared/miningProfiles.json",
+		},
 	],
 	load: function(cb) {
 		cb = _.after(this.files.length, cb);
@@ -49,11 +49,11 @@ var dataFiles = {
 						}
 
 						cb();
-					}.bind(this, this.files[i].id, i)
+					}.bind(this, this.files[i].id, i),
 				);
 			}
 		}
-	}
+	},
 };
 
 //export

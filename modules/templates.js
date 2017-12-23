@@ -23,7 +23,7 @@ class Template {
 		return {
 			id: this.id,
 			name: this.name,
-			data: this.data
+			data: this.data,
 		};
 	}
 
@@ -124,7 +124,7 @@ let inst;
 Object.defineProperty(TemplateManager, "inst", {
 	get() {
 		return inst || (inst = new TemplateManager());
-	}
+	},
 });
 TemplateManager.inst.Template = Template;
 

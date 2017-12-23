@@ -8,28 +8,28 @@ var loginMessages = [
 	{
 		message: "success",
 		class: "success",
-		success: true //whether they login or not
+		success: true, //whether they login or not
 	},
 	{
 		message: "Wrong Email or Password",
 		class: "warning",
-		success: false
+		success: false,
 	},
 	{
 		message: "User Already Logged on",
 		class: "info",
-		success: false
+		success: false,
 	},
 	{
 		message: "User Banned",
 		class: "alert",
-		success: false
+		success: false,
 	},
 	{
 		message: "User not Admin",
 		class: "warning",
-		success: false
-	}
+		success: false,
+	},
 ];
 
 /*
@@ -88,7 +88,7 @@ var players = {
 	},
 	loadUserData: function(id, cb) {
 		var userData = new UserData({
-			id: id
+			id: id,
 		});
 		userData._loading = true;
 
@@ -102,7 +102,7 @@ var players = {
 					userData.importData(data[0]);
 				}
 				if (cb) cb(userData);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	removePlayer: function(id) {
@@ -148,7 +148,7 @@ var players = {
 
 					db.query(sql, cb);
 				} else if (cb) cb();
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	saveAll: function(cb) {
@@ -190,7 +190,7 @@ var players = {
 					i = 0;
 				}
 				setTimeout(this.savePlayerLoop.bind(this, i), this.saveTime);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	saveUserDataLoop: function(i) {
@@ -203,17 +203,14 @@ var players = {
 					i = 0;
 				}
 				setTimeout(this.saveUserDataLoop.bind(this, i), this.saveTime);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 
 	login: function(email, password, socket, cb) {
 		// db.player.getFromEmail(email,function(data){
 		db.query(
-			"SELECT * FROM users WHERE email=" +
-				db.ec(email) +
-				" AND password=" +
-				db.ec(password),
+			"SELECT * FROM users WHERE email=" + db.ec(email) + " AND password=" + db.ec(password),
 			function(data) {
 				if (data.length) {
 					data = data[0];
@@ -240,15 +237,12 @@ var players = {
 				}
 
 				cb(loginMessages[1]);
-			}.bind(this)
+			}.bind(this),
 		);
 	},
 	adminLogin: function(email, password, socket, cb) {
 		db.query(
-			"SELECT * FROM users WHERE email=" +
-				db.ec(email) +
-				" AND password=" +
-				db.ec(password),
+			"SELECT * FROM users WHERE email=" + db.ec(email) + " AND password=" + db.ec(password),
 			function(data) {
 				if (data.length) {
 					data = data[0];
@@ -276,9 +270,9 @@ var players = {
 				}
 
 				cb(loginMessages[1]);
-			}.bind(this)
+			}.bind(this),
 		);
-	}
+	},
 };
 
 //export
@@ -301,7 +295,7 @@ UserData.prototype = {
 	},
 	exportData: function() {
 		return this.data;
-	}
+	},
 };
 UserData.prototype.constructor = UserData;
 Object.defineProperties(UserData.prototype, {
@@ -311,7 +305,7 @@ Object.defineProperties(UserData.prototype, {
 		},
 		set: function(val) {
 			return (this.data.id = val);
-		}
+		},
 	},
 	name: {
 		get: function() {
@@ -319,7 +313,7 @@ Object.defineProperties(UserData.prototype, {
 		},
 		set: function(val) {
 			return (this.data.name = val);
-		}
+		},
 	},
 	health: {
 		get: function() {
@@ -327,7 +321,7 @@ Object.defineProperties(UserData.prototype, {
 		},
 		set: function(val) {
 			return (this.data.health = val);
-		}
+		},
 	},
 	inventory: {
 		get: function() {
@@ -335,7 +329,7 @@ Object.defineProperties(UserData.prototype, {
 		},
 		set: function(val) {
 			return (this.data.inventory = val);
-		}
+		},
 	},
 	image: {
 		get: function() {
@@ -343,7 +337,7 @@ Object.defineProperties(UserData.prototype, {
 		},
 		set: function(val) {
 			return (this.data.image = val);
-		}
+		},
 	},
 	map: {
 		get: function() {
@@ -351,7 +345,7 @@ Object.defineProperties(UserData.prototype, {
 		},
 		set: function(val) {
 			return (this.data.map = val);
-		}
+		},
 	},
 	x: {
 		get: function() {
@@ -359,7 +353,7 @@ Object.defineProperties(UserData.prototype, {
 		},
 		set: function(val) {
 			return (this.data.x = val);
-		}
+		},
 	},
 	y: {
 		get: function() {
@@ -367,6 +361,6 @@ Object.defineProperties(UserData.prototype, {
 		},
 		set: function(val) {
 			return (this.data.y = val);
-		}
-	}
+		},
+	},
 });

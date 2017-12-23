@@ -3,19 +3,13 @@ const io = require("socket.io")(8181);
 
 io.on("connection", function(socket) {
 	socket.on("login", function(data, callback) {
-		players.login(data.email, data.password, socket, function(
-			loginMessage,
-			_player
-		) {
+		players.login(data.email, data.password, socket, function(loginMessage, _player) {
 			callback(loginMessage);
 		});
 	});
 	socket.on("adminLogin", function(data, callback) {
 		//login and see if he is an admin
-		players.adminLogin(data.email, data.password, socket, function(
-			loginMessage,
-			_admin
-		) {
+		players.adminLogin(data.email, data.password, socket, function(loginMessage, _admin) {
 			callback(loginMessage);
 		});
 	});
@@ -32,9 +26,7 @@ const maps = require("../modules/maps");
 maps.events.on("mapsChange", data => io.emit("mapsChange", data));
 maps.events.on("tilesChange", data => io.emit("tilesChange", data));
 maps.events.on("layersChange", data => io.emit("updateLayers", data));
-maps.events.on("tilePropertiesChange", data =>
-	io.emit("tilePropertiesChange", data)
-);
+maps.events.on("tilePropertiesChange", data => io.emit("tilePropertiesChange", data));
 
 // template events
 const templates = require("../modules/templates");
