@@ -1,5 +1,3 @@
-const _ = require("underscore");
-const db = require("../modules/db");
 const templates = require("../modules/templates");
 const commands = require("../modules/commands");
 const players = require("../modules/players");

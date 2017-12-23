@@ -1,30 +1,32 @@
 {
-    "name": "phasergameserver",
-    "version": "0.1.4",
-    "dependencies": {
-        "colors": "1.1.2",
-        "diskdb": "^0.1.17",
-        "socket.io": "1.3.7",
-        "underscore": "1.8.3"
-    },
-    "scripts": {
-        "start": "node index.js",
-        "dev": "nodemon server.js",
-        "format": "prettier --use-tabs --write ./modules/**/*.js ./app/**/*.js ./server.js ./index.js"
-    },
-    "description": "server for phasergame",
-    "main": "server.js",
-    "devDependencies": {
-        "prettier": "^1.9.1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/rdfriedl/phasergameserver.git"
-    },
-    "author": "rdfriedl",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/rdfriedl/phasergameserver/issues"
-    },
-    "homepage": "https://github.com/rdfriedl/phasergameserver#readme"
+	"name": "phasergameserver",
+	"version": "0.1.4",
+	"dependencies": {
+		"colors": "1.1.2",
+		"diskdb": "^0.1.17",
+		"socket.io": "1.3.7",
+		"underscore": "1.8.3"
+	},
+	"scripts": {
+		"start": "node index.js",
+		"dev": "nodemon server.js",
+		"format": "prettier --use-tabs --write ./modules/**/*.js ./app/**/*.js ./server.js ./index.js",
+		"precommit": "npm run format"
+	},
+	"description": "server for phasergame",
+	"main": "server.js",
+	"devDependencies": {
+		"husky": "^0.14.3",
+		"prettier": "^1.9.1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rdfriedl/phasergameserver.git"
+	},
+	"author": "rdfriedl",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/rdfriedl/phasergameserver/issues"
+	},
+	"homepage": "https://github.com/rdfriedl/phasergameserver#readme"
 }

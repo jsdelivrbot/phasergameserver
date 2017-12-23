@@ -27,6 +27,15 @@ mapObjects.events.on("objectCreate", data => io.emit("objectCreate", data));
 mapObjects.events.on("objectChange", data => io.emit("objectChange", data));
 mapObjects.events.on("objectDelete", data => io.emit("objectDelete", data));
 
+// maps
+const maps = require("../modules/maps");
+maps.events.on("mapsChange", data => io.emit("mapsChange", data));
+maps.events.on("tilesChange", data => io.emit("tilesChange", data));
+maps.events.on("layersChange", data => io.emit("updateLayers", data));
+maps.events.on("tilePropertiesChange", data =>
+	io.emit("tilePropertiesChange", data)
+);
+
 // template events
 const templates = require("../modules/templates");
 templates.events.on("templateChange", data => io.emit("templateChange", data));
