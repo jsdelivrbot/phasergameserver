@@ -56,7 +56,10 @@ var maps = {
 					if (cb) cb(chunk);
 				} else {
 					//its loading
-					maps.events.once("chunkLoaded-" + chunk.x + "-" + chunk.y + "-" + chunk.map.id, cb);
+					maps.events.once(
+						"chunkLoaded-" + chunk.x + "-" + chunk.y + "-" + chunk.map.id,
+						cb,
+					);
 				}
 			} else {
 				this.loadChunk(x, y, cb);
@@ -78,13 +81,21 @@ var maps = {
 				this.chunks.push(chunk);
 				//load
 				db.query(
-					"SELECT * FROM chunks WHERE x=" + db.ec(x) + " AND y=" + db.ec(y) + " AND map=" + db.ec(this.id),
+					"SELECT * FROM chunks WHERE x=" +
+						db.ec(x) +
+						" AND y=" +
+						db.ec(y) +
+						" AND map=" +
+						db.ec(this.id),
 					function(chunk, data) {
 						chunk.loaded = true;
 						if (data.length) {
 							chunk.importData(data[0]);
 						}
-						maps.events.emit("chunkLoaded-" + chunk.x + "-" + chunk.y + "-" + chunk.map.id, chunk);
+						maps.events.emit(
+							"chunkLoaded-" + chunk.x + "-" + chunk.y + "-" + chunk.map.id,
+							chunk,
+						);
 						if (cb) cb(chunk);
 					}.bind(this, chunk),
 				);
@@ -94,9 +105,17 @@ var maps = {
 		};
 		this.chunkExists = function(x, y, cb) {
 			//checks to see if the chunk is in the db
-			db.query("SELECT * FROM chunks WHERE x=" + db.ec(x) + " AND y=" + db.ec(y) + " AND map=" + db.ec(this.id), function(data) {
-				if (cb) cb(data.length > 0);
-			});
+			db.query(
+				"SELECT * FROM chunks WHERE x=" +
+					db.ec(x) +
+					" AND y=" +
+					db.ec(y) +
+					" AND map=" +
+					db.ec(this.id),
+				function(data) {
+					if (cb) cb(data.length > 0);
+				},
+			);
 		};
 		this.insertChunk = function(chunk, cb) {
 			//inserts a chunk into the db
@@ -126,7 +145,14 @@ var maps = {
 					data = chunk.exportData();
 					chunk.saved = true;
 					db.query(
-						"UPDATE `chunks` SET `data`=" + db.ec(JSON.stringify(data.data)) + " WHERE `x`=" + db.ec(data.x) + " AND `y`=" + data.y + " AND `map`=" + data.map,
+						"UPDATE `chunks` SET `data`=" +
+							db.ec(JSON.stringify(data.data)) +
+							" WHERE `x`=" +
+							db.ec(data.x) +
+							" AND `y`=" +
+							data.y +
+							" AND `map`=" +
+							data.map,
 						function() {
 							if (cb) cb();
 						},
@@ -157,7 +183,12 @@ var maps = {
 		this.deleteChunk = function(x, y, cb) {
 			//deletes chunk from the db
 			db.query(
-				"DELETE FROM chunks WHERE x=" + db.ec(x) + " AND y=" + db.ec(y) + " AND map=" + eb.ec(this.id),
+				"DELETE FROM chunks WHERE x=" +
+					db.ec(x) +
+					" AND y=" +
+					db.ec(y) +
+					" AND map=" +
+					eb.ec(this.id),
 				function() {
 					if (this.chunkLoaded(x, y)) {
 						this.removeChunk(x, y);
@@ -372,7 +403,12 @@ var maps = {
 		};
 
 		for (var i = 0; i < this.tiles.length; i++) {
-			this.tiles[i] = new maps.Tile(i - Math.floor(i / this.width) * this.width, Math.floor(i / this.width), maps.defaultTile, this);
+			this.tiles[i] = new maps.Tile(
+				i - Math.floor(i / this.width) * this.width,
+				Math.floor(i / this.width),
+				maps.defaultTile,
+				this,
+			);
 		}
 	},
 	Tile: function(x, y, tile, layer) {
@@ -480,7 +516,15 @@ var maps = {
 					Math.floor(x / 16),
 					Math.floor(y / 16),
 					function(chunk) {
-						if (cb) cb(chunk.getLayer(l).getTile(x - Math.floor(x / 16) * 16, y - Math.floor(y / 16) * 16));
+						if (cb)
+							cb(
+								chunk
+									.getLayer(l)
+									.getTile(
+										x - Math.floor(x / 16) * 16,
+										y - Math.floor(y / 16) * 16,
+									),
+							);
 					}.bind(this),
 				);
 			}.bind(this),
@@ -500,7 +544,10 @@ var maps = {
 		to.x = to.x < from.x ? from.x : to.x;
 		to.y = to.y < from.y ? from.y : to.y;
 		to.l = to.l < from.l ? from.l : to.l;
-		cb = _.after((to.l - from.l + 1) * (to.x - from.x + 1) * (to.y - from.y + 1), cb || function() {});
+		cb = _.after(
+			(to.l - from.l + 1) * (to.x - from.x + 1) * (to.y - from.y + 1),
+			cb || function() {},
+		);
 
 		var data = {
 			x: from.x,
@@ -654,7 +701,9 @@ var maps = {
 		var tile = this.tileProperties[tileID];
 
 		if (tile) {
-			db.query("SELECT * FROM tiles WHERE id=" + db.ec(tile.id), function(data) {
+			db.query("SELECT * FROM tiles WHERE id=" + db.ec(tile.id), function(
+				data,
+			) {
 				if (data.length) {
 					db.query(
 						"UPDATE `tiles` SET `blank`=" +
@@ -940,7 +989,10 @@ var maps = {
 							chunkIndex = 0;
 						}
 					}
-					setTimeout(this.saveChunkLoop.bind(this, mapIndex, chunkIndex), this.saveTime);
+					setTimeout(
+						this.saveChunkLoop.bind(this, mapIndex, chunkIndex),
+						this.saveTime,
+					);
 				}.bind(this, map, chunk);
 
 				if (!chunk.saved) {
@@ -1010,7 +1062,10 @@ var maps = {
 						chunkIndex = 0;
 					}
 				}
-				setTimeout(this.unloadChunkLoop.bind(this, mapIndex, chunkIndex), this.saveTime);
+				setTimeout(
+					this.unloadChunkLoop.bind(this, mapIndex, chunkIndex),
+					this.saveTime,
+				);
 				return;
 			}
 		}

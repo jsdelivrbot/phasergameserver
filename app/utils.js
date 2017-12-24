@@ -10,6 +10,8 @@ colors.setTheme({
 
 module.exports.timelog = console.__proto__.timeLog = (...args) => {
 	let d = new Date();
-	args.unshift("[" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "]");
+	args.unshift(
+		"[" + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "]",
+	);
 	console.log(...args);
 };

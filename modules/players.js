@@ -210,7 +210,10 @@ var players = {
 	login: function(email, password, socket, cb) {
 		// db.player.getFromEmail(email,function(data){
 		db.query(
-			"SELECT * FROM users WHERE email=" + db.ec(email) + " AND password=" + db.ec(password),
+			"SELECT * FROM users WHERE email=" +
+				db.ec(email) +
+				" AND password=" +
+				db.ec(password),
 			function(data) {
 				if (data.length) {
 					data = data[0];
@@ -242,7 +245,10 @@ var players = {
 	},
 	adminLogin: function(email, password, socket, cb) {
 		db.query(
-			"SELECT * FROM users WHERE email=" + db.ec(email) + " AND password=" + db.ec(password),
+			"SELECT * FROM users WHERE email=" +
+				db.ec(email) +
+				" AND password=" +
+				db.ec(password),
 			function(data) {
 				if (data.length) {
 					data = data[0];

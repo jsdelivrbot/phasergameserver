@@ -98,7 +98,10 @@ class MapManager {
 		let chunk = map && map.getChunk(Math.floor(x / 16), Math.floor(y / 16));
 		let layer = chunk && chunk.getLayer(layerId);
 
-		return layer && layer.getTile(x - Math.floor(x / 16) * 16, y - Math.floor(y / 16) * 16);
+		return (
+			layer &&
+			layer.getTile(x - Math.floor(x / 16) * 16, y - Math.floor(y / 16) * 16)
+		);
 	}
 	getTiles(from = {}, to = {}, mapId) {
 		//get tiles in a rect from a map
@@ -173,7 +176,11 @@ class MapManager {
 					data.data[l][i] = this.defaultTile;
 				}
 
-				layer.setTile(x - Math.floor(x / 16) * 16, y - Math.floor(y / 16) * 16, data[l][i]);
+				layer.setTile(
+					x - Math.floor(x / 16) * 16,
+					y - Math.floor(y / 16) * 16,
+					data[l][i],
+				);
 			}
 		}
 

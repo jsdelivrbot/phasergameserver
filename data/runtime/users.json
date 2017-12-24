@@ -1,1 +1,70 @@
-[]
+[
+	{
+		"id": 1,
+		"email": "player1@phasergame.com",
+		"name": "player1",
+		"password": "",
+		"admin": false,
+		"banned": false,
+		"date_created": "Sat Dec 23 2017 19:39:58 GMT-0600 (CST)",
+		"lastOn": "Sat Dec 23 2017 19:39:58 GMT-0600 (CST)",
+		"health": 1000,
+		"image": "player/1",
+		"map": 1,
+		"x": 1696,
+		"y": 1184,
+		"inventory": [
+			{ "id": "resource.log", "count": 7 },
+			{ "id": "resource.ore.copper", "count": 2 },
+			{ "id": "resource.ore.iron", "count": 2 }
+		]
+	},
+	{
+		"id": 2,
+		"email": "player2@phasergame.com",
+		"name": "player2",
+		"password": "",
+		"admin": false,
+		"banned": false,
+		"date_created": "Sat Dec 23 2017 19:39:58 GMT-0600 (CST)",
+		"lastOn": "Sat Dec 23 2017 19:39:58 GMT-0600 (CST)",
+		"health": 1000,
+		"image": "player/1",
+		"map": 1,
+		"x": 517,
+		"y": 1287,
+		"inventory": []
+	},
+	{
+		"id": 3,
+		"email": "player3@phasergame.com",
+		"name": "player3",
+		"password": "",
+		"admin": false,
+		"banned": false,
+		"date_created": "Sat Dec 23 2017 19:39:58 GMT-0600 (CST)",
+		"lastOn": "Sat Dec 23 2017 19:39:58 GMT-0600 (CST)",
+		"health": 1000,
+		"image": "player/1",
+		"map": 1,
+		"x": 517,
+		"y": 1287,
+		"inventory": []
+	},
+	{
+		"id": 4,
+		"email": "admin@phasergame.com",
+		"name": "admin",
+		"password": "password",
+		"admin": true,
+		"banned": false,
+		"date_created": "Sat Dec 23 2017 19:39:58 GMT-0600 (CST)",
+		"lastOn": "Sat Dec 23 2017 19:39:58 GMT-0600 (CST)",
+		"health": 1000,
+		"image": "player/1",
+		"map": 1,
+		"x": 517,
+		"y": 1287,
+		"inventory": []
+	}
+]

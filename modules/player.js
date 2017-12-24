@@ -146,10 +146,20 @@ function Player(userData, socket) {
 	//bind error events
 	socket.on("logError", function(err) {
 		db.query(
-			"SELECT id, count FROM errors WHERE app='game' AND message=" + db.ec(err.message) + " AND file=" + db.ec(err.file) + " AND line=" + db.ec(err.line),
+			"SELECT id, count FROM errors WHERE app='game' AND message=" +
+				db.ec(err.message) +
+				" AND file=" +
+				db.ec(err.file) +
+				" AND line=" +
+				db.ec(err.line),
 			function(data) {
 				if (data.length) {
-					db.query("UPDATE `errors` SET `count`=" + db.ec(data[0].count + 1) + " WHERE id=" + db.ec(data[0].id));
+					db.query(
+						"UPDATE `errors` SET `count`=" +
+							db.ec(data[0].count + 1) +
+							" WHERE id=" +
+							db.ec(data[0].id),
+					);
 				} else {
 					db.query(
 						"INSERT INTO `errors`(`message`,`app`,`file`,`line`,`stack`) VALUES(" +

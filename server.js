@@ -5,7 +5,6 @@ var Admin = require("./modules/admin.js");
 var maps = require("./modules/maps.js");
 var players = require("./modules/players.js");
 var chat = require("./modules/chat.js");
-var dataServer = require("./modules/dataServer.js");
 var db = require("./modules/db.js");
 var dataFiles = require("./modules/dataFiles.js");
 // var resources = require('./modules/resources.js');
@@ -17,7 +16,6 @@ var templates = require("./modules/templates.js");
 dataFiles.load(init);
 
 function init() {
-	dataServer.init();
 	players.init();
 	maps.init();
 }

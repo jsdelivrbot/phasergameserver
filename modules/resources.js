@@ -159,7 +159,15 @@ var resources = {
 				currentAmount: 0,
 			};
 
-			resources.resources["m(" + _resource.position.map + ")x(" + _resource.position.x + ")y(" + _resource.position.y + ")"] = _resource;
+			resources.resources[
+				"m(" +
+					_resource.position.map +
+					")x(" +
+					_resource.position.x +
+					")y(" +
+					_resource.position.y +
+					")"
+			] = _resource;
 
 			resources.resource.refresh(_resource, true);
 		},
@@ -187,7 +195,10 @@ var resources = {
 			}
 
 			//if it has made it this far then it has not spawned
-			obj.timer = setTimeout(_.partial(resources.resource.refresh, obj), 1000 * 60 * obj.refresh);
+			obj.timer = setTimeout(
+				_.partial(resources.resource.refresh, obj),
+				1000 * 60 * obj.refresh,
+			);
 		},
 		mine: function(obj, player) {
 			//mine the resource and give it to the player and then set the timer
@@ -196,7 +207,10 @@ var resources = {
 			player.addItem(item, obj.currentAmount);
 
 			//set the refresh timer
-			obj.timer = setTimeout(_.partial(resources.resource.refresh, obj), 1000 * 60 * obj.refresh);
+			obj.timer = setTimeout(
+				_.partial(resources.resource.refresh, obj),
+				1000 * 60 * obj.refresh,
+			);
 
 			//send an event
 			resources.events.emit("change", obj);

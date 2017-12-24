@@ -95,7 +95,9 @@ class MapObjectManager {
 		return obj;
 	}
 	removeObject(id, type) {
-		this.objects = this.objects.filter(obj => obj.id !== id && obj.type !== type);
+		this.objects = this.objects.filter(
+			obj => obj.id !== id && obj.type !== type,
+		);
 	}
 	deleteObject(id, type) {
 		this.events.emit("objectDelete", { id, type });
