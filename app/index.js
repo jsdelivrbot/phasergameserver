@@ -20,4 +20,9 @@ console.timeLog(
 	`Server started on port: ${port}, type ` + "help".info + " or " + "?".info,
 );
 
+const commandManager = require("../modules/commands");
+setInterval(() => {
+	commandManager.runCommand("save.all");
+}, 5 * 60 * 1000);
+
 module.exports = app;

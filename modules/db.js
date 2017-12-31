@@ -9,7 +9,7 @@ const database = db.connect(path.resolve(config.dataBase.path), [
 	"tiles",
 	"layers",
 	"users",
-	"user-data",
+	"userData",
 	"errors",
 	"objects",
 	"templates",

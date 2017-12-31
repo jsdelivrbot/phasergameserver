@@ -65,10 +65,10 @@ class TemplateManager {
 		let template = new Template(id);
 		template.manager = this;
 
-		let data = db.templates.find({ id });
-		if (data.length) {
-			template.id = data[0].id;
-			template.importData(data[0]);
+		let data = db.templates.find({ id })[0];
+		if (data) {
+			template.id = data.id;
+			template.importData(data);
 			this.templates.push(template);
 		}
 

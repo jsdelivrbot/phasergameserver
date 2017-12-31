@@ -1,3 +1,6 @@
+const db = require("../db");
+const Chunk = require("./Chunk");
+
 class Map {
 	constructor(id, manager) {
 		this.desc = "";
@@ -37,7 +40,7 @@ class Map {
 		}
 
 		this.chunks.push(chunk);
-		let data = db.chunks.find({ x, y, map: this.id });
+		let data = db.chunks.find({ x, y, map: this.id })[0];
 		if (data) {
 			chunk.importData(data);
 		}

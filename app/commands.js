@@ -1,8 +1,8 @@
 const templates = require("../modules/templates");
 const commands = require("../modules/commands");
-const players = require("../modules/players");
+const { playerManager } = require("../modules/players");
 const { mapManager } = require("../modules/maps");
-const objectController = require("../modules/objectController");
+const objectController = require("../modules/MapObjectManager");
 const Command = commands.Command;
 
 //this file creates all the command line commands
@@ -20,7 +20,7 @@ commands.addCommand(
 			mapManager.saveAllMaps();
 			console.timeLog("saved maps");
 
-			players.saveAll();
+			playerManager.saveAll();
 			console.timeLog("saved players");
 
 			templates.saveAll();
@@ -46,7 +46,7 @@ commands.addCommand(
 					mapManager.saveAllMaps();
 					console.timeLog("saved maps");
 
-					players.saveAll();
+					playerManager.saveAll();
 					console.timeLog("saved players");
 
 					templates.saveAll();
@@ -56,7 +56,7 @@ commands.addCommand(
 			new Command({
 				id: "players",
 				run: () => {
-					players.saveAll();
+					playerManager.saveAll();
 					console.timeLog("saved players");
 				},
 			}),
@@ -84,7 +84,9 @@ commands.addCommand(
 				id: "list",
 				run: () => {
 					commands.printTitle("Players".info + " Online");
-					players.players.forEach(player => console.log(player.userDate.name));
+					playerManager.players.forEach(player =>
+						console.log(player.userDate.name),
+					);
 				},
 			}),
 		],

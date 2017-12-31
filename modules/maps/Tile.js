@@ -1,11 +1,9 @@
-const MapManager = require("./MapManager");
-
 class Tile {
 	constructor(x, y, tile, layer) {
-		this.tile = tile || MapManager.inst.defaultTile;
+		this.layer = layer;
+		this.tile = tile || (layer && layer.manager.defaultTile);
 		this.x = x || 0;
 		this.y = y || 0;
-		this.layer = layer;
 	}
 
 	setTileId(id) {

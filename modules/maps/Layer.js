@@ -20,7 +20,7 @@ class Layer {
 	}
 
 	get manager() {
-		return this.layer && this.layer.manager;
+		return this.chunk && this.chunk.manager;
 	}
 
 	getTile(x, y) {

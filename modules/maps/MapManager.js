@@ -2,15 +2,18 @@ const EventEmitter = require("events");
 const db = require("../db");
 const Map = require("./Map");
 
-class MapManager {
+class MapManager extends EventEmitter {
 	constructor() {
+		super();
+
 		this.defaultTile = 0;
 		this.layers = [];
 		this.maps = [];
 		this.tileProperties = {};
-		this.events = new EventEmitter();
+		this.events = this;
 
 		this.loadTileProperties();
+		this.updateLayers();
 	}
 
 	loadTileProperties() {
@@ -54,43 +57,40 @@ class MapManager {
 
 				changedTiles.push(tile);
 			}
-			this.events.emit("tilePropertiesChange", changedTiles);
+			this.emit("tilePropertiesChange", changedTiles);
 		} else {
 			let tile = mergeTile(data);
 
 			this.tileProperties[tile.id] = tile;
 
-			this.events.emit("tilePropertiesChange", tile);
+			this.emit("tilePropertiesChange", tile);
 		}
 	}
 
 	getMapList() {
-		let mapData = db.maps.find();
-		return mapData.map(data => {
-			return this.getMap(data.id);
-		});
+		return db.maps.find();
 	}
 
 	getMap(id) {
 		return this.maps.find(map => map.id === id) || this.loadMap(id);
 	}
 	loadMap(id) {
-		let map = new Map(id);
+		let map = new Map(id, this);
 
 		let data = db.maps.find({ id })[0];
 		if (data) {
 			map.importData(data);
 		}
 
-		this.events.emit("mapLoaded-" + map.id, map);
+		this.emit("mapLoaded-" + map.id, map);
 
 		return map;
 	}
 	removeMap(id) {
 		this.maps = this.maps.filter(map => map.id !== id);
 	}
-	getChunk(x, y, mapId) {
-		let map = this.getMap(mapId);
+	getChunk(x, y, id) {
+		let map = this.getMap(id);
 		return map && map.getChunk(x, y);
 	}
 	getTile(x, y, layerId, mapId) {
@@ -156,7 +156,7 @@ class MapManager {
 		if (!map) return;
 
 		for (let l = 0; l < data.data.length; l++) {
-			let layer = data.activeLayer + (l - data.primaryLayer);
+			let layerIndex = data.activeLayer + (l - data.primaryLayer);
 
 			for (let i = 0; i < data.data[l].length; i++) {
 				let x = data.x + (i - Math.floor(i / data.width) * data.width);
@@ -168,7 +168,7 @@ class MapManager {
 				}
 
 				let chunk = this.getChunk(Math.floor(x / 16), Math.floor(y / 16));
-				let layer = chunk && chunk.getLayer(layer);
+				let layer = chunk && chunk.getLayer(layerIndex);
 				if (!layer) return;
 
 				//set the tile to default tile if its out of the map
@@ -179,13 +179,13 @@ class MapManager {
 				layer.setTile(
 					x - Math.floor(x / 16) * 16,
 					y - Math.floor(y / 16) * 16,
-					data[l][i],
+					data.data[l][i],
 				);
 			}
 		}
 
 		if (!dontFire) {
-			this.events.emit("tilesChange", data);
+			this.emit("tilesChange", data);
 		}
 	}
 
@@ -197,7 +197,7 @@ class MapManager {
 	saveAllMaps() {
 		this.maps.forEach(map => this.saveMap(map.id));
 	}
-	saveAllChunks(cb) {
+	saveAllChunks() {
 		this.maps.forEach(map => map.saveAllChunks());
 	}
 	saveAllTileProperties() {
@@ -207,36 +207,53 @@ class MapManager {
 	}
 
 	// db
-	insertMap(map) {
-		let data = map.exportData();
+	createMap(data) {
+		let map = new Map(db.maps.count(), this);
 
-		db.maps.update({ id: map.id }, data, { upsert: true });
+		map.importData(data);
 
-		return this.getMap(map.id);
+		this.maps.push(map);
+
+		this.saveMap(map.id);
+
+		this.emit("mapCreated", map.id);
+		this.emitMapsChanged();
+		return this;
 	}
 	deleteMap(id) {
 		db.maps.remove({ id });
+		this.emit("mapDeleted", id);
+		this.emitMapsChanged();
 		this.removeMap(id);
+		return this;
 	}
 	createLayer(data) {
 		db.layers.add(data);
+		this.emit("layerCreated");
 		return this.updateLayers();
 	}
 	deleteLayer(id) {
 		db.layers.remove({ id });
+		this.emit("layerDeleted");
 		this.updateLayers(id);
+		return this;
 	}
 	changeLayer(data) {
 		if (!data.id) return;
 		db.layers.update({ id: data.id }, data, { upsert: true });
+		this.emit("layerUpdated", data);
 		return this.updateLayers();
 	}
 	updateLayers() {
 		this.layers = db.layers.find();
 
-		this.events.emit("layersChange", this.layers);
+		this.emit("layersChange", this.layers);
 
 		return this.layers;
+	}
+
+	emitMapsChanged() {
+		this.emit("mapsChange", this.getMapList());
 	}
 }
 

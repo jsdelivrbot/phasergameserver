@@ -134,11 +134,4 @@ class MapObjectManager {
 	}
 }
 
-let inst;
-Object.defineProperty(MapObjectManager, "inst", {
-	get() {
-		return inst || (inst = new MapObjectManager());
-	},
-});
-
-module.exports = MapObjectManager.inst;
+module.exports = new MapObjectManager();
