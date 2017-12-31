@@ -1,7 +1,7 @@
 const templates = require("../modules/templates");
 const commands = require("../modules/commands");
 const players = require("../modules/players");
-const maps = require("../modules/maps");
+const { mapManager } = require("../modules/maps");
 const objectController = require("../modules/objectController");
 const Command = commands.Command;
 
@@ -15,9 +15,9 @@ commands.addCommand(
 			objectController.saveAll();
 			console.timeLog("saved objects");
 
-			maps.saveAllTileProperties();
-			maps.saveAllChunks();
-			maps.saveAllMaps();
+			mapManager.saveAllTileProperties();
+			mapManager.saveAllChunks();
+			mapManager.saveAllMaps();
 			console.timeLog("saved maps");
 
 			players.saveAll();
@@ -41,9 +41,9 @@ commands.addCommand(
 					objectController.saveAll();
 					console.timeLog("saved objects");
 
-					maps.saveAllTileProperties();
-					maps.saveAllChunks();
-					maps.saveAllMaps();
+					mapManager.saveAllTileProperties();
+					mapManager.saveAllChunks();
+					mapManager.saveAllMaps();
 					console.timeLog("saved maps");
 
 					players.saveAll();
@@ -66,9 +66,9 @@ commands.addCommand(
 					objectController.saveAll();
 					console.timeLog("saved objects");
 
-					maps.saveAllTileProperties();
-					maps.saveAllChunks();
-					maps.saveAllMaps();
+					mapManager.saveAllTileProperties();
+					mapManager.saveAllChunks();
+					mapManager.saveAllMaps();
 					console.timeLog("saved maps");
 				},
 			}),

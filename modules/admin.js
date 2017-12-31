@@ -1,3 +1,6 @@
+const { mapManager } = require("./maps");
+const ChatManager = require("./chat");
+
 function Admin(userData, socket) {
 	console.timeLog(userData.name.info + " loged on as admin");
 	socket.userData = userData;
@@ -34,18 +37,18 @@ function Admin(userData, socket) {
 
 	// maps
 	socket.on("createMap", function(data, cb) {
-		map = new maps.Map(-1);
+		map = new mapManager.Map(-1);
 		map.name = data.name;
 		map.desc = data.desc;
 		map.width = data.width;
 		map.height = data.height;
 		map.island = data.island;
-		maps.insertMap(
+		mapManager.insertMap(
 			map,
 			function(m) {
 				if (cb) cb(true);
 				//tell every one that the maps have changed
-				maps.getMapList(
+				mapManager.getMapList(
 					function(maps) {
 						io.emit("mapsChange", maps);
 					}.bind(this),
@@ -54,12 +57,12 @@ function Admin(userData, socket) {
 		);
 	});
 	socket.on("deleteMap", function(mapID, cb) {
-		maps.deleteMap(
+		mapManager.deleteMap(
 			mapID,
 			function() {
 				if (cb) cb();
 				//tell every one that the maps have changed
-				maps.getMapList(
+				mapManager.getMapList(
 					function(maps) {
 						io.emit("mapsChange", maps);
 					}.bind(this),
@@ -68,7 +71,7 @@ function Admin(userData, socket) {
 		);
 	});
 	socket.on("editMapInfo", function(data, cb) {
-		maps.getMap(data.id, function(map) {
+		mapManager.getMap(data.id, function(map) {
 			map.name = data.name;
 			map.desc = data.desc;
 			map.width = data.width;
@@ -76,7 +79,7 @@ function Admin(userData, socket) {
 			map.island = data.island;
 			map.saved = false;
 			//tell every one that the maps have changed
-			maps.getMapList(
+			mapManager.getMapList(
 				function(maps) {
 					io.emit("mapsChange", maps);
 				}.bind(this),
@@ -84,18 +87,18 @@ function Admin(userData, socket) {
 		});
 	});
 	socket.on("getChunk", function(data, cb) {
-		maps.getChunk(data.x, data.y, data.map, function(chunk) {
+		mapManager.getChunk(data.x, data.y, data.map, function(chunk) {
 			if (cb) cb(chunk.exportData());
 		});
 	});
 	socket.on("updateLayers", function(data, cb) {
 		//cant combindIn because dose not take into account removed array indexes
-		maps.getMap(data.map, function(map) {
+		mapManager.getMap(data.map, function(map) {
 			map.layers = data.layers;
 			map.saved = false;
 			if (cb) cb();
 			//tell every one that the maps have changed
-			maps.getMapList(
+			mapManager.getMapList(
 				function(maps) {
 					io.emit("mapsChange", maps);
 				}.bind(this),
@@ -103,20 +106,20 @@ function Admin(userData, socket) {
 		});
 	});
 	socket.on("tilesChange", function(data, cb) {
-		maps.setTiles(data, cb);
+		mapManager.setTiles(data, cb);
 	});
 
 	//layers
 	socket.on("createLayer", function(data, cb) {
-		maps.createLayer(data, cb);
+		mapManager.createLayer(data, cb);
 	});
 	socket.on("deleteLayer", function(id, cb) {
-		maps.deleteLayer(id, cb);
+		mapManager.deleteLayer(id, cb);
 	});
 	socket.on("changeLayer", function(data, cb) {
-		maps.changeLayer(data, cb);
+		mapManager.changeLayer(data, cb);
 	});
-	socket.emit("updateLayers", maps.layers);
+	socket.emit("updateLayers", mapManager.layers);
 
 	//objects
 	socket.on("getObject", function(data, cb) {
@@ -181,7 +184,7 @@ function Admin(userData, socket) {
 
 	//tileProperties
 	socket.on("tilePropertiesChange", function(data) {
-		maps.tilePropertiesChange(data);
+		mapManager.tilePropertiesChange(data);
 	});
 
 	// users
@@ -364,12 +367,12 @@ function Admin(userData, socket) {
 	socket.updateCursorsLoop();
 
 	socket.updateUsers();
-	maps.getMapList(
+	mapManager.getMapList(
 		function(maps) {
 			this.emit("mapsChange", maps);
 		}.bind(socket),
 	);
-	socket.emit("tilePropertiesChange", maps.tileProperties);
+	socket.emit("tilePropertiesChange", mapManager.tileProperties);
 
 	socket.exit = function() {
 		//remove myself from admin list

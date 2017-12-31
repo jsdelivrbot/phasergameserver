@@ -1,8 +1,9 @@
-var _ = require("underscore");
-var EventEmitter = require("events");
-var Player = require("./player.js");
-var SortedArray = require("./sortedArray.js");
-var db = require("./db");
+const _ = require("underscore");
+const EventEmitter = require("events");
+const Player = require("./player.js");
+const SortedArray = require("./sortedArray.js");
+const db = require("./db");
+const Admin = require("./admin");
 
 var loginMessages = [
 	{
@@ -244,40 +245,26 @@ var players = {
 		);
 	},
 	adminLogin: function(email, password, socket, cb) {
-		db.query(
-			"SELECT * FROM users WHERE email=" +
-				db.ec(email) +
-				" AND password=" +
-				db.ec(password),
-			function(data) {
-				if (data.length) {
-					data = data[0];
-					if (!data.admin) {
-						cb(loginMessages[4]);
-						return;
-					}
-					if (password === data.password) {
-						//see if they are logged on
-						for (var j = 0; j < players.admins.length; j++) {
-							if (data.id == players.admins[j].userData.id) {
-								cb(loginMessages[2]);
-								return;
-							}
-						}
+		let user = db.users.find({ email, password })[0];
+		if (user) {
+			if (!user.admin) {
+				cb(loginMessages[4]);
+				return;
+			}
 
-						_admin = Admin(data, socket);
-						players.admins.push(_admin);
+			//see if they are logged on
+			if (players.admins.find(p => p.userData.id === user.id)) {
+				cb(loginMessages[2]);
+				return;
+			}
 
-						this.events.emit("adminLogin", _admin);
+			let admin = Admin(user, socket);
+			players.admins.push(admin);
 
-						cb(loginMessages[0], _admin);
-						return;
-					}
-				}
+			this.events.emit("adminLogin", admin);
 
-				cb(loginMessages[1]);
-			}.bind(this),
-		);
+			cb(loginMessages[0], admin);
+		}
 	},
 };
 

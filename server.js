@@ -2,7 +2,6 @@
 require("./modules/functions.js");
 
 var Admin = require("./modules/admin.js");
-var maps = require("./modules/maps.js");
 var players = require("./modules/players.js");
 var chat = require("./modules/chat.js");
 var db = require("./modules/db.js");
@@ -17,5 +16,4 @@ dataFiles.load(init);
 
 function init() {
 	players.init();
-	maps.init();
 }

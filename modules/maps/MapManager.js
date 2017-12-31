@@ -247,4 +247,4 @@ Object.defineProperty(MapManager, "inst", {
 	},
 });
 
-module.exports = MapManager.inst;
+module.exports = MapManager;
