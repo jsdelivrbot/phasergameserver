@@ -1,5 +1,7 @@
-var EventEmitter = require("events");
-var _ = require("underscore");
+const EventEmitter = require("events");
+const _ = require("underscore");
+
+const resourceProfiles = require("../data/shared/resourceProfiles");
 
 var resources = {
 	resources: {
@@ -128,7 +130,7 @@ var resources = {
 			amounts = json.properties.amount.trim().split(" ");
 			for (var i = 0; i < ids.length; i++) {
 				//see if this is a real resource
-				if (dataFiles.resources[ids[i]] !== undefined) {
+				if (resourceProfiles[ids[i]] !== undefined) {
 					a.push({
 						id: ids[i],
 						amount: amounts[i] || amounts[0] || 0,
@@ -178,7 +180,7 @@ var resources = {
 				if (index > copy.length - 1) index = copy.length - 1;
 
 				var _resource = copy.slice(index, index + 1)[0];
-				chance = dataFiles.resources[_resource.id].spawnChance || 0;
+				chance = resourceProfiles[_resource.id].spawnChance || 0;
 				//see if it spawned
 				if (Math.random() * 100 <= chance) {
 					obj.mined = false;
@@ -203,7 +205,7 @@ var resources = {
 		mine: function(obj, player) {
 			//mine the resource and give it to the player and then set the timer
 			obj.mined = true;
-			item = dataFiles.resources[obj.currentResource].itemID;
+			item = resourceProfiles[obj.currentResource].itemID;
 			player.addItem(item, obj.currentAmount);
 
 			//set the refresh timer

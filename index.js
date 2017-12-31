@@ -1,3 +1,1 @@
 require("./app");
-
-require("./server");

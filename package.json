@@ -18,7 +18,7 @@
 		"*.{js,json,css,md}": ["prettier --write", "git add"]
 	},
 	"description": "server for phasergame",
-	"main": "server.js",
+	"main": "app/index.js",
 	"devDependencies": {
 		"husky": "^0.14.3",
 		"lint-staged": "^6.0.0",
