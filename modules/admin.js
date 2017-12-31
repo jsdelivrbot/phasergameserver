@@ -1,5 +1,5 @@
 const { mapManager } = require("./maps");
-const ChatManager = require("./chat");
+const { ChatManager } = require("./chat");
 
 function Admin(userData, socket) {
 	console.timeLog(userData.name.info + " loged on as admin");

@@ -1,13 +1,13 @@
-const chat = require("../modules/chat");
+const { chatManager } = require("../modules/chat");
 
 //add general chanel
-chat.createChanel({
+chatManager.createChanel({
 	title: "Genral",
 	default: true,
 	canLeave: false,
 });
 //create server chanel
-chat
+chatManager
 	.createChanel({
 		title: "Server",
 		canLeave: false,
@@ -20,5 +20,5 @@ chat
 console._log = console.log;
 console.log = (...args) => {
 	console._log(...args);
-	chat.message("Server", { message: args.join("") }, true);
+	chatManager.message("Server", { message: args.join("") }, true);
 };

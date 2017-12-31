@@ -1,5 +1,5 @@
 const EventEmitter = require("events");
-const ChatChanel = require("./chatChanel");
+const ChatChanel = require("./ChatChanel");
 
 class ChatManager {
 	constructor() {
@@ -56,4 +56,4 @@ Object.defineProperty(ChatManager, "inst", {
 	},
 });
 
-module.exports = ChatManager.inst;
+module.exports = ChatManager;
