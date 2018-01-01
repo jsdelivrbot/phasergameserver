@@ -1,10 +1,6 @@
 {
 	"dataBase": {
-		"host": "localhost",
-		"dataBase": "phasergame",
-		"user": "root",
-		"password": "",
-		"insecureAuth": false
+		"path": "./data/runtime"
 	},
 	"serverInfo": {
 		"title": "Main server",

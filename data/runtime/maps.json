@@ -1,0 +1,6 @@
+[
+	{ "id": 1, "name": "world", "desc": "", "width": 4, "height": 4 },
+	{ "id": 2, "name": "house 1", "desc": "", "width": 1, "height": 1 },
+	{ "id": 3, "name": "cave 1", "desc": "", "width": 2, "height": 2 },
+	{ "id": 4, "name": "house 1 lvl 2", "desc": "", "width": 1, "height": 1 }
+]

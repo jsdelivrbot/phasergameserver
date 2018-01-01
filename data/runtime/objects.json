@@ -1,0 +1,92 @@
+[
+	{
+		"id": 3,
+		"type": "mappoint",
+		"x": 79,
+		"y": 79,
+		"map": 0,
+		"width": 1,
+		"height": 1,
+		"properties": { "name": "the center of the world" }
+	},
+	{
+		"id": 14,
+		"type": "door",
+		"x": 73,
+		"y": 75,
+		"map": 0,
+		"width": 1,
+		"height": 1,
+		"properties": { "x": 26, "y": 21, "map": 4 }
+	},
+	{
+		"id": 30,
+		"type": "door",
+		"x": 12,
+		"y": 1,
+		"map": 2,
+		"width": 1,
+		"height": 1,
+		"properties": { "x": 13, "y": 4, "map": 4 }
+	},
+	{
+		"id": 31,
+		"type": "door",
+		"x": 6,
+		"y": 14,
+		"map": 2,
+		"width": 1,
+		"height": 1,
+		"properties": { "x": 53, "y": 37, "map": 1 }
+	},
+	{
+		"id": 32,
+		"type": "door",
+		"x": 13,
+		"y": 8,
+		"map": 2,
+		"width": 1,
+		"height": 1,
+		"properties": { "x": 13, "y": 2, "map": 4 }
+	},
+	{
+		"id": 33,
+		"type": "door",
+		"x": 13,
+		"y": 0,
+		"map": 4,
+		"width": 1,
+		"height": 1,
+		"properties": { "x": 13, "y": 6, "map": 2 }
+	},
+	{
+		"id": 34,
+		"type": "door",
+		"x": 53,
+		"y": 36,
+		"map": 1,
+		"width": 1,
+		"height": 1,
+		"properties": { "x": 6, "y": 13, "map": 2 }
+	},
+	{
+		"id": 35,
+		"type": "door",
+		"x": 3,
+		"y": 14,
+		"map": 1,
+		"width": 1,
+		"height": 1,
+		"properties": { "x": 7, "y": 29, "map": 3 }
+	},
+	{
+		"id": 36,
+		"type": "door",
+		"x": 7,
+		"y": 31,
+		"map": 3,
+		"width": 1,
+		"height": 1,
+		"properties": { "x": 3, "y": 15, "map": 1 }
+	}
+]

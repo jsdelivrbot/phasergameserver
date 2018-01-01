@@ -1,0 +1,52 @@
+[
+	{
+		"id": 3,
+		"title": "Ground",
+		"description":
+			"The main ground layer, where the background is put, such as grass, or water etc.",
+		"level": 0,
+		"abovePlayer": false,
+		"visibleInGame": true,
+		"collision": false
+	},
+	{
+		"id": 4,
+		"title": "Layer 2",
+		"description":
+			"This is the layer where tiles that are above the ground are placed, such as tree bases, bridges, etc.",
+		"level": 1,
+		"abovePlayer": false,
+		"visibleInGame": true,
+		"collision": false
+	},
+	{
+		"id": 5,
+		"title": "Layer 3",
+		"description":
+			"This is the main decorations layer, where barrels, snowmen, chests, boats, wells and other things can rest against trees and houses.",
+		"level": 2,
+		"abovePlayer": false,
+		"visibleInGame": true,
+		"collision": false
+	},
+	{
+		"id": 6,
+		"title": "Foreground",
+		"description":
+			"This is the layer for all the tiles that are above the player, such as tree tops, house tops, walls, and other stuff.",
+		"level": 0,
+		"abovePlayer": true,
+		"visibleInGame": true,
+		"collision": false
+	},
+	{
+		"id": 7,
+		"title": "Collision",
+		"description":
+			"This is the layer that objects are put on, ones that the player will collide with.",
+		"level": 1,
+		"abovePlayer": true,
+		"visibleInGame": false,
+		"collision": true
+	}
+]
