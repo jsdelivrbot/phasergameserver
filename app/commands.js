@@ -10,21 +10,21 @@ commands.addCommand(
 	new Command({
 		id: "stop",
 		run: () => {
-			commands.readline.close();
+			commands.readline && commands.readline.close();
 
 			objectController.saveAll();
-			console.timeLog("saved objects");
+			console.log("saved objects");
 
 			mapManager.saveAllTileProperties();
 			mapManager.saveAllChunks();
 			mapManager.saveAllMaps();
-			console.timeLog("saved maps");
+			console.log("saved maps");
 
 			playerManager.saveAll();
-			console.timeLog("saved players");
+			console.log("saved players");
 
 			templates.saveAll();
-			console.timeLog("saved templates");
+			console.log("saved templates");
 
 			process.exit();
 		},
@@ -39,37 +39,37 @@ commands.addCommand(
 				id: "all",
 				run: () => {
 					objectController.saveAll();
-					console.timeLog("saved objects");
+					console.log("saved objects");
 
 					mapManager.saveAllTileProperties();
 					mapManager.saveAllChunks();
 					mapManager.saveAllMaps();
-					console.timeLog("saved maps");
+					console.log("saved maps");
 
 					playerManager.saveAll();
-					console.timeLog("saved players");
+					console.log("saved players");
 
 					templates.saveAll();
-					console.timeLog("saved templates");
+					console.log("saved templates");
 				},
 			}),
 			new Command({
 				id: "players",
 				run: () => {
 					playerManager.saveAll();
-					console.timeLog("saved players");
+					console.log("saved players");
 				},
 			}),
 			new Command({
 				id: "maps",
 				run: () => {
 					objectController.saveAll();
-					console.timeLog("saved objects");
+					console.log("saved objects");
 
 					mapManager.saveAllTileProperties();
 					mapManager.saveAllChunks();
 					mapManager.saveAllMaps();
-					console.timeLog("saved maps");
+					console.log("saved maps");
 				},
 			}),
 		],

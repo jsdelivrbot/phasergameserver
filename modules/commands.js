@@ -1,5 +1,4 @@
 const EventEmitter = require("events");
-const readline = require("readline");
 
 /*
 events
@@ -33,7 +32,7 @@ class Command {
 			this.run = args.run;
 		} else if (typeof args.run === "string") {
 			this.run = () => {
-				console.timeLog(args.run);
+				console.log(args.run);
 			};
 		} else {
 			this.run = () => {
@@ -95,16 +94,17 @@ class Command {
 
 class CommandManager {
 	constructor() {
-		this.readline = readline.createInterface({
-			input: process.stdin,
-			output: process.stdout,
-		});
 		this.events = new EventEmitter();
 		this.commands = [];
 
 		this.setup();
+		// this.connect();
 	}
-	setup() {
+	connect() {
+		this.readline = require("readline").createInterface({
+			input: process.stdin,
+			output: process.stdout,
+		});
 		this.readline.setPrompt("");
 		this.readline.on("line", cmd => {
 			if (cmd !== "") {
@@ -116,7 +116,8 @@ class CommandManager {
 		this.readline.on("SIGINT", () => this.run("stop"));
 		this.readline.on("SIGTSTP", () => this.run("stop"));
 		this.readline.on("SIGCONT", () => this.run("stop"));
-
+	}
+	setup() {
 		//add help commands
 		this.addCommand(
 			new Command({

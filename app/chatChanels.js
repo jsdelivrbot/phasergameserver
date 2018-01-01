@@ -14,7 +14,10 @@ chatManager
 		canLeave: false,
 	})
 	.events.on("message", data => {
-		commands.readline.write(data.message + " \n");
+		let command = commands.parseCommandString(data.message);
+		if (command) {
+			commands.run(command.id, command.opts);
+		}
 	});
 
 // logs

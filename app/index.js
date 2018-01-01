@@ -20,13 +20,23 @@ const port = process.env.PORT || 8080;
 server.listen(port);
 
 // started
-console.timeLog(
-	`Server started on port: ${port}, type ` + "help".info + " or " + "?".info,
-);
-
-const commandManager = require("../modules/commands");
-setInterval(() => {
-	commandManager.runCommand("save.all");
-}, 5 * 60 * 1000);
+console.log(`Server started on port: ${port}`);
 
 module.exports = app;
+
+// save every 5 minuets
+const templates = require("../modules/templates");
+const { playerManager } = require("../modules/players");
+const { mapManager } = require("../modules/maps");
+const objectController = require("../modules/MapObjectManager");
+setInterval(() => {
+	objectController.saveAll();
+
+	mapManager.saveAllTileProperties();
+	mapManager.saveAllChunks();
+	mapManager.saveAllMaps();
+
+	playerManager.saveAll();
+
+	templates.saveAll();
+}, 5 * 60 * 1000);

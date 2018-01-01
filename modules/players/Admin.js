@@ -5,12 +5,12 @@ const mapObjectManager = require("../MapObjectManager");
 const db = require("../db");
 
 function Admin(userData, socket) {
-	console.timeLog(userData.name.info + " loged on as admin");
+	console.log(userData.name.info + " loged on as admin");
 	socket.userData = userData;
 
 	socket.on("disconnect", () => {
 		chatManager.leaveAll(socket);
-		console.timeLog(socket.userData.name.info + " logged off as admin");
+		console.log(socket.userData.name.info + " logged off as admin");
 		socket.exit();
 	});
 
