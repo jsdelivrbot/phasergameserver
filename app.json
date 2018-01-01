@@ -1,0 +1,9 @@
+{
+	"name": "PhaserGameServer",
+	"description": "A server for PhaserGame",
+	"repository": "https://github.com/rdfrield/phasergameserver",
+	"logo":
+		"https://cdn.rawgit.com/heroku/node-js-getting-started/master/public/node.svg",
+	"keywords": [],
+	"image": "heroku/nodejs"
+}
