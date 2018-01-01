@@ -11,7 +11,7 @@
 	"scripts": {
 		"precommit": "lint-staged",
 		"start": "node index.js",
-		"dev": "nodemon server.js",
+		"dev": "nodemon index.js",
 		"format": "prettier --write ./**/*.{js,json,css,md}"
 	},
 	"lint-staged": {

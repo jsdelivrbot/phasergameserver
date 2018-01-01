@@ -12,7 +12,11 @@ createServer(server);
 
 app.use("/api", api);
 
-const port = process.env.NODE_PORT || process.env.PORT || 8080;
+app.get("/", (req, res) => {
+	res.status(200).end("Server Running");
+});
+
+const port = process.env.PORT || 8080;
 server.listen(port);
 
 // started
