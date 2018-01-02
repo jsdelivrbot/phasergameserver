@@ -1,4 +1,4 @@
-const { chatManager } = require("../modules/chat");
+const chatManager = require("../modules/chat/ChatManager");
 const commands = require("../modules/commands");
 
 //add general chanel

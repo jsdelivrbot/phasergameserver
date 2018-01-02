@@ -26,8 +26,8 @@ module.exports = app;
 
 // save every 5 minuets
 const templates = require("./modules/templates");
-const { playerManager } = require("./modules/players/index");
-const { mapManager } = require("./modules/maps/index");
+const playerManager = require("./modules/players/PlayerManager");
+const mapManager = require("./modules/maps/MapManager");
 const objectController = require("./modules/MapObjectManager");
 setInterval(() => {
 	objectController.saveAll();

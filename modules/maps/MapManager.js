@@ -257,11 +257,4 @@ class MapManager extends EventEmitter {
 	}
 }
 
-let inst;
-Object.defineProperty(MapManager, "inst", {
-	get() {
-		return inst || (inst = new MapManager());
-	},
-});
-
-module.exports = MapManager;
+module.exports = new MapManager();

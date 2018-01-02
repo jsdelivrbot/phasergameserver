@@ -182,28 +182,48 @@ class PlayerManager extends EventEmitter {
 		this.saveAllUserData();
 	}
 
-	login(email, password, socket, cb) {
-		let user = db.users.find({ email, password })[0];
+	login(name, socket, cb) {
+		let user = db.users.find({ name })[0];
 
-		if (user) {
-			if (this.getPlayer(user.id)) {
-				cb(LOGIN_MESSAGES.ALREADY_LOGGED_IN);
-				return false;
-			}
+		if (!user) {
+			// create a new user
+			user = {
+				id: db.users.count(),
+				name,
+				email: name + "@phasergame.com",
+				password: "",
+				admin: false,
+				banned: false,
+				date_created: Date(),
+				lastOn: Date(),
+				health: 1000,
+				image: "player/" + (1 + Math.round(Math.random() * 47)),
+				map: 1,
+				x: 1696,
+				y: 1184,
+				inventory: [],
+			};
 
-			if (!user.banned) {
-				let player = new Player(user, socket);
-				this.players.push(player);
-
-				this.emit("playerLogin", player);
-
-				cb(LOGIN_MESSAGES.SUCCESS, player);
-			} else {
-				cb(LOGIN_MESSAGES.BANNED);
-			}
-		} else {
-			cb(LOGIN_MESSAGES.BAD_LOGIN);
+			db.users.save(user);
 		}
+
+		if (this.getPlayer(user.id)) {
+			cb(LOGIN_MESSAGES.ALREADY_LOGGED_IN);
+			return false;
+		}
+
+		if (!user.banned) {
+			let player = new Player(user, socket);
+			this.players.push(player);
+
+			this.emit("playerLogin", player);
+
+			cb(LOGIN_MESSAGES.SUCCESS, player);
+			return true;
+		} else {
+			cb(LOGIN_MESSAGES.BANNED);
+		}
+
 		return false;
 	}
 	adminLogin(email, password, socket, cb) {
@@ -234,11 +254,4 @@ class PlayerManager extends EventEmitter {
 	}
 }
 
-let inst;
-Object.defineProperty(PlayerManager, "inst", {
-	get() {
-		return inst || (inst = new PlayerManager());
-	},
-});
-
-module.exports = PlayerManager;
+module.exports = new PlayerManager();

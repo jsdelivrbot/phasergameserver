@@ -1,5 +1,5 @@
-const { mapManager } = require("../maps");
-const { chatManager } = require("../chat");
+const mapManager = require("../maps/MapManager");
+const chatManager = require("../chat/ChatManager");
 const templates = require("../templates");
 const mapObjectManager = require("../MapObjectManager");
 const db = require("../db");
@@ -241,7 +241,7 @@ function Admin(userData, socket) {
 	//update loop
 	socket.updateCursorsLoop = () => {
 		if (this.cursorVisibility) {
-			const { playerManager } = require("./index");
+			const playerManager = require("./PlayerManager");
 
 			let cursors = [];
 			playerManager.admins.forEach(admin => {
@@ -274,7 +274,7 @@ function Admin(userData, socket) {
 	socket.emit("tilePropertiesChange", mapManager.tileProperties);
 
 	socket.exit = () => {
-		const { playerManager } = require("./index");
+		const playerManager = require("./PlayerManager");
 
 		//remove myself from admin list
 		// TODO this is really bad, it should be moved the the PlayerManager

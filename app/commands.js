@@ -1,7 +1,7 @@
 const templates = require("../modules/templates");
 const commands = require("../modules/commands");
-const { playerManager } = require("../modules/players");
-const { mapManager } = require("../modules/maps");
+const playerManager = require("../modules/players/PlayerManager");
+const mapManager = require("../modules/maps/MapManager");
 const objectController = require("../modules/MapObjectManager");
 const Command = commands.Command;
 

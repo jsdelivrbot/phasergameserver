@@ -1,5 +1,3 @@
-const { chat } = require("./chat");
-
 function Player(userData, socket) {
 	//dont set socket.id because its already used
 	socket.userData = userData; //dont use this as active data

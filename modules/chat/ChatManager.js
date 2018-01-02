@@ -49,11 +49,4 @@ class ChatManager {
 	}
 }
 
-let inst;
-Object.defineProperty(ChatManager, "inst", {
-	get() {
-		return inst || (inst = new ChatManager());
-	},
-});
-
-module.exports = ChatManager;
+module.exports = new ChatManager();

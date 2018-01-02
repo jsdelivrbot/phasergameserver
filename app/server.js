@@ -1,18 +1,13 @@
-const { playerManager } = require("../modules/players");
+const playerManager = require("../modules/players/PlayerManager");
 
 module.exports = function createServer(server) {
 	const io = require("socket.io")(server);
 
 	io.on("connection", socket => {
-		socket.on("login", (data, callback) => {
-			playerManager.login(
-				data.email,
-				data.password,
-				socket,
-				(loginMessage, player) => {
-					callback(loginMessage);
-				},
-			);
+		socket.on("login", ({ name }, callback) => {
+			playerManager.login(name, socket, (loginMessage, player) => {
+				callback(loginMessage);
+			});
 		});
 		socket.on("adminLogin", (data, callback) => {
 			//login and see if he is an admin
@@ -34,7 +29,7 @@ module.exports = function createServer(server) {
 	mapObjects.events.on("objectDelete", data => io.emit("objectDelete", data));
 
 	// maps
-	const { mapManager } = require("../modules/maps");
+	const mapManager = require("../modules/maps/MapManager");
 	mapManager.events.on("mapsChange", data => io.emit("mapsChange", data));
 	mapManager.events.on("tilesChange", data => io.emit("tilesChange", data));
 	mapManager.events.on("layersChange", data => io.emit("updateLayers", data));
